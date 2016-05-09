@@ -1,0 +1,4 @@
+nose
+sphinx
+psycopg2
+pyyaml
