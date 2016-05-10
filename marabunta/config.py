@@ -15,7 +15,8 @@ class Config(object):
                  db_password=None,
                  db_port=5432,
                  db_host='localhost',
-                 demo=False):
+                 demo=False,
+                 force=False):
         self.project_file = project_file
         self.database = database
         self.db_user = db_user
@@ -23,6 +24,7 @@ class Config(object):
         self.db_port = db_port
         self.db_host = db_host
         self.demo = demo
+        self.force = force
 
     @classmethod
     def from_parse_args(cls, args):
@@ -32,7 +34,9 @@ class Config(object):
                    db_password=args.db_password,
                    db_port=args.db_port,
                    db_host=args.db_host,
-                   demo=args.demo)
+                   demo=args.demo,
+                   force=args.force
+                   )
 
 
 class EnvDefault(argparse.Action):
@@ -54,37 +58,41 @@ def get_args_parser():
     parser = argparse.ArgumentParser(description='Odoo Migration')
     parser.add_argument('--project-file', '-f',
                         action=EnvDefault,
-                        envvar='PROJECT_FILE',
+                        envvar='MARABUNTA_PROJECT_FILE',
                         required=True,
                         help='The yaml file containing the migration steps')
     parser.add_argument('--database', '-d',
                         action=EnvDefault,
-                        envvar='DB_NAME',
+                        envvar='MARABUNTA_DATABASE',
                         required=True,
                         help='Odoo\'s database')
     parser.add_argument('--db-user', '-u',
                         action=EnvDefault,
-                        envvar='DB_USER',
+                        envvar='MARABUNTA_DB_USER',
                         required=True,
                         help='Odoo\'s database user')
     parser.add_argument('--db-password', '-w',
                         action=EnvDefault,
-                        envvar='DB_PASSWORD',
+                        envvar='MARABUNTA_DB_PASSWORD',
                         required=True,
                         help='Odoo\'s database password')
     parser.add_argument('--db-port', '-p',
-                        action=EnvDefault,
-                        envvar='DB_PORT',
-                        default='5432',
+                        default=os.environ.get('MARABUNTA_DB_PORT', 5432),
                         help='Odoo\'s database port')
     parser.add_argument('--db-host', '-H',
-                        action=EnvDefault,
-                        envvar='DB_HOST',
-                        default='localhost',
+                        default=os.environ.get('MARABUNTA_DB_HOST',
+                                               'localhost'),
                         help='Odoo\'s database host')
     parser.add_argument('--demo',
-                        action=EnvDefault,
-                        envvar='DEMO',
-                        default=False,
+                        action='store_true',
+                        required=False,
+                        default=bool(os.environ.get('MARABUNTA_DEMO')),
                         help='Demo mode')
+    parser.add_argument('--force',
+                        action='store_true',
+                        required=False,
+                        default=bool(os.environ.get('MARABUNTA_FORCE')),
+                        help='Force the upgrade even if the code version '
+                             'not match the upgrade(s) to process.'
+                             'Only for dev.')
     return parser

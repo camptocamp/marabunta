@@ -43,6 +43,7 @@ class MigrationTable(object):
             'VersionRecord',
             'number date_start date_done log addons'
         )
+        self._versions = None
 
     def create_if_not_exists(self):
         query = """
@@ -70,38 +71,61 @@ class MigrationTable(object):
 
         """
         query = """
-        LOCK TABLE {};
+        LOCK TABLE {}
         """.format(self.table_name)
         self.cursor.execute(query)
 
     def versions(self):
-        query = """
-        SELECT number,
-               date_start,
-               date_done,
-               log,
-               addons
-        FROM {}
-        """.format(self.table_name)
-        self.cursor.execute(query)
-        rows = self.cursor.fetchall()
-        versions = []
-        for row in rows:
-            row = list(row)
-            # convert 'addons' to json
-            row[4] = json.loads(row[4]) if row[4] else []
-            versions.append(
-                self.VersionRecord(*row)
-            )
-        return versions
+        """ Read versions from the table
+
+        The versions are kept in cache for the next reads.
+        """
+        if self._versions is None:
+            query = """
+            SELECT number,
+                   date_start,
+                   date_done,
+                   log,
+                   addons
+            FROM {}
+            """.format(self.table_name)
+            self.cursor.execute(query)
+            rows = self.cursor.fetchall()
+            versions = []
+            for row in rows:
+                row = list(row)
+                # convert 'addons' to json
+                row[4] = json.loads(row[4]) if row[4] else []
+                versions.append(
+                    self.VersionRecord(*row)
+                )
+            self._versions = versions
+        return self._versions
 
     def start_version(self, number, start):
         query = """
-        INSERT INTO {}
-        (number, date_start)
-        VALUES (%s, %s);
+        SELECT number FROM {}
+        WHERE number = %s
         """.format(self.table_name)
-        self.cursor.execute(query, (number, start))
+        self.cursor.execute(query, (number,))
+        if self.cursor.fetchone():
+            query = """
+            UPDATE {}
+            SET date_start = %s,
+                date_done = NULL,
+                log = NULL,
+                addons = NULL
+            WHERE number = %s
+            """.format(self.table_name)
+            self.cursor.execute(query, (start, number))
+        else:
+            query = """
+            INSERT INTO {}
+            (number, date_start)
+            VALUES (%s, %s)
+            """.format(self.table_name)
+            self.cursor.execute(query, (number, start))
+        self._versions = None  # reset versions cache
 
     def finish_version(self, number, end, log, addons):
         query = """
@@ -109,6 +133,45 @@ class MigrationTable(object):
         SET date_done = %s,
             log = %s,
             addons = %s
-        WHERE number = %s;
+        WHERE number = %s
         """.format(self.table_name)
         self.cursor.execute(query, (end, log, json.dumps(addons), number))
+        self._versions = None  # reset versions cache
+
+
+class IrModuleModule(object):
+
+    def __init__(self, cursor):
+        self.cursor = cursor
+        self.table_name = 'ir_module_module'
+        self.ModuleRecord = namedtuple(
+            'ModuleRecord',
+            'name state'
+        )
+
+    def read_state(self):
+        if not table_exists(self.cursor, self.table_name):
+            # relation ir_module_module does not exists,
+            # this is a new DB, no addon is installed
+            return []
+
+        addons_query = """
+        SELECT name, state
+        FROM {}
+        """.format(self.table_name)
+        self.cursor.execute(addons_query)
+        rows = self.cursor.fetchall()
+        return [self.ModuleRecord(*row) for row in rows]
+
+
+def table_exists(cursor, tablename, schema='public'):
+    query = """
+    SELECT EXISTS (
+        SELECT 1
+        FROM information_schema.tables
+        WHERE table_schema = %s
+        AND table_name = %s
+    )"""
+    cursor.execute(query, (schema, tablename))
+    res = cursor.fetchone()[0]
+    return res

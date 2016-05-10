@@ -3,12 +3,19 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 import subprocess
+from distutils.version import StrictVersion
+
+from .exception import ConfigurationError, OperationError
 
 
 class Migration(object):
 
     def __init__(self, versions):
-        self.versions = versions
+        self._versions = versions
+
+    @property
+    def versions(self):
+        return sorted(self._versions, key=lambda v: StrictVersion(v.number))
 
 
 class MigrationOption(object):
@@ -21,6 +28,12 @@ class MigrationOption(object):
 class Version(object):
 
     def __init__(self, number, options):
+        try:
+            StrictVersion().parse(number)
+        except ValueError:
+            raise ConfigurationError(
+                '{} is not a valid version'.format(number)
+            )
         self.number = number
         self._operations = {
             'pre': [],
@@ -31,9 +44,18 @@ class Version(object):
         self._remove_addons = set()
         self.options = options
 
+    def is_processed(self, db_versions):
+        return self.number in (v.number for v in db_versions if v.date_done)
+
     def is_noop(self):
-        # true if we have no operations
-        return
+        noop = (all(not operations for operations
+                    in self._operations.itervalues()) and
+                not self._upgrade_addons and not self._remove_addons)
+        return noop
+
+    def skip(self, db_versions):
+        """ Version is either noop either it has been processed already """
+        return self.is_noop() or self.is_processed(db_versions)
 
     def add_operation(self, operation_type, operation):
         """ Add an operation to the version
@@ -47,11 +69,49 @@ class Version(object):
             "operation type must be in %s" % ', '.join(self._operations)
         self._operations[operation_type].append(operation)
 
-    def upgrade_addons(self, addons):
+    def add_upgrade_addons(self, addons):
         self._upgrade_addons.update(addons)
 
-    def remove_addons(self, addons):
+    def add_remove_addons(self, addons):
         self._remove_addons.update(addons)
+        raise ConfigurationError(
+            'Removing addons is not yet supported because it cannot be done '
+            'using the command line. You have to uninstall addons using '
+            'an Odoo (\'import openerp\') script'
+        )
+
+    @property
+    def pre_operations(self):
+        return self._operations['pre']
+
+    @property
+    def post_operations(self):
+        return self._operations['post']
+
+    @property
+    def demo_operations(self):
+        return self._operations['demo']
+
+    def upgrade_addons_operation(self, addons_state):
+        install_command = self.options.install_command
+        install_args = self.options.install_args[:]
+        install_args += [u'--workers=0', u'--stop-after-init']
+
+        installed = set(a.name for a in addons_state
+                        if a.state in ('installed', 'to upgrade'))
+
+        to_install = self._upgrade_addons - installed
+        to_upgrade = installed & self._upgrade_addons
+
+        if to_install:
+            install_args += [u'-i', u','.join(to_install)]
+        if to_upgrade:
+            install_args += [u'-u', u','.join(to_upgrade)]
+
+        return Operation([install_command] + install_args)
+
+    def remove_addons_operation(self):
+        raise NotImplementedError
 
     def __repr__(self):
         return u'Version<{}>'.format(self.number)
@@ -60,16 +120,22 @@ class Version(object):
 class Operation(object):
 
     def __init__(self, command):
+        if isinstance(command, basestring):
+            command = command.split()
         self.command = command
 
-    @staticmethod
-    def run_command_iter(command):
-        p = subprocess.Popen(command,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT)
-        return iter(p.stdout.readline, b'')
-
-    def execute(self, command):
-        self.log(u'{}'.format(u' '.join(command)))
-        for line in self.run_command_iter(command):
-            self.log(line, raw=True)
+    def execute(self, log):
+        log(u'{}'.format(u' '.join(self.command)))
+        proc = subprocess.Popen(self.command,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT)
+        for line in iter(proc.stdout.readline, b''):
+            log(line, raw=True)
+        proc.wait()
+        if proc.returncode != 0:
+            raise OperationError(
+                "command '{}' returned {}".format(
+                    ' '.join(self.command),
+                    proc.returncode
+                )
+            )

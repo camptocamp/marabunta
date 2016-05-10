@@ -3,7 +3,15 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 
-class ParseError(Exception):
+class MarabuntaError(Exception):
+    pass
+
+
+class MigrationError(Exception):
+    pass
+
+
+class ParseError(MarabuntaError):
 
     def __init__(self, message, example=None):
         super(ParseError, self).__init__(message)
@@ -16,3 +24,11 @@ class ParseError(Exception):
                'file. Here is an example to help you to figure out your issue.'
                '\n{}\n{}').format(self.example, self.args[0])
         return msg
+
+
+class ConfigurationError(MarabuntaError):
+    pass
+
+
+class OperationError(MarabuntaError):
+    pass

@@ -30,7 +30,7 @@ migration:
         upgrade:  # executed as odoo.py --stop-after-init -i/-u ...
           - base
           - document
-        remove:  # uninstalled with a python script
+        # remove:  # uninstalled with a python script
 
     - version: 0.0.2
       # nothing to do
@@ -103,9 +103,9 @@ class YamlParser(object):
     def _parse_options(self, migration):
         options = migration.get('options') or {}
         install_command = options.get('install_command')
-        install_args = options.get('install_args')
+        install_args = options.get('install_args') or ''
         return MigrationOption(install_command=install_command,
-                               install_args=install_args)
+                               install_args=install_args.split())
 
     def _parse_versions(self, migration, options):
         versions = migration.get('versions') or []
@@ -142,10 +142,10 @@ class YamlParser(object):
         if upgrade:
             if not isinstance(upgrade, list):
                 raise ParseError("'upgrade' key must be a list", YAML_EXAMPLE)
-            version.upgrade_addons(upgrade)
+            version.add_upgrade_addons(upgrade)
         remove = addons.get('remove') or []
-        if upgrade:
+        if remove:
             if not isinstance(remove, list):
                 raise ParseError("'remove' key must be a list", YAML_EXAMPLE)
-            version.remove_addons(remove)
+            version.add_remove_addons(remove)
         return version
