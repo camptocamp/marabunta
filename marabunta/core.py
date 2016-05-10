@@ -21,7 +21,6 @@ import subprocess
 
 from datetime import datetime
 
-import yaml
 
 from .config import Config, get_args_parser
 from .database import Database, MigrationTable
