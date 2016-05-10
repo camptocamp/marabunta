@@ -1,135 +1,34 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # © 2016 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 """
-Load migration instructions from a YAML file and execute them if required.
+Marabunta is a name given to the migration of the legionary ants or to the ants
+themselves. Restless, they eat and digest everything in their way.
 
-TODO: move in its own project
-TODO: new name: Marabunta? (migrating ants)
+This tool aims to run migrations for Odoo versions as efficiencly as a
+Marabunta migration.
+
+It loads migration instructions from a YAML file and run the operations if
+required.
+
+TODO: move in its own GitHub project
 """
 
 from __future__ import print_function
 
-import argparse
-import json
-import os
 import subprocess
-import urllib
 
-from collections import namedtuple
-from contextlib import contextmanager
 from datetime import datetime
 
-import psycopg2
 import yaml
+
+from .config import Config, get_args_parser
+from .database import Database, MigrationTable
 
 __version__ = "0.0.1"
 
 LOG_DECORATION = u'|> '
-
-
-class Database(object):
-
-    def __init__(self, config):
-        self.config = config
-
-    def dsn(self):
-        cfg = self.config
-        host = 'host=%s' % cfg.db_host if cfg.db_host else ''
-        port = 'port=%s' % cfg.db_port if cfg.db_port else ''
-        name = 'dbname=%s' % cfg.database
-        user = 'user=%s' % cfg.db_user if cfg.db_user else ''
-        password = ('password=%s' % urllib.unquote_plus(cfg.db_password)
-                    if cfg.db_password else '')
-        return '%s %s %s %s %s' % (host, port, name, user, password)
-
-    @contextmanager
-    def connect(self):
-        conn = psycopg2.connect(self.dsn())
-        yield conn
-        conn.close()
-
-
-class MigrationTable(object):
-
-    def __init__(self, cursor):
-        self.cursor = cursor
-        self.table_name = 'migration_version'
-        self.VersionRecord = namedtuple(
-            'VersionRecord',
-            'number date_start date_done log addons'
-        )
-
-    def create_if_not_exists(self):
-        query = """
-        CREATE TABLE IF NOT EXISTS {} (
-            number VARCHAR NOT NULL,
-            date_start TIMESTAMP NOT NULL,
-            date_done TIMESTAMP,
-            log TEXT,
-            addons TEXT,
-
-            CONSTRAINT version_pk PRIMARY KEY (number)
-        );
-        """.format(self.table_name)
-        self.cursor.execute(query)
-
-    def lock(self):
-        """ Lock the entire migration table
-
-        The lock is released the next commit or rollback.
-        The purpose is to prevent 2 processes to execute the same migration at
-        the same time.
-
-        The other transaction should because if they exit, whey will either be
-        dead, either run Odoo and we want neither of them.
-
-        """
-        query = """
-        LOCK TABLE {};
-        """.format(self.table_name)
-        self.cursor.execute(query)
-
-    def versions(self):
-        query = """
-        SELECT number,
-               date_start,
-               date_done,
-               log,
-               addons
-        FROM {}
-        """.format(self.table_name)
-        self.cursor.execute(query)
-        rows = self.cursor.fetchall()
-        versions = []
-        for row in rows:
-            row = list(row)
-            # convert 'addons' to json
-            row[4] = json.loads(row[4]) if row[4] else []
-            versions.append(
-                self.VersionRecord(*row)
-            )
-        return versions
-
-    def start_version(self, number, start):
-        query = """
-        INSERT INTO {}
-        (number, date_start)
-        VALUES (%s, %s);
-        """.format(self.table_name)
-        self.cursor.execute(query, (number, start))
-
-    def finish_version(self, number, end, log, addons):
-        query = """
-        UPDATE {}
-        SET date_done = %s,
-            log = %s,
-            addons = %s
-        WHERE number = %s;
-        """.format(self.table_name)
-        self.cursor.execute(query, (end, log, json.dumps(addons), number))
 
 
 # TODO: split parser and models, parse the full file so we can check its
@@ -374,41 +273,6 @@ class VersionRunner(object):
             self.log(line, raw=True)
 
 
-class Config(object):
-
-    def __init__(self,
-                 project_file,
-                 database,
-                 db_user=None,
-                 db_password=None,
-                 db_port=5432,
-                 db_host='localhost',
-                 demo=False):
-        self.project_file = project_file
-        self.database = database
-        self.db_user = db_user
-        self.db_password = db_password
-        self.db_port = db_port
-        self.db_host = db_host
-        self.demo = demo
-        # TODO: add 'show' mode that do nothing, only prints messages
-
-
-class EnvDefault(argparse.Action):
-
-    def __init__(self, envvar, required=True, default=None, **kwargs):
-        if not default and envvar:
-            if envvar in os.environ:
-                default = os.environ[envvar]
-        if required and default is not None:
-            required = False
-        super(EnvDefault, self).__init__(default=default, required=required,
-                                         **kwargs)
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, values)
-
-
 def migrate(config):
     project_file = ProjectFileParser(config.project_file)
     project_file.parse()
@@ -433,50 +297,9 @@ def migrate(config):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Odoo Migration')
-    parser.add_argument('--project-file', '-f',
-                        action=EnvDefault,
-                        envvar='PROJECT_FILE',
-                        required=True,
-                        help='The yaml file containing the migration steps')
-    parser.add_argument('--database', '-d',
-                        action=EnvDefault,
-                        envvar='DB_NAME',
-                        required=True,
-                        help='Odoo\'s database')
-    parser.add_argument('--db-user', '-u',
-                        action=EnvDefault,
-                        envvar='DB_USER',
-                        required=True,
-                        help='Odoo\'s database user')
-    parser.add_argument('--db-password', '-w',
-                        action=EnvDefault,
-                        envvar='DB_PASSWORD',
-                        required=True,
-                        help='Odoo\'s database password')
-    parser.add_argument('--db-port', '-p',
-                        action=EnvDefault,
-                        envvar='DB_PORT',
-                        default='5432',
-                        help='Odoo\'s database port')
-    parser.add_argument('--db-host', '-H',
-                        action=EnvDefault,
-                        envvar='DB_HOST',
-                        default='localhost',
-                        help='Odoo\'s database host')
-    parser.add_argument('--demo',
-                        action=EnvDefault,
-                        envvar='DEMO',
-                        default=False,
-                        help='Demo mode')
+    parser = get_args_parser()
     args = parser.parse_args()
-    config = Config(args.project_file,
-                    args.database,
-                    db_user=args.db_user,
-                    db_password=args.db_password,
-                    db_port=args.db_port,
-                    db_host=args.db_host,
-                    demo=args.demo)
+    config = Config.from_parse_args(args)
     migrate(config)
 
 if __name__ == '__main__':
