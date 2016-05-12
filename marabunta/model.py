@@ -139,3 +139,6 @@ class Operation(object):
                     proc.returncode
                 )
             )
+
+    def __repr__(self):
+        return u'Operation<{}>'.format(' '.join(self.command))

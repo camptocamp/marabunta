@@ -16,7 +16,8 @@ class Config(object):
                  db_port=5432,
                  db_host='localhost',
                  demo=False,
-                 force=False):
+                 force=False,
+                 force_version=None):
         self.project_file = project_file
         self.database = database
         self.db_user = db_user
@@ -25,6 +26,9 @@ class Config(object):
         self.db_host = db_host
         self.demo = demo
         self.force = force
+        self.force_version = force_version
+        if force_version and not force:
+            self.force = True
 
     @classmethod
     def from_parse_args(cls, args):
@@ -35,7 +39,8 @@ class Config(object):
                    db_port=args.db_port,
                    db_host=args.db_host,
                    demo=args.demo,
-                   force=args.force
+                   force=args.force,
+                   force_version=args.force_version,
                    )
 
 
@@ -95,4 +100,9 @@ def get_args_parser():
                         help='Force the upgrade even if the code version '
                              'not match the upgrade(s) to process.'
                              'Only for dev.')
+    parser.add_argument('--force-version',
+                        required=False,
+                        default=os.environ.get('MARABUNTA_FORCE_VERSION'),
+                        help='Force upgrade of a version, even if it has '
+                             'already been applied. Only for dev.')
     return parser

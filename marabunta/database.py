@@ -16,6 +16,7 @@ class Database(object):
 
     def __init__(self, config):
         self.config = config
+        self.name = config.database
 
     def dsn(self):
         cfg = self.config

@@ -3,10 +3,13 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 from __future__ import print_function
+
 from datetime import datetime
+from distutils.version import StrictVersion
 
 from .database import IrModuleModule
 from .exception import MigrationError
+from .output import print_decorated
 
 LOG_DECORATION = u'|> '
 
@@ -20,11 +23,7 @@ class Runner(object):
         self.table = table
 
     def log(self, message):
-        message = u'\033[1m{}migration:{}\033[0m'.format(
-            LOG_DECORATION,
-            message,
-        )
-        print(message)
+        print_decorated('migration: {}'.format(message))
 
     def perform(self):
         self.table.create_if_not_exists()
@@ -34,6 +33,7 @@ class Runner(object):
 
         # integrity checks
         if not self.config.force:
+
             unfinished = [not db_version.date_done for db_version
                           in db_versions]
             if unfinished:
@@ -56,7 +56,25 @@ class Runner(object):
                         )
                 )
 
+            installed = max(StrictVersion(v.number) for v in db_versions)
+            if installed > StrictVersion(unprocessed.number):
+                raise MigrationError(
+                    'The version you are trying to install ({}) is below '
+                    'the current database version.'.format(
+                        unprocessed.number, installed
+                    )
+                )
+
         for version in self.migration.versions:
+            # when we force-execute one version, we skip all the others
+            if self.config.force_version:
+                if self.config.force_version != version.number:
+                    continue
+                else:
+                    self.log(
+                        u'force-execute version {}'.format(version.number)
+                    )
+
             self.log(u'processing version {}'.format(version.number))
             VersionRunner(self, version).perform()
 
@@ -76,12 +94,11 @@ class VersionRunner(object):
         if raw:
             print(message, end='')
         else:
-            app_message = u'\033[1m{}version {}: {}\033[0m'.format(
-                LOG_DECORATION,
+            app_message = u'version {}: {}'.format(
                 self.version.number,
                 message,
             )
-            print(app_message)
+            print_decorated(app_message)
         self.logs.append(message.strip() if raw else message)
 
     def start(self):
@@ -100,7 +117,8 @@ class VersionRunner(object):
         db_versions = self.table.versions()
 
         version = self.version
-        if version.is_processed(db_versions):
+        if (version.is_processed(db_versions) and
+                not self.config.force_version == self.version.number):
             self.log(
                 u'version {} is already installed'.format(version.number)
             )
