@@ -153,6 +153,9 @@ class VersionRunner(object):
         module_table = IrModuleModule(self.cursor)
         addons_state = module_table.read_state()
 
+        # TODO: when we force execution of all releases, then we should
+        # exclude updated addons which have already been updated in a previous
+        # release. (upgrade an addon only once per run)
         upgrade_operation = version.upgrade_addons_operation(addons_state)
         self.log(u'installation / upgrade of addons')
         upgrade_operation.execute(self.log)
