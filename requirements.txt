@@ -1,4 +1,4 @@
 nose
-sphinx
+Sphinx
 psycopg2
-pyyaml
+PyYAML
