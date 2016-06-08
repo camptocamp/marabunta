@@ -12,7 +12,6 @@ Marabunta migration.
 It loads migration instructions from a YAML file and run the operations if
 required.
 
-TODO: move in its own GitHub project
 """
 
 from __future__ import print_function
