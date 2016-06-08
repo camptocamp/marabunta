@@ -22,7 +22,7 @@ from .database import Database, MigrationTable
 from .parser import YamlParser
 from .runner import Runner
 
-__version__ = "0.0.1"
+__version__ = "0.1.0"
 
 
 def migrate(config):
