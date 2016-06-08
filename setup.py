@@ -17,7 +17,7 @@ with open('LICENSE') as f:
     license = f.read()
 
 setup(
-    name='Marabunta',
+    name='marabunta',
     version=version,
     description='Migration tool for Odoo',
     long_description=readme,
