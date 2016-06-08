@@ -7,8 +7,6 @@ import unittest
 
 from cStringIO import StringIO
 
-from .context import marabunta
-
 from marabunta.parser import YamlParser, YAML_EXAMPLE
 
 

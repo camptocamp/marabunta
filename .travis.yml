@@ -1,7 +1,11 @@
 language: python
 
+env:
+  - TOXENV=py27
+  - TOXENV=lint
+
 before_script:
-  - make init
+  - pip install tox
 
 script:
-  - make test
+  - tox
