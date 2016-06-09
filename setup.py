@@ -4,11 +4,8 @@ import re
 
 from setuptools import setup, find_packages
 
-version = re.search(
-    '^__version__\s*=\s*"(.*)"',
-    open('marabunta/core.py').read(),
-    re.M
-    ).group(1)
+with open('marabunta/core.py') as f:
+    version = re.search('^__version__\s*=\s*"(.*)"', f.read(), re.M).group(1)
 
 with open('README.rst') as f:
     readme = f.read()
