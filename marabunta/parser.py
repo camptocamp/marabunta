@@ -10,7 +10,7 @@ import yaml
 from .exception import ParseError
 from .model import Migration, MigrationOption, Version, Operation
 
-YAML_EXAMPLE = """
+YAML_EXAMPLE = u"""
 name: project_name
 migration:
   options:
