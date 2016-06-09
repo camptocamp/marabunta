@@ -2,6 +2,7 @@
 # © 2016 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
+import shlex
 import subprocess
 from distutils.version import StrictVersion
 
@@ -122,7 +123,7 @@ class Operation(object):
 
     def __init__(self, command):
         if isinstance(command, string_types):
-            command = command.split()
+            command = shlex.split(command)
         self.command = command
 
     def execute(self, log):
