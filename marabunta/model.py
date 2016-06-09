@@ -6,6 +6,7 @@ import subprocess
 from distutils.version import StrictVersion
 
 from .exception import ConfigurationError, OperationError
+from .helpers import string_types
 
 
 class Migration(object):
@@ -120,7 +121,7 @@ class Version(object):
 class Operation(object):
 
     def __init__(self, command):
-        if isinstance(command, basestring):
+        if isinstance(command, string_types):
             command = command.split()
         self.command = command
 
