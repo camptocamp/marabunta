@@ -1,4 +1,0 @@
-nose
-Sphinx
-psycopg2
-PyYAML
