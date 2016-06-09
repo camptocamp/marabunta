@@ -25,6 +25,9 @@ __version__ = "0.2.0.dev0"
 
 
 def migrate(config):
+    """
+    migrate
+    """
     migration_parser = YamlParser.parse_from_file(config.project_file)
     migration = migration_parser.parse()
     database = Database(config)

@@ -11,7 +11,19 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+API Reference
+-------------
 
+This section describes classes and exceptions.
+
+.. toctree::
+   :maxdepth: 2
+
+   api
+
+.. include:: ../HISTORY.rst
+
+.. include:: ../AUTHORS.rst
 
 Indices and tables
 ==================
