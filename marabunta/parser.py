@@ -124,7 +124,7 @@ class YamlParser(object):
         self.check_dict_expected_keys(
             {'pre', 'post', 'demo'}, operations, 'operations',
         )
-        for operation_type, commands in operations.iteritems():
+        for operation_type, commands in operations.items():
             if not isinstance(commands, list):
                 raise ParseError("'%s' key must be a list" % operation_type,
                                  YAML_EXAMPLE)
