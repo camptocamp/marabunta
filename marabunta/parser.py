@@ -75,7 +75,7 @@ class YamlParser(object):
             raise ParseError("'{}' key must be a dict".format(dict_name),
                              YAML_EXAMPLE)
         expected_keys = set(expected_keys)
-        current_keys = set(current.iterkeys())
+        current_keys = {key for key in current}
         extra_keys = current_keys - expected_keys
         if extra_keys:
             message = "{}: the keys {} are unexpected. (allowed keys: {})"
