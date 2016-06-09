@@ -26,6 +26,8 @@ setup(
     url='https://github.com/camptocamp/marabunta',
     license=license,
     packages=find_packages(exclude=('tests', 'docs')),
+    install_requires=["psycopg2",
+                      "PyYAML"],
     entry_points={
         'console_scripts': ['marabunta = marabunta.core:main']
     },
