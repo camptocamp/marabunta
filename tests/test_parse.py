@@ -5,7 +5,7 @@
 
 import unittest
 
-from cStringIO import StringIO
+from io import StringIO
 
 from marabunta.parser import YamlParser, YAML_EXAMPLE
 
