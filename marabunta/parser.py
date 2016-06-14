@@ -59,6 +59,7 @@ class YamlParser(object):
 
     @classmethod
     def parser_from_buffer(cls, fp):
+        """Construct YamlParser from a file pointer."""
         return cls(yaml.safe_load(fp))
 
     @classmethod
@@ -88,6 +89,7 @@ class YamlParser(object):
             )
 
     def parse(self):
+        """Check input and return a :class:`Migration` instance."""
         if not self.parsed.get('migration'):
             raise ParseError("'migration' key is missing", YAML_EXAMPLE)
         self.check_dict_expected_keys(
@@ -96,6 +98,7 @@ class YamlParser(object):
         return self._parse_migrations()
 
     def _parse_migrations(self):
+        """Build a :class:`Migration` instance."""
         migration = self.parsed['migration']
         options = self._parse_options(migration)
         versions = self._parse_versions(migration, options)
