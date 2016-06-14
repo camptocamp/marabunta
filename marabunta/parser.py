@@ -63,6 +63,7 @@ class YamlParser(object):
 
     @classmethod
     def parse_from_file(cls, filename):
+        """Construct YamlParser from a filename."""
         with open(filename, 'rU') as fh:
             return cls.parser_from_buffer(fh)
 

@@ -32,6 +32,13 @@ class Config(object):
 
     @classmethod
     def from_parse_args(cls, args):
+        """Constructor from command line args.
+
+        :param args: parse command line arguments
+        :type args: argparse.ArgumentParser
+
+        """
+
         return cls(args.project_file,
                    args.database,
                    db_user=args.db_user,
@@ -60,7 +67,9 @@ class EnvDefault(argparse.Action):
 
 
 def get_args_parser():
-    parser = argparse.ArgumentParser(description='Odoo Migration')
+    """Return a parser for command line options."""
+    parser = argparse.ArgumentParser(
+        description='Marabunta: Migrating ants for Odoo')
     parser.add_argument('--project-file', '-f',
                         action=EnvDefault,
                         envvar='MARABUNTA_PROJECT_FILE',

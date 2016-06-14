@@ -25,8 +25,10 @@ __version__ = "0.2.0.dev0"
 
 
 def migrate(config):
-    """
-    migrate
+    """Perform a migration according to config.
+
+    :param config: The configuration to be applied
+    :type config: Config
     """
     migration_parser = YamlParser.parse_from_file(config.project_file)
     migration = migration_parser.parse()
@@ -51,6 +53,7 @@ def migrate(config):
 
 
 def main():
+    """Parse the command line and run :func:`migrate`."""
     parser = get_args_parser()
     args = parser.parse_args()
     config = Config.from_parse_args(args)
