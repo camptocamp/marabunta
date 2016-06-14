@@ -59,7 +59,7 @@ class YamlParser(object):
 
     @classmethod
     def parser_from_buffer(cls, buffer):
-        return cls(yaml.load(buffer.read()))
+        return cls(yaml.safe_load(buffer.read()))
 
     @classmethod
     def parse_from_file(cls, filename):
