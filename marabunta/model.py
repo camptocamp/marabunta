@@ -96,7 +96,7 @@ class Version(object):
 
     def upgrade_addons_operation(self, addons_state):
         install_command = self.options.install_command
-        install_args = self.options.install_args[:]
+        install_args = self.options.install_args[:] or []
         install_args += [u'--workers=0', u'--stop-after-init']
 
         installed = set(a.name for a in addons_state
