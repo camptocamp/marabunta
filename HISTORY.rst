@@ -3,6 +3,13 @@
 Release History
 ---------------
 
+0.2.2 (2016-06-23)
+++++++++++++++++++
+
+**Improvements**
+
+- Adapted the README so that it is rendered as ReST on pypi.
+
 0.2.1 (2016-06-23)
 ++++++++++++++++++
 
