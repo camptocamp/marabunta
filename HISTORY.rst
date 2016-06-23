@@ -10,6 +10,14 @@ Release History
 
 - Added support for Python 3.4 and 3.5 in addition to 2.7.
 
+**Bugfixes**
+
+- Fixed a crash with empty install args
+
+**Improvements**
+
+- Use YAML ``safe_load`` for added security.
+
 **Documentation**
 
 - Bootstrapped the Sphinx documentation.
