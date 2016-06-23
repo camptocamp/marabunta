@@ -3,7 +3,14 @@
 Release History
 ---------------
 
-0.2.0 (unreleased)
+0.2.1 (2016-06-23)
+++++++++++++++++++
+
+**Bugfixes**
+
+- Fixed the version information of the package and release date.
+
+0.2.0 (2016-06-23)
 ++++++++++++++++++
 
 **Features**
