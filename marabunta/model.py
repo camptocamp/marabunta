@@ -37,11 +37,7 @@ class Version(object):
                 '{} is not a valid version'.format(number)
             )
         self.number = number
-        self._operations = {
-            'pre': [],
-            'post': [],
-            'demo': [],
-        }
+        self._operation_modes = {}
         self._upgrade_addons = set()
         self._remove_addons = set()
         self.options = options
@@ -50,8 +46,9 @@ class Version(object):
         return self.number in (v.number for v in db_versions if v.date_done)
 
     def is_noop(self):
-        noop = (all(not operations for operations
-                    in self._operations.itervalues()) and
+        has_operations = (not op.pre_operations and not op.post_operations
+                          for op in self._operation_modes.values())
+        noop = (not has_operations and
                 not self._upgrade_addons and not self._remove_addons)
         return noop
 
@@ -59,17 +56,28 @@ class Version(object):
         """ Version is either noop either it has been processed already """
         return self.is_noop() or self.is_processed(db_versions)
 
-    def add_operation(self, operation_type, operation):
+    def add_operation(self, mode, operation_type, operation):
         """ Add an operation to the version
 
-        :param operation_type: one of 'pre', 'post', 'demo'
+        :param mode: Name of the mode in which the operation is executed
+        :type mode: str
+        :param operation_type: one of 'pre', 'post'
         :type operation_type: str
         :param operation: the operation to add
         :type operation: :class:`marabunta.model.Operation`
         """
-        assert operation_type in self._operations, \
-            "operation type must be in %s" % ', '.join(self._operations)
-        self._operations[operation_type].append(operation)
+        operation_mode = self._operation_modes.get(mode)
+        if not operation_mode:
+            operation_mode = self._operation_modes[mode] = OperationMode(mode)
+        if operation_type == 'pre':
+            operation_mode.add_pre(operation)
+        elif operation_type == 'post':
+            operation_mode.add_post(operation)
+        else:
+            raise ConfigurationError(
+                "Type of operation must be 'pre' or 'post', got %s" %
+                (operation_type,)
+            )
 
     def add_upgrade_addons(self, addons):
         self._upgrade_addons.update(addons)
@@ -82,17 +90,17 @@ class Version(object):
             'an Odoo (\'import openerp\') script'
         )
 
-    @property
-    def pre_operations(self):
-        return self._operations['pre']
+    def pre_operations(self, mode):
+        operations = self._operation_modes.get(mode)
+        if not operations:
+            return []
+        return operations.pre_operations
 
-    @property
-    def post_operations(self):
-        return self._operations['post']
-
-    @property
-    def demo_operations(self):
-        return self._operations['demo']
+    def post_operations(self, mode):
+        operations = self._operation_modes.get(mode)
+        if not operations:
+            return []
+        return operations.post_operations
 
     def upgrade_addons_operation(self, addons_state):
         install_command = self.options.install_command
@@ -117,6 +125,20 @@ class Version(object):
 
     def __repr__(self):
         return u'Version<{}>'.format(self.number)
+
+
+class OperationMode(object):
+
+    def __init__(self, name):
+        self.name = name
+        self.pre_operations = []
+        self.post_operations = []
+
+    def add_pre(self, operation):
+        self.pre_operations.append(operation)
+
+    def add_post(self, operation):
+        self.post_operations.append(operation)
 
 
 class Operation(object):

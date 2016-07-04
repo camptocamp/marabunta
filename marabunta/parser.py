@@ -20,12 +20,19 @@ migration:
   versions:
     - version: 0.0.1
       operations:
-        pre:  # executed before 'addons'
-          - echo 'pre-operation'
-        post:  # executed after 'addons'
-          - oerpscenario --stop -t project_name -t setup
-        demo:  # activated by an ENV variable, always executed after 'addons'
-          - oerpscenario --stop -t project_name -t story
+        base:
+          pre:  # executed before 'addons'
+            - echo 'pre-operation'
+          post:  # executed after 'addons'
+            - anthem songs::install
+        prod:
+          pre:
+            - echo 'pre-operation executed only when the mode is prod'
+          post:
+            - anthem songs::load_production_data
+        demo:
+          post:
+            - anthem songs::load_demo_data
       addons:
         upgrade:  # executed as odoo.py --stop-after-init -i/-u ...
           - base
@@ -37,12 +44,13 @@ migration:
 
     - version: 0.0.3
       operations:
-        pre:
-          - echo 'foobar'
-          - ls
-          - bin/script_test.sh
-        post:
-          - echo 'post-op'
+        base:
+          pre:
+            - echo 'foobar'
+            - ls
+            - bin/script_test.sh
+          post:
+            - echo 'post-op'
 
     - version: 0.0.4
       addons:
@@ -125,18 +133,20 @@ class YamlParser(object):
         version = Version(number, options)
 
         operations = parsed_version.get('operations') or {}
-        self.check_dict_expected_keys(
-            {'pre', 'post', 'demo'}, operations, 'operations',
-        )
-        for operation_type, commands in operations.items():
-            if not isinstance(commands, list):
-                raise ParseError("'%s' key must be a list" % operation_type,
-                                 YAML_EXAMPLE)
-            for command in commands:
-                version.add_operation(
-                    operation_type,
-                    Operation(command)
-                )
+        for operation_mode, operation_types in operations.items():
+            self.check_dict_expected_keys(
+                {'pre', 'post'}, operation_types, operation_mode,
+            )
+            for operation_type, commands in operation_types.items():
+                if not isinstance(commands, list):
+                    raise ParseError("'%s' key must be a list" %
+                                     (operation_type,), YAML_EXAMPLE)
+                for command in commands:
+                    version.add_operation(
+                        operation_mode,
+                        operation_type,
+                        Operation(command)
+                    )
 
         addons = parsed_version.get('addons') or {}
         self.check_dict_expected_keys(

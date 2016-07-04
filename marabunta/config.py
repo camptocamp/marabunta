@@ -15,7 +15,7 @@ class Config(object):
                  db_password=None,
                  db_port=5432,
                  db_host='localhost',
-                 demo=False,
+                 mode=None,
                  force=False,
                  force_version=None):
         self.project_file = project_file
@@ -24,7 +24,7 @@ class Config(object):
         self.db_password = db_password
         self.db_port = db_port
         self.db_host = db_host
-        self.demo = demo
+        self.mode = mode
         self.force = force
         self.force_version = force_version
         if force_version and not force:
@@ -45,7 +45,7 @@ class Config(object):
                    db_password=args.db_password,
                    db_port=args.db_port,
                    db_host=args.db_host,
-                   demo=args.demo,
+                   mode=args.mode,
                    force=args.force,
                    force_version=args.force_version,
                    )
@@ -97,11 +97,15 @@ def get_args_parser():
                         default=os.environ.get('MARABUNTA_DB_HOST',
                                                'localhost'),
                         help="Odoo's database host")
-    parser.add_argument('--demo',
-                        action='store_true',
+    parser.add_argument('--mode',
+                        action=EnvDefault,
+                        envvar='MARABUNTA_MODE',
                         required=False,
-                        default=bool(os.environ.get('MARABUNTA_DEMO')),
-                        help='Demo mode')
+                        help="Specify the mode in which we run the migration,"
+                             "such as 'demo' or 'prod'. Additional operations "
+                             "of this mode will be executed. "
+                             "The operations of the 'base' mode are executed "
+                             "in any case.")
     parser.add_argument('--force',
                         action='store_true',
                         required=False,

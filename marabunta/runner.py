@@ -130,19 +130,22 @@ class VersionRunner(object):
             self.log(u'version {} is a noop'.format(version.number))
 
         else:
-            self.log(u'execute pre-operations')
-            for operation in version.pre_operations:
+            self.log(u'execute base pre-operations')
+            for operation in version.pre_operations('base'):
                 operation.execute(self.log)
+            if self.config.mode:
+                self.log(u'execute %s pre-operations' % self.config.mode)
+                for operation in version.pre_operations(self.config.mode):
+                    operation.execute(self.log)
 
             self.perform_addons()
 
-            self.log(u'execute post-operations')
-            for operation in version.post_operations:
+            self.log(u'execute base post-operations')
+            for operation in version.post_operations('base'):
                 operation.execute(self.log)
-
-            if self.config.demo:
-                self.log(u'execute demo-operations')
-                for operation in version.demo_operations:
+            if self.config.mode:
+                self.log(u'execute %s post-operations' % self.config.mode)
+                for operation in version.post_operations(self.config.mode):
                     operation.execute(self.log)
 
         self.finish()
