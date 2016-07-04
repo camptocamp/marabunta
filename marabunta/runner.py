@@ -62,7 +62,7 @@ class Runner(object):
                         )
                 )
 
-        if not self.config.force_version:
+        if not self.config.force_version and db_versions:
             installed = max(StrictVersion(v.number) for v in db_versions)
             if installed > StrictVersion(unprocessed.number):
                 raise MigrationError(

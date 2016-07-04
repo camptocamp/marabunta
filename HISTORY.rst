@@ -38,6 +38,9 @@ Release History
   upgraded more than one time when it is in the 'upgrade' section of
   more than one version
 
+**Fixes**
+
+- Fix error when there is no db version in the database
 
 0.2.2 (2016-06-23)
 ++++++++++++++++++
