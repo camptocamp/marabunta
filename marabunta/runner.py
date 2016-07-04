@@ -31,23 +31,24 @@ class Runner(object):
 
         db_versions = self.table.versions()
 
-        # integrity checks
-        if not self.config.force:
-
+        if not self.config.force_version:
             unfinished = [not db_version.date_done for db_version
                           in db_versions]
             if unfinished:
                 raise MigrationError(
                     'Upgrade of version {} has been attempted and failed. '
-                    'You may want to restore the backup, run again the '
-                    'migration with the MARABUNTA_FORCE environment variable '
-                    'or fix it manually (in that case, you will have to '
+                    'You may want to restore the backup or to run again the '
+                    'migration with the MARABUNTA_FORCE_VERSION '
+                    'environment variable '
+                    'or to fix it manually (in that case, you will have to '
                     'update the  \'marabunta_version\' table yourself.'
                     .format(','.join(v.number for v in unfinished))
                 )
 
-            unprocessed = [version for version in self.migration.versions
-                           if not version.skip(db_versions)]
+        unprocessed = [version for version in self.migration.versions
+                       if not version.skip(db_versions)]
+
+        if not self.config.allow_serie:
             if len(unprocessed) > 1:
                 raise MigrationError(
                     'Only one version can be upgraded at a time.\n'
@@ -56,6 +57,7 @@ class Runner(object):
                         )
                 )
 
+        if not self.config.force_version:
             installed = max(StrictVersion(v.number) for v in db_versions)
             if installed > StrictVersion(unprocessed.number):
                 raise MigrationError(

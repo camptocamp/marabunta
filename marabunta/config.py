@@ -16,7 +16,7 @@ class Config(object):
                  db_port=5432,
                  db_host='localhost',
                  mode=None,
-                 force=False,
+                 allow_serie=False,
                  force_version=None):
         self.project_file = project_file
         self.database = database
@@ -25,10 +25,10 @@ class Config(object):
         self.db_port = db_port
         self.db_host = db_host
         self.mode = mode
-        self.force = force
+        self.allow_serie = allow_serie
         self.force_version = force_version
-        if force_version and not force:
-            self.force = True
+        if force_version and not allow_serie:
+            self.allow_serie = True
 
     @classmethod
     def from_parse_args(cls, args):
@@ -46,7 +46,7 @@ class Config(object):
                    db_port=args.db_port,
                    db_host=args.db_host,
                    mode=args.mode,
-                   force=args.force,
+                   allow_serie=args.allow_serie,
                    force_version=args.force_version,
                    )
 
@@ -106,16 +106,15 @@ def get_args_parser():
                              "of this mode will be executed. "
                              "The operations of the 'base' mode are executed "
                              "in any case.")
-    parser.add_argument('--force',
+    parser.add_argument('--allow-serie',
                         action='store_true',
                         required=False,
-                        default=bool(os.environ.get('MARABUNTA_FORCE')),
-                        help='Force the upgrade even if the code version '
-                             'not match the upgrade(s) to process.'
-                             'Only for dev.')
+                        default=bool(os.environ.get('MARABUNTA_ALLOW_SERIE')),
+                        help='Allow to run more than 1 version upgrade at a '
+                             'time.')
     parser.add_argument('--force-version',
                         required=False,
                         default=os.environ.get('MARABUNTA_FORCE_VERSION'),
                         help='Force upgrade of a version, even if it has '
-                             'already been applied. Only for dev.')
+                             'already been applied.')
     return parser

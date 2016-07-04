@@ -6,7 +6,7 @@ Release History
 0.3.0-dev
 +++++++++
 
-**Backward incompatible change**
+**Backward incompatible changes**
 
 - ``--demo`` is replaced by a more general ``--mode`` argument,
   the equivalent being ``--mode=demo``
@@ -28,6 +28,10 @@ Release History
     demo:
       post:
         - anthem songs::load_demo_data
+
+- ``--force`` renamed to ``--allow-serie``
+- ``MARABUNTA_FORCE`` renamed to ``MARABUNTA_ALLOW_SERIE``
+
 
 0.2.2 (2016-06-23)
 ++++++++++++++++++
