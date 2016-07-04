@@ -103,22 +103,13 @@ class Version(object):
         return operations.post_operations
 
     def upgrade_addons_operation(self, addons_state):
-        install_command = self.options.install_command
-        install_args = self.options.install_args[:] or []
-        install_args += [u'--workers=0', u'--stop-after-init']
-
         installed = set(a.name for a in addons_state
                         if a.state in ('installed', 'to upgrade'))
 
         to_install = self._upgrade_addons - installed
         to_upgrade = installed & self._upgrade_addons
 
-        if to_install:
-            install_args += [u'-i', u','.join(to_install)]
-        if to_upgrade:
-            install_args += [u'-u', u','.join(to_upgrade)]
-
-        return Operation([install_command] + install_args)
+        return UpgradeAddonsOperation(self.options, to_install, to_upgrade)
 
     def remove_addons_operation(self):
         raise NotImplementedError
@@ -141,12 +132,43 @@ class OperationMode(object):
         self.post_operations.append(operation)
 
 
+class UpgradeAddonsOperation(object):
+
+    def __init__(self, options, to_install, to_upgrade):
+        self.options = options
+        self.to_install = set(to_install)
+        self.to_upgrade = set(to_upgrade)
+
+    def operation(self, exclude_addons=None):
+        if exclude_addons is None:
+            exclude_addons = set()
+        install_command = self.options.install_command
+        install_args = self.options.install_args[:] or []
+        install_args += [u'--workers=0', u'--stop-after-init']
+
+        to_install = self.to_install - exclude_addons
+        if to_install:
+            install_args += [u'-i', u','.join(to_install)]
+
+        to_upgrade = self.to_upgrade - exclude_addons
+        if to_upgrade:
+            install_args += [u'-u', u','.join(to_upgrade)]
+
+        if to_install or to_upgrade:
+            return Operation([install_command] + install_args)
+        else:
+            return Operation('')
+
+
 class Operation(object):
 
     def __init__(self, command):
         if isinstance(command, string_types):
             command = shlex.split(command)
         self.command = command
+
+    def __nonzero__(self):
+        return bool(self.command)
 
     def execute(self, log):
         log(u'{}'.format(u' '.join(self.command)))

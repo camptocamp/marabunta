@@ -21,6 +21,11 @@ class Runner(object):
         self.migration = migration
         self.cursor = cursor
         self.table = table
+        # we keep the addons upgrading during a run in this set,
+        # this is only useful when using 'allow_serie',
+        # if an addon has just been installed or updated,
+        # we don't want to do it again for another version
+        self.upgraded_addons = set()
 
     def log(self, message):
         print_decorated('migration: {}'.format(message))
@@ -158,9 +163,13 @@ class VersionRunner(object):
         module_table = IrModuleModule(self.cursor)
         addons_state = module_table.read_state()
 
-        # TODO: when we force execution of all releases, then we should
-        # exclude updated addons which have already been updated in a previous
-        # release. (upgrade an addon only once per run)
         upgrade_operation = version.upgrade_addons_operation(addons_state)
+        # exclude the addons already installed or updated during this run
+        # when 'allow_serie' is active
+        exclude = self.runner.upgraded_addons
         self.log(u'installation / upgrade of addons')
-        upgrade_operation.execute(self.log)
+        operation = upgrade_operation.operation(exclude_addons=exclude)
+        if operation:
+            operation.execute(self.log)
+        self.runner.upgraded_addons |= (upgrade_operation.to_install |
+                                        upgrade_operation.to_upgrade)

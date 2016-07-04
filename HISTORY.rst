@@ -32,6 +32,12 @@ Release History
 - ``--force`` renamed to ``--allow-serie``
 - ``MARABUNTA_FORCE`` renamed to ``MARABUNTA_ALLOW_SERIE``
 
+**Improvements**
+
+- When 'allow_serie' is used, the same Odoo addon will not be
+  upgraded more than one time when it is in the 'upgrade' section of
+  more than one version
+
 
 0.2.2 (2016-06-23)
 ++++++++++++++++++
