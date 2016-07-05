@@ -37,8 +37,9 @@ class Runner(object):
         db_versions = self.table.versions()
 
         if not self.config.force_version:
-            unfinished = [not db_version.date_done for db_version
-                          in db_versions]
+            unfinished = [db_version for db_version
+                          in db_versions
+                          if not db_version.date_done]
             if unfinished:
                 raise MigrationError(
                     'Upgrade of version {} has been attempted and failed. '
