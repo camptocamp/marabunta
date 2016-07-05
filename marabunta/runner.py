@@ -65,11 +65,12 @@ class Runner(object):
 
         if not self.config.force_version and db_versions:
             installed = max(StrictVersion(v.number) for v in db_versions)
-            if installed > StrictVersion(unprocessed.number):
+            next_unprocess = min(StrictVersion(v.number) for v in unprocessed)
+            if installed > next_unprocess:
                 raise MigrationError(
                     'The version you are trying to install ({}) is below '
                     'the current database version.'.format(
-                        unprocessed.number, installed
+                        next_unprocess, installed
                     )
                 )
 

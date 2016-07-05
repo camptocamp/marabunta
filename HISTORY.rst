@@ -43,6 +43,7 @@ Release History
 - Fix error when there is no db version in the database
 - Fix error ``AttributeError: 'bool' object has no attribute 'number'``
   when there is an unfinished version
+- Fix error when the db version is above the unprocessed version
 
 0.2.2 (2016-06-23)
 ++++++++++++++++++
