@@ -30,7 +30,7 @@ def migrate(config):
     :param config: The configuration to be applied
     :type config: Config
     """
-    migration_parser = YamlParser.parse_from_file(config.project_file)
+    migration_parser = YamlParser.parse_from_file(config.migration_file)
     migration = migration_parser.parse()
     database = Database(config)
     with database.connect() as conn:

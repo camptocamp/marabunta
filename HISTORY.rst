@@ -44,6 +44,8 @@ Introducing **modes**.
 
 - ``--force`` renamed to ``--allow-serie``
 - ``MARABUNTA_FORCE`` renamed to ``MARABUNTA_ALLOW_SERIE``
+- ``--project-file`` renamed to ``--migration-file``
+- ``MARABUNTA_PROJECT_FILE`` renamed to ``MARABUNTA_MIGRATION_FILE``
 
 **Improvements**
 

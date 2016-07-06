@@ -9,7 +9,7 @@ import os
 class Config(object):
 
     def __init__(self,
-                 project_file,
+                 migration_file,
                  database,
                  db_user=None,
                  db_password=None,
@@ -18,7 +18,7 @@ class Config(object):
                  mode=None,
                  allow_serie=False,
                  force_version=None):
-        self.project_file = project_file
+        self.migration_file = migration_file
         self.database = database
         self.db_user = db_user
         self.db_password = db_password
@@ -39,7 +39,7 @@ class Config(object):
 
         """
 
-        return cls(args.project_file,
+        return cls(args.migration_file,
                    args.database,
                    db_user=args.db_user,
                    db_password=args.db_password,
@@ -70,9 +70,9 @@ def get_args_parser():
     """Return a parser for command line options."""
     parser = argparse.ArgumentParser(
         description='Marabunta: Migrating ants for Odoo')
-    parser.add_argument('--project-file', '-f',
+    parser.add_argument('--migration-file', '-f',
                         action=EnvDefault,
-                        envvar='MARABUNTA_PROJECT_FILE',
+                        envvar='MARABUNTA_MIGRATION_FILE',
                         required=True,
                         help='The yaml file containing the migration steps')
     parser.add_argument('--database', '-d',

@@ -11,7 +11,6 @@ from .exception import ParseError
 from .model import Migration, MigrationOption, Version, Operation
 
 YAML_EXAMPLE = u"""
-name: project_name
 migration:
   options:
     # --workers=0 --stop-after-init are automatically added
