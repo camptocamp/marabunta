@@ -20,37 +20,41 @@ migration:
   versions:
     - version: 0.0.1
       operations:
-        base:
-          pre:  # executed before 'addons'
-            - echo 'pre-operation'
-          post:  # executed after 'addons'
-            - anthem songs::install
-        prod:
-          pre:
-            - echo 'pre-operation executed only when the mode is prod'
-          post:
-            - anthem songs::load_production_data
-        demo:
-          post:
-            - anthem songs::load_demo_data
+        pre:  # executed before 'addons'
+          - echo 'pre-operation'
+        post:  # executed after 'addons'
+          - anthem songs::install
       addons:
         upgrade:  # executed as odoo.py --stop-after-init -i/-u ...
           - base
           - document
         # remove:  # uninstalled with a python script
+      modes:
+        prod:
+          operations:
+            pre:
+              - echo 'pre-operation executed only when the mode is prod'
+            post:
+              - anthem songs::load_production_data
+        demo:
+          operations:
+            post:
+              - anthem songs::load_demo_data
+          addons:
+            upgrade:
+              - demo_addon
 
     - version: 0.0.2
       # nothing to do
 
     - version: 0.0.3
       operations:
-        base:
-          pre:
-            - echo 'foobar'
-            - ls
-            - bin/script_test.sh
-          post:
-            - echo 'post-op'
+        pre:
+          - echo 'foobar'
+          - ls
+          - bin/script_test.sh
+        post:
+          - echo 'post-op'
 
     - version: 0.0.4
       addons:
@@ -125,30 +129,22 @@ class YamlParser(object):
             raise ParseError("'versions' key must be a list", YAML_EXAMPLE)
         return [self._parse_version(version, options) for version in versions]
 
-    def _parse_version(self, parsed_version, options):
-        number = parsed_version.get('version')
-        if not number:
-            raise ParseError("'version' key with the number is mandatory",
-                             YAML_EXAMPLE)
-        version = Version(number, options)
+    def _parse_operations(self, version, operations, mode=None):
+        self.check_dict_expected_keys(
+            {'pre', 'post'}, operations, 'operations',
+        )
+        for operation_type, commands in operations.items():
+            if not isinstance(commands, list):
+                raise ParseError("'%s' key must be a list" %
+                                 (operation_type,), YAML_EXAMPLE)
+            for command in commands:
+                version.add_operation(
+                    operation_type,
+                    Operation(command),
+                    mode=mode,
+                )
 
-        operations = parsed_version.get('operations') or {}
-        for operation_mode, operation_types in operations.items():
-            self.check_dict_expected_keys(
-                {'pre', 'post'}, operation_types, operation_mode,
-            )
-            for operation_type, commands in operation_types.items():
-                if not isinstance(commands, list):
-                    raise ParseError("'%s' key must be a list" %
-                                     (operation_type,), YAML_EXAMPLE)
-                for command in commands:
-                    version.add_operation(
-                        operation_mode,
-                        operation_type,
-                        Operation(command)
-                    )
-
-        addons = parsed_version.get('addons') or {}
+    def _parse_addons(self, version, addons, mode=None):
         self.check_dict_expected_keys(
             {'upgrade', 'remove'}, addons, 'addons',
         )
@@ -156,10 +152,40 @@ class YamlParser(object):
         if upgrade:
             if not isinstance(upgrade, list):
                 raise ParseError("'upgrade' key must be a list", YAML_EXAMPLE)
-            version.add_upgrade_addons(upgrade)
+            version.add_upgrade_addons(upgrade, mode=mode)
         remove = addons.get('remove') or []
         if remove:
             if not isinstance(remove, list):
                 raise ParseError("'remove' key must be a list", YAML_EXAMPLE)
-            version.add_remove_addons(remove)
+            version.add_remove_addons(remove, mode=mode)
+
+    def _parse_version(self, parsed_version, options):
+        self.check_dict_expected_keys(
+            {'version', 'operations', 'addons', 'modes'},
+            parsed_version, 'versions',
+        )
+        number = parsed_version.get('version')
+        version = Version(number, options)
+
+        # parse the main operations and addons
+        operations = parsed_version.get('operations') or {}
+        self._parse_operations(version, operations)
+
+        addons = parsed_version.get('addons') or {}
+        self._parse_addons(version, addons)
+
+        # parse the modes operations and addons
+        modes = parsed_version.get('modes', {})
+        if not isinstance(modes, dict):
+            raise ParseError("'modes' key must be a dict", YAML_EXAMPLE)
+        for mode_name, mode in modes.items():
+            self.check_dict_expected_keys(
+                {'operations', 'addons'}, mode, mode_name,
+            )
+            mode_operations = mode.get('operations') or {}
+            self._parse_operations(version, mode_operations, mode=mode_name)
+
+            mode_addons = mode.get('addons') or {}
+            self._parse_addons(version, mode_addons, mode=mode_name)
+
         return version

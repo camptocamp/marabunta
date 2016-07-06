@@ -6,28 +6,41 @@ Release History
 0.3.0-dev
 +++++++++
 
+Introducing **modes**.
+
 **Backward incompatible changes**
 
 - ``--demo`` is replaced by a more general ``--mode`` argument,
   the equivalent being ``--mode=demo``
 - ``MARABUNTA_DEMO`` is replaced by ``MARABUNTA_MODE``
-- the configuration file has now operations by "modes", allowing to
-  load some different scripts for different modes ("base" is always
-  executed and always first)::
+- the configuration file has now operations and addons by "modes", allowing to
+  load some different scripts or install different addons for different modes
+  (the addons list are merged and the operations of the modes are executed
+  after the main ones)::
 
-    base:
-      pre:  # executed before 'addons'
-        - echo 'pre-operation'
-      post:  # executed after 'addons'
-        - anthem songs::install
-    prod:
-      pre:
-        - echo 'pre-operation executed only when the mode is prod'
-      post:
-        - anthem songs::load_production_data
-    demo:
-      post:
-        - anthem songs::load_demo_data
+    - version: 0.0.1
+      operations:
+        pre:  # executed before 'addons'
+          - echo 'pre-operation'
+        post:  # executed after 'addons'
+          - anthem songs::install
+      addons:
+        upgrade:
+          - base
+      modes:
+        prod:
+          operations:
+            pre:
+              - echo 'pre-operation executed only when the mode is prod'
+            post:
+              - anthem songs::load_production_data
+        demo:
+          operations:
+            post:
+              - anthem songs::load_demo_data
+          addons:
+            upgrade:
+              - demo_addon
 
 - ``--force`` renamed to ``--allow-serie``
 - ``MARABUNTA_FORCE`` renamed to ``MARABUNTA_ALLOW_SERIE``

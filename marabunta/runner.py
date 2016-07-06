@@ -140,17 +140,17 @@ class VersionRunner(object):
 
         else:
             self.log(u'execute base pre-operations')
-            for operation in version.pre_operations('base'):
+            for operation in version.pre_operations():
                 operation.execute(self.log)
             if self.config.mode:
                 self.log(u'execute %s pre-operations' % self.config.mode)
-                for operation in version.pre_operations(self.config.mode):
+                for operation in version.pre_operations(mode=self.config.mode):
                     operation.execute(self.log)
 
             self.perform_addons()
 
             self.log(u'execute base post-operations')
-            for operation in version.post_operations('base'):
+            for operation in version.post_operations():
                 operation.execute(self.log)
             if self.config.mode:
                 self.log(u'execute %s post-operations' % self.config.mode)
@@ -165,7 +165,10 @@ class VersionRunner(object):
         module_table = IrModuleModule(self.cursor)
         addons_state = module_table.read_state()
 
-        upgrade_operation = version.upgrade_addons_operation(addons_state)
+        upgrade_operation = version.upgrade_addons_operation(
+            addons_state,
+            mode=self.config.mode
+        )
         # exclude the addons already installed or updated during this run
         # when 'allow_serie' is active
         exclude = self.runner.upgraded_addons

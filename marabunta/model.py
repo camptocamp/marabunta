@@ -37,26 +37,36 @@ class Version(object):
                 '{} is not a valid version'.format(number)
             )
         self.number = number
-        self._operation_modes = {}
-        self._upgrade_addons = set()
-        self._remove_addons = set()
+        self._version_modes = {}
         self.options = options
 
     def is_processed(self, db_versions):
         return self.number in (v.number for v in db_versions if v.date_done)
 
     def is_noop(self):
-        has_operations = (not op.pre_operations and not op.post_operations
-                          for op in self._operation_modes.values())
-        noop = (not has_operations and
-                not self._upgrade_addons and not self._remove_addons)
+        has_operations = (mode.pre_operations or mode.post_operations
+                          for mode in self._version_modes.values())
+        has_upgrade_addons = (mode.upgrade_addons or mode.remove_addons
+                              for mode in self._version_modes.values())
+        noop = (not has_operations and not has_upgrade_addons)
         return noop
 
     def skip(self, db_versions):
         """ Version is either noop either it has been processed already """
         return self.is_noop() or self.is_processed(db_versions)
 
-    def add_operation(self, mode, operation_type, operation):
+    def _get_version_mode(self, mode=None):
+        """ Return a VersionMode for a mode name.
+
+        When the mode is None, we are working with the 'base' mode.
+
+        """
+        version_mode = self._version_modes.get(mode)
+        if not version_mode:
+            version_mode = self._version_modes[mode] = VersionMode(name=mode)
+        return version_mode
+
+    def add_operation(self, operation_type, operation, mode=None):
         """ Add an operation to the version
 
         :param mode: Name of the mode in which the operation is executed
@@ -66,48 +76,53 @@ class Version(object):
         :param operation: the operation to add
         :type operation: :class:`marabunta.model.Operation`
         """
-        operation_mode = self._operation_modes.get(mode)
-        if not operation_mode:
-            operation_mode = self._operation_modes[mode] = OperationMode(mode)
+        version_mode = self._get_version_mode(mode=mode)
         if operation_type == 'pre':
-            operation_mode.add_pre(operation)
+            version_mode.add_pre(operation)
         elif operation_type == 'post':
-            operation_mode.add_post(operation)
+            version_mode.add_post(operation)
         else:
             raise ConfigurationError(
                 "Type of operation must be 'pre' or 'post', got %s" %
                 (operation_type,)
             )
 
-    def add_upgrade_addons(self, addons):
-        self._upgrade_addons.update(addons)
+    def add_upgrade_addons(self, addons, mode=None):
+        version_mode = self._get_version_mode(mode=mode)
+        version_mode.add_upgrade_addons(addons)
 
-    def add_remove_addons(self, addons):
-        self._remove_addons.update(addons)
+    def add_remove_addons(self, addons, mode=None):
+        version_mode = self._get_version_mode(mode=mode)
+        version_mode.add_remove_addons(addons)
         raise ConfigurationError(
             'Removing addons is not yet supported because it cannot be done '
             'using the command line. You have to uninstall addons using '
             'an Odoo (\'import openerp\') script'
         )
 
-    def pre_operations(self, mode):
-        operations = self._operation_modes.get(mode)
-        if not operations:
-            return []
-        return operations.pre_operations
+    def pre_operations(self, mode=None):
+        """ Return pre-operations only for the mode asked """
+        version_mode = self._get_version_mode(mode=mode)
+        return version_mode.pre_operations
 
-    def post_operations(self, mode):
-        operations = self._operation_modes.get(mode)
-        if not operations:
-            return []
-        return operations.post_operations
+    def post_operations(self, mode=None):
+        """ Return post-operations only for the mode asked """
+        version_mode = self._get_version_mode(mode=mode)
+        return version_mode.post_operations
 
-    def upgrade_addons_operation(self, addons_state):
+    def upgrade_addons_operation(self, addons_state, mode=None):
+        """ Return merged set of main addons and mode's addons """
         installed = set(a.name for a in addons_state
                         if a.state in ('installed', 'to upgrade'))
 
-        to_install = self._upgrade_addons - installed
-        to_upgrade = installed & self._upgrade_addons
+        base_mode = self._get_version_mode()
+        addons_list = base_mode.upgrade_addons.copy()
+        if mode:
+            add_mode = self._get_version_mode(mode=mode)
+            addons_list |= add_mode.upgrade_addons
+
+        to_install = addons_list - installed
+        to_upgrade = installed & addons_list
 
         return UpgradeAddonsOperation(self.options, to_install, to_upgrade)
 
@@ -118,18 +133,35 @@ class Version(object):
         return u'Version<{}>'.format(self.number)
 
 
-class OperationMode(object):
+class VersionMode(object):
 
-    def __init__(self, name):
+    def __init__(self, name=None):
         self.name = name
         self.pre_operations = []
         self.post_operations = []
+        self.upgrade_addons = set()
+        self.remove_addons = set()
 
     def add_pre(self, operation):
         self.pre_operations.append(operation)
 
     def add_post(self, operation):
         self.post_operations.append(operation)
+
+    def __repr__(self):
+        name = self.name if self.name else 'base'
+        return u'VersionMode<{}>'.format(name)
+
+    def add_upgrade_addons(self, addons):
+        self.upgrade_addons.update(addons)
+
+    def add_remove_addons(self, addons):
+        self.remove_addons.update(addons)
+        raise ConfigurationError(
+            'Removing addons is not yet supported because it cannot be done '
+            'using the command line. You have to uninstall addons using '
+            'an Odoo (\'import openerp\') script'
+        )
 
 
 class UpgradeAddonsOperation(object):

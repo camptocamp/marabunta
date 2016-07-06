@@ -103,9 +103,9 @@ def get_args_parser():
                         required=False,
                         help="Specify the mode in which we run the migration,"
                              "such as 'demo' or 'prod'. Additional operations "
-                             "of this mode will be executed. "
-                             "The operations of the 'base' mode are executed "
-                             "in any case.")
+                             "of this mode will be executed after the main "
+                             "operations and the addons list of this mode "
+                             "will be merged with the main addons list.")
     parser.add_argument('--allow-serie',
                         action='store_true',
                         required=False,
