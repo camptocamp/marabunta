@@ -208,7 +208,7 @@ class Operation(object):
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT)
         for line in iter(proc.stdout.readline, b''):
-            log(line, raw=True)
+            log(line.decode('utf-8', errors='replace'), raw=True)
         proc.wait()
         if proc.returncode != 0:
             raise OperationError(
