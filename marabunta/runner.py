@@ -28,7 +28,7 @@ class Runner(object):
         self.upgraded_addons = set()
 
     def log(self, message):
-        print_decorated('migration: {}'.format(message))
+        print_decorated(u'migration: {}'.format(message))
 
     def perform(self):
         self.table.create_if_not_exists()
@@ -111,15 +111,15 @@ class VersionRunner(object):
         self.logs.append(message.strip() if raw else message)
 
     def start(self):
-        self.log('start')
+        self.log(u'start')
         self.table.start_version(self.version.number, datetime.now())
 
     def finish(self):
-        self.log('done')
+        self.log(u'done')
         module_table = IrModuleModule(self.cursor)
         addons_state = module_table.read_state()
         self.table.finish_version(self.version.number, datetime.now(),
-                                  '\n'.join(self.logs),
+                                  u'\n'.join(self.logs),
                                   [state._asdict() for state in addons_state])
 
     def perform(self):

@@ -3,6 +3,13 @@
 Release History
 ---------------
 
+0.3.1 (2016-07-07)
+++++++++++++++++++
+
+**Fixes**
+
+- Fix decoding issues with output of subprocesses
+
 0.3.0 (2016-07-06)
 ++++++++++++++++++
 
