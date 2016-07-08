@@ -3,6 +3,13 @@
 Release History
 ---------------
 
+0.3.2 (2016-07-08)
+++++++++++++++++++
+
+**Fixes**
+
+- Failure when there are no version to process
+
 0.3.1 (2016-07-07)
 ++++++++++++++++++
 

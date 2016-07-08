@@ -63,7 +63,7 @@ class Runner(object):
                         )
                 )
 
-        if not self.config.force_version and db_versions:
+        if not self.config.force_version and db_versions and unprocessed:
             installed = max(StrictVersion(v.number) for v in db_versions)
             next_unprocess = min(StrictVersion(v.number) for v in unprocessed)
             if installed > next_unprocess:
