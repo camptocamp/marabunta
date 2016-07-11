@@ -23,8 +23,8 @@ class Migration(object):
 class MigrationOption(object):
 
     def __init__(self, install_command=None, install_args=None):
-        self.install_command = install_command or 'odoo.py'
-        self.install_args = install_args or ''
+        self.install_command = install_command or u'odoo.py'
+        self.install_args = install_args or u''
 
 
 class Version(object):
@@ -34,7 +34,7 @@ class Version(object):
             StrictVersion().parse(number)
         except ValueError:
             raise ConfigurationError(
-                '{} is not a valid version'.format(number)
+                u'{} is not a valid version'.format(number)
             )
         self.number = number
         self._version_modes = {}
@@ -83,7 +83,7 @@ class Version(object):
             version_mode.add_post(operation)
         else:
             raise ConfigurationError(
-                "Type of operation must be 'pre' or 'post', got %s" %
+                u"Type of operation must be 'pre' or 'post', got %s" %
                 (operation_type,)
             )
 
@@ -95,9 +95,9 @@ class Version(object):
         version_mode = self._get_version_mode(mode=mode)
         version_mode.add_remove_addons(addons)
         raise ConfigurationError(
-            'Removing addons is not yet supported because it cannot be done '
-            'using the command line. You have to uninstall addons using '
-            'an Odoo (\'import openerp\') script'
+            u'Removing addons is not yet supported because it cannot be done '
+            u'using the command line. You have to uninstall addons using '
+            u'an Odoo (\'import openerp\') script'
         )
 
     def pre_operations(self, mode=None):
@@ -158,9 +158,9 @@ class VersionMode(object):
     def add_remove_addons(self, addons):
         self.remove_addons.update(addons)
         raise ConfigurationError(
-            'Removing addons is not yet supported because it cannot be done '
-            'using the command line. You have to uninstall addons using '
-            'an Odoo (\'import openerp\') script'
+            u'Removing addons is not yet supported because it cannot be done '
+            u'using the command line. You have to uninstall addons using '
+            u'an Odoo (\'import openerp\') script'
         )
 
 
@@ -212,7 +212,7 @@ class Operation(object):
         proc.wait()
         if proc.returncode != 0:
             raise OperationError(
-                "command '{}' returned {}".format(
+                u"command '{}' returned {}".format(
                     ' '.join(self.command),
                     proc.returncode
                 )

@@ -42,13 +42,13 @@ class Runner(object):
                           if not db_version.date_done]
             if unfinished:
                 raise MigrationError(
-                    'Upgrade of version {} has been attempted and failed. '
-                    'You may want to restore the backup or to run again the '
-                    'migration with the MARABUNTA_FORCE_VERSION '
-                    'environment variable '
-                    'or to fix it manually (in that case, you will have to '
-                    'update the  \'marabunta_version\' table yourself.'
-                    .format(','.join(v.number for v in unfinished))
+                    u'Upgrade of version {} has been attempted and failed. '
+                    u'You may want to restore the backup or to run again the '
+                    u'migration with the MARABUNTA_FORCE_VERSION '
+                    u'environment variable '
+                    u'or to fix it manually (in that case, you will have to '
+                    u'update the  \'marabunta_version\' table yourself.'
+                    .format(u','.join(v.number for v in unfinished))
                 )
 
         unprocessed = [version for version in self.migration.versions
@@ -57,8 +57,8 @@ class Runner(object):
         if not self.config.allow_serie:
             if len(unprocessed) > 1:
                 raise MigrationError(
-                    'Only one version can be upgraded at a time.\n'
-                    'The following versions need to be applied: {}.\n'.format(
+                    u'Only one version can be upgraded at a time.\n'
+                    u'The following versions need to be applied: {}.\n'.format(
                         [v.number for v in unprocessed]
                         )
                 )
@@ -68,8 +68,8 @@ class Runner(object):
             next_unprocess = min(StrictVersion(v.number) for v in unprocessed)
             if installed > next_unprocess:
                 raise MigrationError(
-                    'The version you are trying to install ({}) is below '
-                    'the current database version.'.format(
+                    u'The version you are trying to install ({}) is below '
+                    u'the current database version.'.format(
                         next_unprocess, installed
                     )
                 )
@@ -101,7 +101,7 @@ class VersionRunner(object):
 
     def log(self, message, raw=False):
         if raw:
-            print(message, end='')
+            print(message, end=u'')
         else:
             app_message = u'version {}: {}'.format(
                 self.version.number,
