@@ -4,6 +4,8 @@
 
 from __future__ import print_function
 
+import sys
+
 LOG_DECORATION = u'|> '
 
 
@@ -12,4 +14,11 @@ def print_decorated(message, *args, **kwargs):
         LOG_DECORATION,
         message,
     )
-    print(message, *args, **kwargs)
+    safe_print(message, *args, **kwargs)
+
+
+def safe_print(ustring, errors='replace', **kwargs):
+    """ Safely print a unicode string """
+    encoding = sys.stdout.encoding or 'utf-8'
+    bytestr = ustring.encode(encoding, errors=errors)
+    print(bytestr, **kwargs)

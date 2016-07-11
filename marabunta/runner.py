@@ -2,14 +2,12 @@
 # © 2016 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-from __future__ import print_function
-
 from datetime import datetime
 from distutils.version import StrictVersion
 
 from .database import IrModuleModule
 from .exception import MigrationError
-from .output import print_decorated
+from .output import print_decorated, safe_print
 
 LOG_DECORATION = u'|> '
 
@@ -101,7 +99,7 @@ class VersionRunner(object):
 
     def log(self, message, raw=False):
         if raw:
-            print(message, end=u'')
+            safe_print(message, end=u'')
         else:
             app_message = u'version {}: {}'.format(
                 self.version.number,

@@ -3,6 +3,13 @@
 Release History
 ---------------
 
+Unreleased
+++++++++++
+
+**Fixes**
+
+- Encode print's outputs to the stdout's encoding or to utf8 by default
+
 0.3.2 (2016-07-08)
 ++++++++++++++++++
 
