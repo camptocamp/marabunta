@@ -20,9 +20,9 @@ class ParseError(MarabuntaError):
     def __str__(self):
         if not self.example:
             return super(ParseError, self).__str__()
-        msg = ('An error occured during the parsing of the configuration '
-               'file. Here is an example to help you to figure out your issue.'
-               '\n{}\n{}').format(self.example, self.args[0])
+        msg = (u'An error occured during the parsing of the configuration '
+               u'file. Here is an example to help you to figure out '
+               u'your issue.\n{}\n{}').format(self.example, self.args[0])
         return msg
 
 

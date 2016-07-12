@@ -85,13 +85,13 @@ class YamlParser(object):
         It does not raise an error if we have less keys than expected.
         """
         if not isinstance(current, dict):
-            raise ParseError("'{}' key must be a dict".format(dict_name),
+            raise ParseError(u"'{}' key must be a dict".format(dict_name),
                              YAML_EXAMPLE)
         expected_keys = set(expected_keys)
         current_keys = {key for key in current}
         extra_keys = current_keys - expected_keys
         if extra_keys:
-            message = "{}: the keys {} are unexpected. (allowed keys: {})"
+            message = "u{}: the keys {} are unexpected. (allowed keys: {})"
             raise ParseError(
                message.format(dict_name,
                               list(extra_keys),
@@ -102,7 +102,7 @@ class YamlParser(object):
     def parse(self):
         """Check input and return a :class:`Migration` instance."""
         if not self.parsed.get('migration'):
-            raise ParseError("'migration' key is missing", YAML_EXAMPLE)
+            raise ParseError(u"'migration' key is missing", YAML_EXAMPLE)
         self.check_dict_expected_keys(
             {'options', 'versions'}, self.parsed['migration'], 'migration',
         )
@@ -125,7 +125,7 @@ class YamlParser(object):
     def _parse_versions(self, migration, options):
         versions = migration.get('versions') or []
         if not isinstance(versions, list):
-            raise ParseError("'versions' key must be a list", YAML_EXAMPLE)
+            raise ParseError(u"'versions' key must be a list", YAML_EXAMPLE)
         return [self._parse_version(version, options) for version in versions]
 
     def _parse_operations(self, version, operations, mode=None):
@@ -134,7 +134,7 @@ class YamlParser(object):
         )
         for operation_type, commands in operations.items():
             if not isinstance(commands, list):
-                raise ParseError("'%s' key must be a list" %
+                raise ParseError(u"'%s' key must be a list" %
                                  (operation_type,), YAML_EXAMPLE)
             for command in commands:
                 version.add_operation(
@@ -150,12 +150,12 @@ class YamlParser(object):
         upgrade = addons.get('upgrade') or []
         if upgrade:
             if not isinstance(upgrade, list):
-                raise ParseError("'upgrade' key must be a list", YAML_EXAMPLE)
+                raise ParseError(u"'upgrade' key must be a list", YAML_EXAMPLE)
             version.add_upgrade_addons(upgrade, mode=mode)
         remove = addons.get('remove') or []
         if remove:
             if not isinstance(remove, list):
-                raise ParseError("'remove' key must be a list", YAML_EXAMPLE)
+                raise ParseError(u"'remove' key must be a list", YAML_EXAMPLE)
             version.add_remove_addons(remove, mode=mode)
 
     def _parse_version(self, parsed_version, options):
@@ -176,7 +176,7 @@ class YamlParser(object):
         # parse the modes operations and addons
         modes = parsed_version.get('modes', {})
         if not isinstance(modes, dict):
-            raise ParseError("'modes' key must be a dict", YAML_EXAMPLE)
+            raise ParseError(u"'modes' key must be a dict", YAML_EXAMPLE)
         for mode_name, mode in modes.items():
             self.check_dict_expected_keys(
                 {'operations', 'addons'}, mode, mode_name,
