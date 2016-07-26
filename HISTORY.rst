@@ -6,6 +6,20 @@ Release History
 Unreleased
 ++++++++++
 
+**Features**
+
+**Bugfixes**
+
+**Improvements**
+
+**Documentation**
+
+**Build**
+
+
+0.4.0 (2016-07-26)
+++++++++++++++++++
+
 **Improvements**
 
 - New dependency on ``pexpect``. Used to create a pseudo-tty to execute the
