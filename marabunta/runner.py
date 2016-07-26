@@ -97,7 +97,10 @@ class VersionRunner(object):
         self.version = version
         self.logs = []
 
-    def log(self, message, raw=False):
+    def log(self, message, raw=False, stdout=True):
+        self.logs.append(message.strip() if raw else message)
+        if not stdout:
+            return
         if raw:
             safe_print(message, end=u'')
         else:
@@ -106,7 +109,6 @@ class VersionRunner(object):
                 message,
             )
             print_decorated(app_message)
-        self.logs.append(message.strip() if raw else message)
 
     def start(self):
         self.log(u'start')

@@ -10,6 +10,8 @@ Unreleased
 
 **Bugfixes**
 
+- Do not print on stdout the result of operations twice
+
 **Improvements**
 
 **Documentation**
