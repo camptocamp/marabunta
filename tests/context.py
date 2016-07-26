@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+# flake8: noqa
+# we want to ignore:
+# F401 'marabunta' imported but unused
+# E402 module level import not at top of file
+
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))

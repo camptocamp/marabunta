@@ -6,6 +6,12 @@ Release History
 Unreleased
 ++++++++++
 
+**Improvements**
+
+- New dependency on ``pexpect``. Used to create a pseudo-tty to execute the
+  operations.  It enables line buffering and interactivity for pdb in the
+  children processes.
+
 
 0.3.3 (2016-07-12)
 ++++++++++++++++++
