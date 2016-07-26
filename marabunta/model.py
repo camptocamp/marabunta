@@ -49,10 +49,10 @@ class Version(object):
         return self.number in (v.number for v in db_versions if v.date_done)
 
     def is_noop(self):
-        has_operations = (mode.pre_operations or mode.post_operations
-                          for mode in self._version_modes.values())
-        has_upgrade_addons = (mode.upgrade_addons or mode.remove_addons
-                              for mode in self._version_modes.values())
+        has_operations = [mode.pre_operations or mode.post_operations
+                          for mode in self._version_modes.values()]
+        has_upgrade_addons = [mode.upgrade_addons or mode.remove_addons
+                              for mode in self._version_modes.values()]
         noop = (not has_operations and not has_upgrade_addons)
         return noop
 

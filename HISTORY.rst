@@ -12,6 +12,10 @@ Unreleased
   operations.  It enables line buffering and interactivity for pdb in the
   children processes.
 
+**Fixes**
+
+- Noop operations are really considered as such
+
 
 0.3.3 (2016-07-12)
 ++++++++++++++++++
