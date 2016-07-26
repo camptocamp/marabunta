@@ -10,13 +10,19 @@ Unreleased
 
 **Bugfixes**
 
-- Do not print on stdout the result of operations twice
-
 **Improvements**
 
 **Documentation**
 
 **Build**
+
+
+0.4.1 (2016-07-27)
+++++++++++++++++++
+
+**Bugfixes**
+
+- Do not print on stdout the result of operations twice
 
 
 0.4.0 (2016-07-26)
