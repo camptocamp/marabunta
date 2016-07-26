@@ -3,8 +3,13 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 import shlex
-import subprocess
 from distutils.version import StrictVersion
+try:  # Python 2.x
+    from cStringIO import StringIO
+except ImportError:  # Python 3.x
+    from io import StringIO
+
+import pexpect
 
 from .exception import ConfigurationError, OperationError
 from .helpers import string_types
@@ -204,19 +209,37 @@ class Operation(object):
 
     def execute(self, log):
         log(u'{}'.format(u' '.join(self.command)))
-        proc = subprocess.Popen(self.command,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT)
-        for line in iter(proc.stdout.readline, b''):
-            log(line.decode('utf-8', errors='replace'), raw=True)
-        proc.wait()
-        if proc.returncode != 0:
+        child = pexpect.spawn(self.command[0],
+                              self.command[1:],
+                              )
+        # interact() will transfer the child's stdout to
+        # stdout, but we also copy the output in a buffer
+        # so we can save the logs in the database
+        log_buffer = StringIO()
+        child.logfile = log_buffer
+        # use the interactive mode so we can use pdb in the
+        # migration scripts
+        child.interact()
+        child.close()
+        if child.signalstatus is not None:
+            raise OperationError(
+                u"command '{}' has been interrupted by signal {}".format(
+                    ' '.join(self.command),
+                    child.signalstatus
+                )
+            )
+        elif child.exitstatus != 0:
             raise OperationError(
                 u"command '{}' returned {}".format(
                     ' '.join(self.command),
-                    proc.returncode
+                    child.exitstatus
                 )
             )
+        log_buffer.seek(0)
+        # the pseudo-tty used for the child process returns
+        # lines with \r\n endings
+        log('\n'.join(log_buffer.read().splitlines())
+                .decode('utf-8', errors='replace'))
 
     def __repr__(self):
         return u'Operation<{}>'.format(' '.join(self.command))

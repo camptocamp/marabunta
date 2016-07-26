@@ -22,7 +22,9 @@ setup(
     license='AGPLv3+',
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=["psycopg2",
-                      "PyYAML"],
+                      "PyYAML",
+                      "pexpect",
+                      ],
     classifiers=(
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
