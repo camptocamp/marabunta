@@ -239,7 +239,8 @@ class Operation(object):
         # the pseudo-tty used for the child process returns
         # lines with \r\n endings
         log('\n'.join(log_buffer.read().splitlines())
-                .decode('utf-8', errors='replace'))
+                .decode('utf-8', errors='replace'),
+            stdout=False)
 
     def __repr__(self):
         return u'Operation<{}>'.format(' '.join(self.command))
