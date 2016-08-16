@@ -10,6 +10,9 @@ Unreleased
 
 **Bugfixes**
 
+- Prevent error (25, 'Inappropriate ioctl for device') when
+  stdout is not a tty by disabling the interactive mode.
+
 **Improvements**
 
 **Documentation**
