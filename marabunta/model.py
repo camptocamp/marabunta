@@ -3,6 +3,8 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 import shlex
+import sys
+
 from distutils.version import StrictVersion
 try:  # Python 2.x
     from cStringIO import StringIO
@@ -207,19 +209,28 @@ class Operation(object):
     def __nonzero__(self):
         return bool(self.command)
 
-    def execute(self, log):
-        log(u'{}'.format(u' '.join(self.command)))
+    def _execute(self, log, interactive=True):
         child = pexpect.spawn(self.command[0],
                               self.command[1:],
+                              timeout=None,
                               )
         # interact() will transfer the child's stdout to
         # stdout, but we also copy the output in a buffer
         # so we can save the logs in the database
         log_buffer = StringIO()
-        child.logfile = log_buffer
-        # use the interactive mode so we can use pdb in the
-        # migration scripts
-        child.interact()
+        if interactive:
+            child.logfile = log_buffer
+            # use the interactive mode so we can use pdb in the
+            # migration scripts
+            child.interact()
+        else:
+            # set the logfile to stdout so we have an unbuffered
+            # output
+            child.logfile = sys.stdout
+            child.expect(pexpect.EOF)
+            # child.before contains all the the output of the child program
+            # before the EOF
+            log_buffer.write(child.before)
         child.close()
         if child.signalstatus is not None:
             raise OperationError(
@@ -240,7 +251,12 @@ class Operation(object):
         # lines with \r\n endings
         log('\n'.join(log_buffer.read().splitlines())
                 .decode('utf-8', errors='replace'),
+            decorated=False,
             stdout=False)
+
+    def execute(self, log):
+        log(u'{}'.format(u' '.join(self.command)))
+        self._execute(log, interactive=sys.stdout.isatty())
 
     def __repr__(self):
         return u'Operation<{}>'.format(' '.join(self.command))
