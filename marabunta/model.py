@@ -30,7 +30,7 @@ class Migration(object):
 class MigrationOption(object):
 
     def __init__(self, install_command=None, install_args=None):
-        self.install_command = install_command or u'odoo.py'
+        self.install_command = install_command or u'odoo'
         self.install_args = install_args or u''
 
 
