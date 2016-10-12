@@ -8,10 +8,6 @@ Unreleased
 
 **Features**
 
-- Switch the default command line for running odoo to ``odoo`` instead of
-  ``odoo.py`` (renamed in Odoo 10). For usage with previous version, you must
-  specify the ``install_command`` in the ``migration.yml`` file.
-
 **Bugfixes**
 
 **Improvements**
@@ -19,6 +15,18 @@ Unreleased
 **Documentation**
 
 **Build**
+
+0.5.0 (2016-10-12)
+++++++++++++++++++
+
+Odoo 10 Support
+
+**Features**
+
+- Switch the default command line for running odoo to ``odoo`` instead of
+  ``odoo.py`` (renamed in Odoo 10). For usage with previous version, you must
+  specify the ``install_command`` in the ``migration.yml`` file.
+
 
 0.4.2 (2016-08-17)
 ++++++++++++++++++
