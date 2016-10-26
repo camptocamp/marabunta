@@ -16,6 +16,14 @@ Unreleased
 
 **Build**
 
+
+0.5.1 (2016-10-26)
+++++++++++++++++++
+
+* Fix: marabunta processes run concurrently all tried to run the migration,
+  this is better handled with a PostgreSQL advisory lock now
+
+
 0.5.0 (2016-10-12)
 ++++++++++++++++++
 

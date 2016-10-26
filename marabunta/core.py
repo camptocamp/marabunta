@@ -24,7 +24,7 @@ from .output import safe_print
 from .parser import YamlParser
 from .runner import Runner
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 # The number below has been generated as below:
 # pg_lock accepts an int8 so we build an hash composed with
