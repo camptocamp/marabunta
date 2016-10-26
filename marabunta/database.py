@@ -60,22 +60,6 @@ class MigrationTable(object):
         """.format(self.table_name)
         self.cursor.execute(query)
 
-    def lock(self):
-        """ Lock the entire migration table
-
-        The lock is released the next commit or rollback.
-        The purpose is to prevent 2 processes to execute the same migration at
-        the same time.
-
-        The other transaction should because if they exit, whey will either be
-        dead, either run Odoo and we want neither of them.
-
-        """
-        query = """
-        LOCK TABLE {}
-        """.format(self.table_name)
-        self.cursor.execute(query)
-
     def versions(self):
         """ Read versions from the table
 

@@ -30,7 +30,6 @@ class Runner(object):
 
     def perform(self):
         self.table.create_if_not_exists()
-        self.table.lock()  # locked until end of transaction
 
         db_versions = self.table.versions()
 
