@@ -17,6 +17,7 @@ required.
 from __future__ import print_function
 
 import time
+import threading
 
 from .config import Config, get_args_parser
 from .database import Database, MigrationTable
@@ -43,6 +44,42 @@ def pg_advisory_lock(cursor, lock_ident):
     return acquired
 
 
+class ApplicationLock(threading.Thread):
+
+    def __init__(self, connection):
+        self.acquired = False
+        self.connection = connection
+        self.replica = False
+        self.stop = False
+        super(ApplicationLock, self).__init__()
+
+    def run(self):
+        with self.connection.cursor() as cursor:
+            # If the migration is run concurrently (in several
+            # containers, hosts, ...), only 1 is allowed to proceed
+            # with the migration. It will be the first one to win
+            # the advisory lock. The others will be flagged as 'replica'.
+            while not pg_advisory_lock(cursor, ADVISORY_LOCK_IDENT):
+                if not self.replica:  # print only the first time
+                    safe_print('A concurrent process is already '
+                               'running the migration')
+                self.replica = True
+                time.sleep(0.5)
+            else:
+                self.acquired = True
+                idx = 0
+                while not self.stop:
+                    # keep the connection alive to maintain the advisory
+                    # lock by running a query every 30 seconds
+                    if idx == 60:
+                        cursor.execute("SELECT 1")
+                        idx = 0
+                    idx += 1
+                    # keep the sleep small to be able to exit quickly
+                    # when 'stop' is set to True
+                    time.sleep(0.5)
+
+
 def migrate(config):
     """Perform a migration according to config.
 
@@ -52,44 +89,33 @@ def migrate(config):
     migration_parser = YamlParser.parse_from_file(config.migration_file)
     migration = migration_parser.parse()
     database = Database(config)
-    with database.connect() as conn:
-        with conn.cursor() as cursor:
-            try:
-                # If the migration is run concurrently (in several
-                # containers, hosts, ...), only 1 is allowed to proceed
-                # with the migration. It will be the first one to win
-                # the advisory lock. The others will be flagged as 'replica'.
-                replica = False
-                while not pg_advisory_lock(cursor, ADVISORY_LOCK_IDENT):
-                    if not replica:  # print only the first time
-                        safe_print('A concurrent process is already '
-                                   'running the migration')
-                    replica = True
-                    time.sleep(0.5)
-                else:
-                    # when a replica could finally acquire a lock, it
-                    # means that the main process has finished the
-                    # migration. In that case, the replica should just
-                    # exit because the migration already took place. We
-                    # wait till then to be sure we won't run Odoo before
-                    # the main process could finish the migration.
-                    if replica:
-                        return
 
-                table = MigrationTable(cursor)
-                runner = Runner(config, migration, cursor, table)
-                runner.perform()
-            except:
-                # We want to commit even if we had an error in a migration
-                # script! Thus we have an entry in the migration table
-                # indicating that a migration has been started but not
-                # finished
-                conn.commit()
-                raise
-            else:
-                conn.commit()
-            finally:
-                conn.close()
+    with database.connect() as connection:
+        application_lock = ApplicationLock(connection)
+        application_lock.start()
+
+        while not application_lock.acquired:
+            time.sleep(0.5)
+        else:
+            if application_lock.replica:
+                # when a replica could finally acquire a lock, it
+                # means that the main process has finished the
+                # migration. In that case, the replica should just
+                # exit because the migration already took place. We
+                # wait till then to be sure we won't run Odoo before
+                # the main process could finish the migration.
+                application_lock.stop = True
+                application_lock.join()
+                return
+            # we are not in the replica: go on for the migration
+
+        try:
+            table = MigrationTable(connection)
+            runner = Runner(config, migration, connection, table)
+            runner.perform()
+        finally:
+            application_lock.stop = True
+            application_lock.join()
 
 
 def main():
@@ -98,6 +124,7 @@ def main():
     args = parser.parse_args()
     config = Config.from_parse_args(args)
     migrate(config)
+
 
 if __name__ == '__main__':
     main()
