@@ -8,9 +8,15 @@ import sys
 
 LOG_DECORATION = u'|> '
 
+supports_colors = hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
+
 
 def print_decorated(message, *args, **kwargs):
-    message = u'\033[1m{}{}\033[0m'.format(
+    if supports_colors:
+        template = u'\033[1m{}{}\033[0m'
+    else:
+        template = u'{}{}'
+    message = template.format(
         LOG_DECORATION,
         message,
     )
