@@ -37,8 +37,8 @@ class Database(object):
 
 class MigrationTable(object):
 
-    def __init__(self, cursor):
-        self.cursor = cursor
+    def __init__(self, connection):
+        self.connection = connection
         self.table_name = 'marabunta_version'
         self.VersionRecord = namedtuple(
             'VersionRecord',
@@ -47,18 +47,19 @@ class MigrationTable(object):
         self._versions = None
 
     def create_if_not_exists(self):
-        query = """
-        CREATE TABLE IF NOT EXISTS {} (
-            number VARCHAR NOT NULL,
-            date_start TIMESTAMP NOT NULL,
-            date_done TIMESTAMP,
-            log TEXT,
-            addons TEXT,
+        with self.connection.cursor() as cursor:
+            query = """
+            CREATE TABLE IF NOT EXISTS {} (
+                number VARCHAR NOT NULL,
+                date_start TIMESTAMP NOT NULL,
+                date_done TIMESTAMP,
+                log TEXT,
+                addons TEXT,
 
-            CONSTRAINT version_pk PRIMARY KEY (number)
-        );
-        """.format(self.table_name)
-        self.cursor.execute(query)
+                CONSTRAINT version_pk PRIMARY KEY (number)
+            );
+            """.format(self.table_name)
+            cursor.execute(query)
 
     def versions(self):
         """ Read versions from the table
@@ -66,68 +67,71 @@ class MigrationTable(object):
         The versions are kept in cache for the next reads.
         """
         if self._versions is None:
-            query = """
-            SELECT number,
-                   date_start,
-                   date_done,
-                   log,
-                   addons
-            FROM {}
-            """.format(self.table_name)
-            self.cursor.execute(query)
-            rows = self.cursor.fetchall()
-            versions = []
-            for row in rows:
-                row = list(row)
-                # convert 'addons' to json
-                row[4] = json.loads(row[4]) if row[4] else []
-                versions.append(
-                    self.VersionRecord(*row)
-                )
-            self._versions = versions
+            with self.connection.cursor() as cursor:
+                query = """
+                SELECT number,
+                       date_start,
+                       date_done,
+                       log,
+                       addons
+                FROM {}
+                """.format(self.table_name)
+                cursor.execute(query)
+                rows = cursor.fetchall()
+                versions = []
+                for row in rows:
+                    row = list(row)
+                    # convert 'addons' to json
+                    row[4] = json.loads(row[4]) if row[4] else []
+                    versions.append(
+                        self.VersionRecord(*row)
+                    )
+                self._versions = versions
         return self._versions
 
     def start_version(self, number, start):
-        query = """
-        SELECT number FROM {}
-        WHERE number = %s
-        """.format(self.table_name)
-        self.cursor.execute(query, (number,))
-        if self.cursor.fetchone():
+        with self.connection.cursor() as cursor:
             query = """
-            UPDATE {}
-            SET date_start = %s,
-                date_done = NULL,
-                log = NULL,
-                addons = NULL
+            SELECT number FROM {}
             WHERE number = %s
             """.format(self.table_name)
-            self.cursor.execute(query, (start, number))
-        else:
-            query = """
-            INSERT INTO {}
-            (number, date_start)
-            VALUES (%s, %s)
-            """.format(self.table_name)
-            self.cursor.execute(query, (number, start))
+            cursor.execute(query, (number,))
+            if cursor.fetchone():
+                query = """
+                UPDATE {}
+                SET date_start = %s,
+                    date_done = NULL,
+                    log = NULL,
+                    addons = NULL
+                WHERE number = %s
+                """.format(self.table_name)
+                cursor.execute(query, (start, number))
+            else:
+                query = """
+                INSERT INTO {}
+                (number, date_start)
+                VALUES (%s, %s)
+                """.format(self.table_name)
+                cursor.execute(query, (number, start))
         self._versions = None  # reset versions cache
 
     def finish_version(self, number, end, log, addons):
-        query = """
-        UPDATE {}
-        SET date_done = %s,
-            log = %s,
-            addons = %s
-        WHERE number = %s
-        """.format(self.table_name)
-        self.cursor.execute(query, (end, log, json.dumps(addons), number))
-        self._versions = None  # reset versions cache
+        with self.connection.cursor() as cursor:
+            query = """
+            UPDATE {}
+            SET date_done = %s,
+                log = %s,
+                addons = %s
+            WHERE number = %s
+            """.format(self.table_name)
+            cursor.execute(query, (end, log, json.dumps(addons), number))
+            self._versions = None  # reset versions cache
 
 
 class IrModuleModule(object):
 
-    def __init__(self, cursor):
-        self.cursor = cursor
+    def __init__(self, connection):
+        self.connection = connection
         self.table_name = 'ir_module_module'
         self.ModuleRecord = namedtuple(
             'ModuleRecord',
@@ -135,17 +139,18 @@ class IrModuleModule(object):
         )
 
     def read_state(self):
-        if not table_exists(self.cursor, self.table_name):
-            # relation ir_module_module does not exists,
-            # this is a new DB, no addon is installed
-            return []
+        with self.connection.cursor() as cursor:
+            if not table_exists(cursor, self.table_name):
+                # relation ir_module_module does not exists,
+                # this is a new DB, no addon is installed
+                return []
 
-        addons_query = """
-        SELECT name, state
-        FROM {}
-        """.format(self.table_name)
-        self.cursor.execute(addons_query)
-        rows = self.cursor.fetchall()
+            addons_query = """
+            SELECT name, state
+            FROM {}
+            """.format(self.table_name)
+            cursor.execute(addons_query)
+            rows = cursor.fetchall()
         return [self.ModuleRecord(*row) for row in rows]
 
 
