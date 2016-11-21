@@ -16,6 +16,23 @@ Unreleased
 
 **Build**
 
+0.6.0 (2016-11-21)
+++++++++++++++++++
+
+**Improvements**
+
+* Rework of the database connections:
+
+  * The advisory lock is opened in a cursor in a thread, this cursor
+    periodically executes a dummy 'SELECT 1' to be sure that the connection
+    stay alive (not killed with a timeout) when a long-running subprocess is
+    run.
+  * The operations in database are executed in short-lived cursors. This
+    prevents an issue we had when the open cursor was locking
+    'ir_module_module', preventing odoo to install/update properly.
+
+* Try to disable colors in output if the term does not support colors
+
 
 0.5.1 (2016-10-26)
 ++++++++++++++++++
