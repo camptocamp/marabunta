@@ -14,7 +14,7 @@ YAML_EXAMPLE = u"""
 migration:
   options:
     # --workers=0 --stop-after-init are automatically added
-    install_command: odoo.py
+    install_command: odoo
     install_args: --log-level=debug
   versions:
     - version: 0.0.1
@@ -24,7 +24,7 @@ migration:
         post:  # executed after 'addons'
           - anthem songs::install
       addons:
-        upgrade:  # executed as odoo.py --stop-after-init -i/-u ...
+        upgrade:  # executed as odoo --stop-after-init -i/-u ...
           - base
           - document
         # remove:  # uninstalled with a python script
