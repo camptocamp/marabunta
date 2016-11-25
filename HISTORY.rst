@@ -10,13 +10,21 @@ Unreleased
 
 **Bugfixes**
 
-* Commit the connection so changes are not rollbacked.
-
 **Improvements**
 
 **Documentation**
 
 **Build**
+
+0.6.1 (2016-11-25)
+++++++++++++++++++
+
+Important bugfix! The changes in the ``marabunta_version`` were never
+committed, so migration would run again.
+
+**Bugfixes**
+
+* Commit the connection so changes are not rollbacked.
 
 0.6.0 (2016-11-21)
 ++++++++++++++++++
