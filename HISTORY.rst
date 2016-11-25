@@ -10,6 +10,8 @@ Unreleased
 
 **Bugfixes**
 
+* Commit the connection so changes are not rollbacked.
+
 **Improvements**
 
 **Documentation**

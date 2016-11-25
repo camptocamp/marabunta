@@ -30,9 +30,8 @@ class Database(object):
 
     @contextmanager
     def connect(self):
-        conn = psycopg2.connect(self.dsn())
-        yield conn
-        conn.close()
+        with psycopg2.connect(self.dsn()) as conn:
+            yield conn
 
 
 class MigrationTable(object):
