@@ -14,10 +14,10 @@ LOG_DECORATION = u'|> '
 
 class Runner(object):
 
-    def __init__(self, config, migration, connection, table):
+    def __init__(self, config, migration, database, table):
         self.config = config
         self.migration = migration
-        self.connection = connection
+        self.database = database
         self.table = table
         # we keep the addons upgrading during a run in this set,
         # this is only useful when using 'allow_serie',
@@ -92,7 +92,7 @@ class VersionRunner(object):
         self.table = runner.table
         self.migration = runner.migration
         self.config = runner.config
-        self.connection = runner.connection
+        self.database = runner.database
         self.version = version
         self.logs = []
 
@@ -115,7 +115,7 @@ class VersionRunner(object):
 
     def finish(self):
         self.log(u'done')
-        module_table = IrModuleModule(self.connection)
+        module_table = IrModuleModule(self.database)
         addons_state = module_table.read_state()
         self.table.finish_version(self.version.number, datetime.now(),
                                   u'\n'.join(self.logs),
@@ -161,7 +161,7 @@ class VersionRunner(object):
     def perform_addons(self):
         version = self.version
 
-        module_table = IrModuleModule(self.connection)
+        module_table = IrModuleModule(self.database)
         addons_state = module_table.read_state()
 
         upgrade_operation = version.upgrade_addons_operation(

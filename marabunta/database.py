@@ -35,11 +35,17 @@ class Database(object):
                 conn.autocommit = True
             yield conn
 
+    @contextmanager
+    def cursor(self, autocommit=False):
+        with self.connect(autocommit=True) as conn:
+            with conn.cursor() as cursor:
+                yield cursor
+
 
 class MigrationTable(object):
 
-    def __init__(self, connection):
-        self.connection = connection
+    def __init__(self, database):
+        self.database = database
         self.table_name = 'marabunta_version'
         self.VersionRecord = namedtuple(
             'VersionRecord',
@@ -48,7 +54,7 @@ class MigrationTable(object):
         self._versions = None
 
     def create_if_not_exists(self):
-        with self.connection.cursor() as cursor:
+        with self.database.cursor() as cursor:
             query = """
             CREATE TABLE IF NOT EXISTS {} (
                 number VARCHAR NOT NULL,
@@ -68,7 +74,7 @@ class MigrationTable(object):
         The versions are kept in cache for the next reads.
         """
         if self._versions is None:
-            with self.connection.cursor() as cursor:
+            with self.database.cursor() as cursor:
                 query = """
                 SELECT number,
                        date_start,
@@ -91,7 +97,7 @@ class MigrationTable(object):
         return self._versions
 
     def start_version(self, number, start):
-        with self.connection.cursor() as cursor:
+        with self.database.cursor() as cursor:
             query = """
             SELECT number FROM {}
             WHERE number = %s
@@ -117,7 +123,7 @@ class MigrationTable(object):
         self._versions = None  # reset versions cache
 
     def finish_version(self, number, end, log, addons):
-        with self.connection.cursor() as cursor:
+        with self.database.cursor() as cursor:
             query = """
             UPDATE {}
             SET date_done = %s,
@@ -131,8 +137,8 @@ class MigrationTable(object):
 
 class IrModuleModule(object):
 
-    def __init__(self, connection):
-        self.connection = connection
+    def __init__(self, database):
+        self.database = database
         self.table_name = 'ir_module_module'
         self.ModuleRecord = namedtuple(
             'ModuleRecord',
@@ -140,7 +146,7 @@ class IrModuleModule(object):
         )
 
     def read_state(self):
-        with self.connection.cursor() as cursor:
+        with self.database.cursor() as cursor:
             if not table_exists(cursor, self.table_name):
                 # relation ir_module_module does not exists,
                 # this is a new DB, no addon is installed
