@@ -10,6 +10,13 @@ Unreleased
 
 **Bugfixes**
 
+* Autocommit the operations done in the marabunta_version table.  Previously,
+  after an exception, the changes to marabunta_version were rollbacked, which
+  is not the expected behavior (it makes the migration restart ceaseless).
+  As a side effect, Marabunta now opens 2 connections. The connection opened
+  for the adsivory lock cannot commit before the end because it would release
+  the lock.
+
 **Improvements**
 
 **Documentation**
