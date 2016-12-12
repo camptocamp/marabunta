@@ -10,6 +10,18 @@ Unreleased
 
 **Bugfixes**
 
+**Improvements**
+
+**Documentation**
+
+**Build**
+
+
+0.6.2 (2016-12-12)
+++++++++++++++++++
+
+**Bugfixes**
+
 * Autocommit the operations done in the marabunta_version table.  Previously,
   after an exception, the changes to marabunta_version were rollbacked, which
   is not the expected behavior (it makes the migration restart ceaseless).
@@ -17,11 +29,6 @@ Unreleased
   for the adsivory lock cannot commit before the end because it would release
   the lock.
 
-**Improvements**
-
-**Documentation**
-
-**Build**
 
 0.6.1 (2016-11-25)
 ++++++++++++++++++
