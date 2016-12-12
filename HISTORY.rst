@@ -10,16 +10,23 @@ Unreleased
 
 **Bugfixes**
 
-* The new connection opened in 0.6.2 might suffer from the same issue of
-  timeout than before 0.6.0: the connection is long-lived but there is no
-  keep-alive for this connection. Open a new connection for each update in
-  marabunta_version, which might be spaced between long subprocess operations
-
 **Improvements**
 
 **Documentation**
 
 **Build**
+
+
+0.6.3 (2016-12-12)
+++++++++++++++++++
+
+
+**Bugfixes**
+
+* The new connection opened in 0.6.2 might suffer from the same issue of
+  timeout than before 0.6.0: the connection is long-lived but there is no
+  keep-alive for this connection. Open a new connection for each update in
+  marabunta_version, which might be spaced between long subprocess operations
 
 
 0.6.2 (2016-12-12)
