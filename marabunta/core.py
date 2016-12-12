@@ -90,8 +90,9 @@ def migrate(config):
     migration = migration_parser.parse()
     database = Database(config)
 
-    with database.connect() as connection:
-        application_lock = ApplicationLock(connection)
+    with database.connect() as lock_connection, \
+            database.connect(autocommit=True) as autocommit_connection:
+        application_lock = ApplicationLock(lock_connection)
         application_lock.start()
 
         while not application_lock.acquired:
@@ -110,8 +111,8 @@ def migrate(config):
             # we are not in the replica: go on for the migration
 
         try:
-            table = MigrationTable(connection)
-            runner = Runner(config, migration, connection, table)
+            table = MigrationTable(autocommit_connection)
+            runner = Runner(config, migration, autocommit_connection, table)
             runner.perform()
         finally:
             application_lock.stop = True

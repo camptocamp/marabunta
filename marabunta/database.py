@@ -29,8 +29,10 @@ class Database(object):
         return '%s %s %s %s %s' % (host, port, name, user, password)
 
     @contextmanager
-    def connect(self):
+    def connect(self, autocommit=False):
         with psycopg2.connect(self.dsn()) as conn:
+            if autocommit:
+                conn.autocommit = True
             yield conn
 
 
