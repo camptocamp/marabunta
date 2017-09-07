@@ -24,6 +24,7 @@ setup(
     install_requires=["psycopg2",
                       "PyYAML",
                       "pexpect",
+                      "werkzeug",
                       ],
     classifiers=(
         'Development Status :: 3 - Alpha',

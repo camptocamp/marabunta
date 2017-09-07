@@ -17,7 +17,10 @@ class Config(object):
                  db_host='localhost',
                  mode=None,
                  allow_serie=False,
-                 force_version=None):
+                 force_version=None,
+                 web_host='localhost',
+                 web_port=8069,
+                 web_custom_html=None):
         self.migration_file = migration_file
         self.database = database
         self.db_user = db_user
@@ -29,6 +32,9 @@ class Config(object):
         self.force_version = force_version
         if force_version and not allow_serie:
             self.allow_serie = True
+        self.web_host = web_host
+        self.web_port = web_port
+        self.web_custom_html = web_custom_html
 
     @classmethod
     def from_parse_args(cls, args):
@@ -48,6 +54,9 @@ class Config(object):
                    mode=args.mode,
                    allow_serie=args.allow_serie,
                    force_version=args.force_version,
+                   web_host=args.web_host,
+                   web_port=args.web_port,
+                   web_custom_html=args.web_custom_html,
                    )
 
 
@@ -117,4 +126,24 @@ def get_args_parser():
                         default=os.environ.get('MARABUNTA_FORCE_VERSION'),
                         help='Force upgrade of a version, even if it has '
                              'already been applied.')
+
+    group = parser.add_argument_group(
+        title='Web',
+        description='Configuration related to the internal web server, '
+                    'used to publish a maintenance page during the migration.',
+    )
+    group.add_argument('--web-host',
+                       required=False,
+                       default=os.environ.get('MARABUNTA_WEB_HOST', '0.0.0.0'),
+                       help='Host for the web server')
+    group.add_argument('--web-port',
+                       required=False,
+                       default=os.environ.get('MARABUNTA_WEB_PORT', 8069),
+                       help='Port for the web server')
+    group.add_argument('--web-custom-html',
+                       required=False,
+                       default=os.environ.get(
+                           'MARABUNTA_WEB_CUSTOM_HTML'
+                       ),
+                       help='Path to a custom html file to publish')
     return parser
