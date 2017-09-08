@@ -203,15 +203,19 @@ class Operation(object):
 
     def __init__(self, command):
         if isinstance(command, string_types):
-            command = shlex.split(command)
+            command = self._shlex_split_unicode(command)
         self.command = command
+
+    @staticmethod
+    def _shlex_split_unicode(command):
+        return [l.decode('utf8') for l in shlex.split(command.encode('utf8'))]
 
     def __nonzero__(self):
         return bool(self.command)
 
     def _execute(self, log, interactive=True):
-        child = pexpect.spawn(self.command[0],
-                              self.command[1:],
+        child = pexpect.spawn(self.command[0].encode('utf8'),
+                              [l.encode('utf8') for l in self.command[1:]],
                               timeout=None,
                               )
         # interact() will transfer the child's stdout to

@@ -10,6 +10,8 @@ Unreleased
 
 **Bugfixes**
 
+* Commands with unicode chars make the migration fail
+
 **Improvements**
 
 **Documentation**
