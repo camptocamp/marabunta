@@ -18,6 +18,9 @@ Unreleased
 
 **Build**
 
+* Removed python3 from tox, it doesn't run on py3 and we can't make them run
+  now. Odoo is still python2, py3 compat will come when it'll switch.
+
 
 0.6.3 (2016-12-12)
 ++++++++++++++++++
