@@ -16,6 +16,7 @@ required.
 
 from __future__ import print_function
 
+import logging
 import time
 import threading
 
@@ -24,8 +25,11 @@ from .database import Database, MigrationTable
 from .output import safe_print
 from .parser import YamlParser
 from .runner import Runner
+from .web import WebApp
 
 __version__ = "0.6.3"
+
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 # The number below has been generated as below:
 # pg_lock accepts an int8 so we build an hash composed with
@@ -80,14 +84,32 @@ class ApplicationLock(threading.Thread):
                     time.sleep(0.5)
 
 
+class WebServer(threading.Thread):
+
+    def __init__(self, app):
+        super(WebServer, self).__init__()
+        self.app = app
+
+    def run(self):
+        self.app.serve()
+
+
 def migrate(config):
     """Perform a migration according to config.
 
     :param config: The configuration to be applied
     :type config: Config
     """
+    webapp = WebApp(config.web_host, config.web_port,
+                    custom_maintenance_file=config.web_custom_html)
+
+    webserver = WebServer(webapp)
+    webserver.daemon = True
+    webserver.start()
+
     migration_parser = YamlParser.parse_from_file(config.migration_file)
     migration = migration_parser.parse()
+
     database = Database(config)
 
     with database.connect() as lock_connection:

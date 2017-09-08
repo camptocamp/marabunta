@@ -8,6 +8,10 @@ Unreleased
 
 **Features**
 
+* Publish a maintenance web page during migration. The host and port are
+  configurable with new options. By default the port match odoo's (8069). A
+  default maintenance is provided, but it can be configured as well.
+
 **Bugfixes**
 
 **Improvements**
