@@ -12,6 +12,9 @@ Unreleased
   configurable with new options. By default the port match odoo's (8069). A
   default maintenance is provided, but it can be configured as well.
 
+* When a migration fails, the log alongside the traceback are logged in the
+  ``marabunta_version`` table.
+
 **Bugfixes**
 
 **Improvements**

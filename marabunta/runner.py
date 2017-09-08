@@ -2,6 +2,8 @@
 # © 2016 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
+import traceback
+
 from datetime import datetime
 from distutils.version import StrictVersion
 
@@ -133,7 +135,18 @@ class VersionRunner(object):
             return
 
         self.start()
+        try:
+            self.perform_version(version)
+        except:
+            error = u'\n'.join(
+                self.logs +
+                [u'\n', traceback.format_exc().decode('utf8', errors='ignore')]
+            )
+            self.table.record_log(version.number, error)
+            raise
+        self.finish()
 
+    def perform_version(self, version):
         if version.is_noop():
             self.log(u'version {} is a noop'.format(version.number))
 
@@ -155,8 +168,6 @@ class VersionRunner(object):
                 self.log(u'execute %s post-operations' % self.config.mode)
                 for operation in version.post_operations(self.config.mode):
                     operation.execute(self.log)
-
-        self.finish()
 
     def perform_addons(self):
         version = self.version

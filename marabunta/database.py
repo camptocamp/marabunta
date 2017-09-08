@@ -122,6 +122,16 @@ class MigrationTable(object):
                 cursor.execute(query, (number, start))
         self._versions = None  # reset versions cache
 
+    def record_log(self, number, log):
+        with self.database.cursor_autocommit() as cursor:
+            query = """
+            UPDATE {}
+            SET log = %s
+            WHERE number = %s
+            """.format(self.table_name)
+            cursor.execute(query, (log, number))
+            self._versions = None  # reset versions cache
+
     def finish_version(self, number, end, log, addons):
         with self.database.cursor_autocommit() as cursor:
             query = """
