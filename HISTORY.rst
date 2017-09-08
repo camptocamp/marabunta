@@ -8,20 +8,28 @@ Unreleased
 
 **Features**
 
+**Bugfixes**
+
+**Improvements**
+
+**Documentation**
+
+**Build**
+
+0.7.0 (2017-09-08)
+++++++++++++++++++
+
+**Features**
+
 * Publish a maintenance web page during migration. The host and port are
   configurable with new options. By default the port match odoo's (8069). A
   default maintenance is provided, but it can be configured as well.
-
 * When a migration fails, the log alongside the traceback are logged in the
   ``marabunta_version`` table.
 
 **Bugfixes**
 
 * Commands with unicode chars make the migration fail
-
-**Improvements**
-
-**Documentation**
 
 **Build**
 

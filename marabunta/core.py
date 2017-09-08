@@ -27,7 +27,7 @@ from .parser import YamlParser
 from .runner import Runner
 from .web import WebApp
 
-__version__ = "0.6.3"
+__version__ = "0.7.0"
 
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
