@@ -16,6 +16,14 @@ Unreleased
 
 **Build**
 
+0.7.1 (2017-09-11)
+++++++++++++++++++
+
+**Bugfixes**
+
+* Include maintenance html file in the distribution
+
+
 0.7.0 (2017-09-08)
 ++++++++++++++++++
 
