@@ -16,6 +16,14 @@ Unreleased
 
 **Build**
 
+0.7.2 (2017-09-15)
+++++++++++++++++++
+
+**Bugfixes**
+
+* Use --no-xmlrpc option when running odoo as the new web server use the same port,
+  it's not needed anyway
+
 0.7.1 (2017-09-11)
 ++++++++++++++++++
 
