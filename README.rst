@@ -29,3 +29,6 @@ follows::
   $ pip install pytest
   $ py.test tests
 
+Nota bene: for testing locally I had to run the following commands::
+  $ virtualenv -p python3 envname
+  $ pip install --upgrade virtualenv
