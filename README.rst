@@ -23,12 +23,8 @@ follows::
   $ git clone https://github.com/camptocamp/marabunta.git
   Cloning into 'marabunta'...
   $ cd marabunta
-  $ python2 -m virtualenv env
+  $ virtualenv -p YOUR_PYTHON env
   $ source env/bin/activate
   $ pip install -e .
   $ pip install pytest
   $ py.test tests
-
-Nota bene: for testing locally I had to run the following commands::
-  $ virtualenv -p python3 envname
-  $ pip install --upgrade virtualenv

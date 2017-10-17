@@ -208,11 +208,11 @@ class Operation(object):
 
     @staticmethod
     def _shlex_split_unicode(command):
-        if sys.version_info < (3, 5):
+        if sys.version_info < (3, 4):
             return [l.decode('utf8') for l in shlex.split(
                 command.encode('utf-8'))]
         else:
-            return [l for l in shlex.split(command)]
+            return shlex.split(command)
 
     def __nonzero__(self):
         return bool(self.command)
