@@ -23,9 +23,8 @@ follows::
   $ git clone https://github.com/camptocamp/marabunta.git
   Cloning into 'marabunta'...
   $ cd marabunta
-  $ python2 -m virtualenv env
+  $ virtualenv -p YOUR_PYTHON env
   $ source env/bin/activate
   $ pip install -e .
   $ pip install pytest
   $ py.test tests
-
