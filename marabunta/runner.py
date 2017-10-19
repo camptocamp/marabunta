@@ -3,6 +3,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 import traceback
+import sys
 
 from datetime import datetime
 from distutils.version import StrictVersion
@@ -138,10 +139,11 @@ class VersionRunner(object):
         try:
             self.perform_version(version)
         except Exception:
-            error = u'\n'.join(
-                self.logs +
-                [u'\n', traceback.format_exc().decode('utf8', errors='ignore')]
-            )
+            if sys.version_info < (3, 4):
+                msg = traceback.format_exc().decode('utf8', errors='ignore')
+            else:
+                msg = traceback.format_exc()
+            error = u'\n'.join(self.logs + [u'\n', msg])
             self.table.record_log(version.number, error)
             raise
         self.finish()

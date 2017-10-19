@@ -6,10 +6,7 @@ import shlex
 import sys
 
 from distutils.version import StrictVersion
-try:  # Python 2.x
-    from cStringIO import StringIO
-except ImportError:  # Python 3.x
-    from io import StringIO
+from io import BytesIO
 
 import pexpect
 
@@ -218,14 +215,17 @@ class Operation(object):
         return bool(self.command)
 
     def _execute(self, log, interactive=True):
-        child = pexpect.spawn(self.command[0].encode('utf8'),
-                              [l.encode('utf8') for l in self.command[1:]],
-                              timeout=None,
-                              )
+        if sys.version_info < (3, 4):
+            executable = self.command[0].encode('utf8')
+            params = [l.encode('utf8') for l in self.command[1:]]
+        else:
+            executable = str(self.command[0])
+            params = self.command[1:]
+        child = pexpect.spawnu(executable, params, timeout=None)
         # interact() will transfer the child's stdout to
         # stdout, but we also copy the output in a buffer
         # so we can save the logs in the database
-        log_buffer = StringIO()
+        log_buffer = BytesIO()
         if interactive:
             child.logfile = log_buffer
             # use the interactive mode so we can use pdb in the
@@ -257,10 +257,10 @@ class Operation(object):
         log_buffer.seek(0)
         # the pseudo-tty used for the child process returns
         # lines with \r\n endings
-        log('\n'.join(log_buffer.read().splitlines())
-                .decode('utf-8', errors='replace'),
-            decorated=False,
-            stdout=False)
+        msg = '\n'.join([ str(l) for l in log_buffer.read().splitlines()])
+        if sys.version_info[0] < 3:
+            msg = msg.decode('utf-8', errors='replace')
+        log(msg, decorated=False, stdout=False)
 
     def execute(self, log):
         log(u'{}'.format(u' '.join(self.command)))

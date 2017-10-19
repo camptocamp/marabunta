@@ -25,8 +25,12 @@ setup(
                       "PyYAML",
                       "pexpect",
                       "werkzeug",
+                      "future",
                       ],
     include_package_data=True,
+    package_data={
+        'marabunta': ['html/*.html'],
+    },
     classifiers=(
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
