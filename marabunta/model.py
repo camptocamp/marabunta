@@ -257,7 +257,7 @@ class Operation(object):
         log_buffer.seek(0)
         # the pseudo-tty used for the child process returns
         # lines with \r\n endings
-        msg = '\n'.join([ str(l) for l in log_buffer.read().splitlines()])
+        msg = '\n'.join([str(l) for l in log_buffer.read().splitlines()])
         if sys.version_info[0] < 3:
             msg = msg.decode('utf-8', errors='replace')
         log(msg, decorated=False, stdout=False)
