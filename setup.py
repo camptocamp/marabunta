@@ -27,6 +27,8 @@ setup(
                       "werkzeug",
                       "future",
                       ],
+    tests_require=["pytest",
+                   "mock"],
     include_package_data=True,
     package_data={
         'marabunta': ['html/*.html'],
