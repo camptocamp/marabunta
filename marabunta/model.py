@@ -7,7 +7,7 @@ import sys
 
 from builtins import object
 from distutils.version import StrictVersion
-from io import BytesIO
+from io import StringIO
 
 import pexpect
 
@@ -217,19 +217,15 @@ class Operation(object):
 
     def _execute(self, log, interactive=True):
         assert self.command
-        if sys.version_info < (3, 4):
-            executable = self.command[0].encode('utf8')
-            params = [l.encode('utf8') for l in self.command[1:]]
-        else:
-            executable = str(self.command[0])
-            params = self.command[1:]
-        child = pexpect.spawnu(executable, params, timeout=None)
+        executable = self.command[0]
+        params = self.command[1:]
+        child = pexpect.spawn(executable, params, timeout=None,
+                              encoding='utf8')
         # interact() will transfer the child's stdout to
         # stdout, but we also copy the output in a buffer
         # so we can save the logs in the database
-        log_buffer = BytesIO()
+        log_buffer = StringIO()
         if interactive:
-            child.logfile = log_buffer
             # use the interactive mode so we can use pdb in the
             # migration scripts
             child.interact()
@@ -240,6 +236,7 @@ class Operation(object):
             child.expect(pexpect.EOF)
             # child.before contains all the the output of the child program
             # before the EOF
+            # child.before is unicode
             log_buffer.write(child.before)
         child.close()
         if child.signalstatus is not None:
@@ -259,9 +256,7 @@ class Operation(object):
         log_buffer.seek(0)
         # the pseudo-tty used for the child process returns
         # lines with \r\n endings
-        msg = '\n'.join([str(l) for l in log_buffer.read().splitlines()])
-        if sys.version_info[0] < 3:
-            msg = msg.decode('utf-8', errors='replace')
+        msg = '\n'.join(log_buffer.read().splitlines())
         log(msg, decorated=False, stdout=False)
 
     def execute(self, log):

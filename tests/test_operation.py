@@ -26,5 +26,13 @@ def test_from_list_of_str():
     assert op.command == ['ls', '-l']
 
 
+def test_log_execute_output(capfd):
+    op = Operation([u'echo', u'hello world'])
+    logs = []
 
+    def log(msg, **kwargs):
+        logs.append(msg)
 
+    op.execute(log)
+    assert logs == [u'echo hello world', u'hello world']
+    assert capfd.readouterr() == (u'hello world\r\n', '')
