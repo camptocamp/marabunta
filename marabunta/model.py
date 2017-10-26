@@ -5,6 +5,7 @@
 import shlex
 import sys
 
+from builtins import object
 from distutils.version import StrictVersion
 from io import BytesIO
 
@@ -211,10 +212,11 @@ class Operation(object):
         else:
             return shlex.split(command)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.command)
 
     def _execute(self, log, interactive=True):
+        assert self.command
         if sys.version_info < (3, 4):
             executable = self.command[0].encode('utf8')
             params = [l.encode('utf8') for l in self.command[1:]]
