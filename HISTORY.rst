@@ -10,15 +10,20 @@ Unreleased
 
 **Bugfixes**
 
-* Support special chars (such as +) in Postgres passwords. The passwords were
-  incorrectly passed through unquote_plus, which transform the + char to a
-  space.
-
 **Improvements**
 
 **Documentation**
 
 **Build**
+
+0.7.3 (2017-11-01)
+++++++++++++++++++
+
+**Bugfixes**
+
+* Support special chars (such as +) in Postgres passwords. The passwords were
+  incorrectly passed through unquote_plus, which transform the + char to a
+  space.
 
 0.7.2 (2017-09-15)
 ++++++++++++++++++
