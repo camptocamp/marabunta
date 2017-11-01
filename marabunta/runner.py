@@ -137,7 +137,7 @@ class VersionRunner(object):
         self.start()
         try:
             self.perform_version(version)
-        except:
+        except Exception:
             error = u'\n'.join(
                 self.logs +
                 [u'\n', traceback.format_exc().decode('utf8', errors='ignore')]
