@@ -3,8 +3,6 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 import json
-import urllib
-
 
 import psycopg2
 
@@ -20,17 +18,22 @@ class Database(object):
 
     def dsn(self):
         cfg = self.config
-        host = 'host=%s' % cfg.db_host if cfg.db_host else ''
-        port = 'port=%s' % cfg.db_port if cfg.db_port else ''
-        name = 'dbname=%s' % cfg.database
-        user = 'user=%s' % cfg.db_user if cfg.db_user else ''
-        password = ('password=%s' % urllib.unquote_plus(cfg.db_password)
-                    if cfg.db_password else '')
-        return '%s %s %s %s %s' % (host, port, name, user, password)
+        params = {
+            'dbname': cfg.database,
+        }
+        if cfg.db_host:
+            params['host'] = cfg.db_host
+        if cfg.db_port:
+            params['port'] = cfg.db_port
+        if cfg.db_user:
+            params['user'] = cfg.db_user
+        if cfg.db_password:
+            params['password'] = cfg.db_password
+        return params
 
     @contextmanager
     def connect(self, autocommit=False):
-        with psycopg2.connect(self.dsn()) as conn:
+        with psycopg2.connect(**self.dsn()) as conn:
             if autocommit:
                 conn.autocommit = True
             yield conn
