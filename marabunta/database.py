@@ -10,11 +10,6 @@ import psycopg2
 from collections import namedtuple
 from contextlib import contextmanager
 
-if sys.version_info[0] == 3:
-    from urllib.parse import unquote_plus
-else:
-    from urllib import unquote_plus
-
 
 class Database(object):
 
