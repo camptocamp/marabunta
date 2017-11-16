@@ -12,11 +12,14 @@ Unreleased
 
 **Improvements**
 
-* Support for python3
-
 **Documentation**
 
 **Build**
+
+0.8.0 (2017-11-16)
+++++++++++++++++++
+
+Python3!
 
 0.7.3 (2017-11-01)
 ++++++++++++++++++
