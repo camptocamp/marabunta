@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-# © 2016 Camptocamp SA
+# Copyright 2016-2017 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 import shlex
 import sys
 
+from builtins import object
 from distutils.version import StrictVersion
-try:  # Python 2.x
-    from cStringIO import StringIO
-except ImportError:  # Python 3.x
-    from io import StringIO
+from io import StringIO
 
 import pexpect
 
@@ -208,22 +206,26 @@ class Operation(object):
 
     @staticmethod
     def _shlex_split_unicode(command):
-        return [l.decode('utf8') for l in shlex.split(command.encode('utf8'))]
+        if sys.version_info < (3, 4):
+            return [l.decode('utf8') for l in shlex.split(
+                command.encode('utf-8'))]
+        else:
+            return shlex.split(command)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.command)
 
     def _execute(self, log, interactive=True):
-        child = pexpect.spawn(self.command[0].encode('utf8'),
-                              [l.encode('utf8') for l in self.command[1:]],
-                              timeout=None,
-                              )
+        assert self.command
+        executable = self.command[0]
+        params = self.command[1:]
+        child = pexpect.spawn(executable, params, timeout=None,
+                              encoding='utf8')
         # interact() will transfer the child's stdout to
         # stdout, but we also copy the output in a buffer
         # so we can save the logs in the database
         log_buffer = StringIO()
         if interactive:
-            child.logfile = log_buffer
             # use the interactive mode so we can use pdb in the
             # migration scripts
             child.interact()
@@ -234,6 +236,7 @@ class Operation(object):
             child.expect(pexpect.EOF)
             # child.before contains all the the output of the child program
             # before the EOF
+            # child.before is unicode
             log_buffer.write(child.before)
         child.close()
         if child.signalstatus is not None:
@@ -253,10 +256,8 @@ class Operation(object):
         log_buffer.seek(0)
         # the pseudo-tty used for the child process returns
         # lines with \r\n endings
-        log('\n'.join(log_buffer.read().splitlines())
-                .decode('utf-8', errors='replace'),
-            decorated=False,
-            stdout=False)
+        msg = '\n'.join(log_buffer.read().splitlines())
+        log(msg, decorated=False, stdout=False)
 
     def execute(self, log):
         log(u'{}'.format(u' '.join(self.command)))

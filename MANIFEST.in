@@ -1,3 +1,3 @@
 include LICENSE
 include HISTORY.rst
-include-recursive marabunta/html
+include-recursive marabunta/html *

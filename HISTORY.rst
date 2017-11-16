@@ -12,6 +12,8 @@ Unreleased
 
 **Improvements**
 
+* Support for python3
+
 **Documentation**
 
 **Build**

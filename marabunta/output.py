@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# © 2016 Camptocamp SA
+# Copyright 2016-2017 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 from __future__ import print_function
@@ -26,5 +26,8 @@ def print_decorated(message, *args, **kwargs):
 def safe_print(ustring, errors='replace', **kwargs):
     """ Safely print a unicode string """
     encoding = sys.stdout.encoding or 'utf-8'
-    bytestr = ustring.encode(encoding, errors=errors)
-    print(bytestr, **kwargs)
+    if sys.version_info[0] == 3:
+        print(ustring, **kwargs)
+    else:
+        bytestr = ustring.encode(encoding, errors=errors)
+        print(bytestr, **kwargs)
