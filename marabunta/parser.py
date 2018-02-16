@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016-2017 Camptocamp SA
+# Copyright 2016-2018 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 from __future__ import print_function
@@ -20,6 +20,7 @@ migration:
     install_args: --log-level=debug
   versions:
     - version: setup
+      commit: 861b8a18f1afcd42ed20acec816c7bc378ea16fd
       operations:
         pre:  # executed before 'addons'
           - echo 'pre-operation'
@@ -46,9 +47,11 @@ migration:
               - demo_addon
 
     - version: 0.0.2
+      tag: v0.2
       # nothing to do
 
     - version: 0.0.3
+      commit: 961b8a18f1afcd42ed20acec816c7bc378ea16fd
       operations:
         pre:
           - echo 'foobar'
@@ -67,19 +70,20 @@ migration:
 
 class YamlParser(object):
 
-    def __init__(self, parsed):
+    def __init__(self, parsed, config):
         self.parsed = parsed
+        self.config = config
 
     @classmethod
-    def parser_from_buffer(cls, fp):
+    def parser_from_buffer(cls, fp, config=None):
         """Construct YamlParser from a file pointer."""
-        return cls(yaml.safe_load(fp))
+        return cls(yaml.safe_load(fp), config)
 
     @classmethod
-    def parse_from_file(cls, filename):
+    def parse_from_file(cls, filename, config=None):
         """Construct YamlParser from a filename."""
         with open(filename, 'r') as fh:
-            return cls.parser_from_buffer(fh)
+            return cls.parser_from_buffer(fh, config)
 
     def check_dict_expected_keys(self, expected_keys, current, dict_name):
         """ Check that we don't have unknown keys in a dictionary.
@@ -163,13 +167,33 @@ class YamlParser(object):
                 raise ParseError(u"'remove' key must be a list", YAML_EXAMPLE)
             version.add_remove_addons(remove, mode=mode)
 
+    def _parse_git(self, version, tag, commit):
+        if self.config and self.config.use_git:
+            command = ''
+            if tag and commit:
+                raise ParseError(u"you can use 'tag' or 'commit' not both",
+                                 YAML_EXAMPLE)
+            elif tag:
+                command = u'git checkout -q {}'.format(tag)
+            elif commit:
+                command = u'git checkout -q {}'.format(commit)
+            if command:
+                version.add_git(Operation(command))
+
     def _parse_version(self, parsed_version, options):
         self.check_dict_expected_keys(
-            {'version', 'operations', 'addons', 'modes'},
+            {'version', 'operations', 'addons', 'modes', 'commit', 'tag'},
             parsed_version, 'versions',
         )
         number = parsed_version.get('version')
         version = Version(number, options)
+
+        # parse tag or commit
+        commit = parsed_version.get('commit')
+        tag = parsed_version.get('tag')
+        if self.config and self.config.version_as_tag and not tag:
+            tag = number
+        self._parse_git(version, tag, commit)
 
         # parse the main operations and addons
         operations = parsed_version.get('operations') or {}

@@ -34,7 +34,7 @@ class MigrationOption(object):
 
 class Version(object):
 
-    def __init__(self, number, options):
+    def __init__(self, number, options, commit=None, tag=None):
         try:
             MarabuntaVersion().parse(number)
         except ValueError:
@@ -42,6 +42,9 @@ class Version(object):
                 u'{} is not a valid version'.format(number)
             )
         self.number = number
+        self.commit = commit
+        self.tag = tag
+        self.git_operation = None
         self._version_modes = {}
         self.options = options
 
@@ -59,6 +62,15 @@ class Version(object):
     def skip(self, db_versions):
         """ Version is either noop either it has been processed already """
         return self.is_noop() or self.is_processed(db_versions)
+
+    def add_git(self, operation):
+        self.git_operation = operation
+
+    def git_checkout(self, log):
+        """ checkout git revision by commit hash or tag """
+        if self.git_operation:
+            # return u'git checkout: tag {}'.format(self.tag)
+            self.git_operation.execute(log)
 
     def _get_version_mode(self, mode=None):
         """ Return a VersionMode for a mode name.
