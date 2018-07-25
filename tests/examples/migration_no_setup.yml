@@ -4,7 +4,7 @@ migration:
     install_command: odoo
     install_args: --log-level=debug
   versions:
-    - version: setup
+    - version: 0.0.1
       operations:
         pre:  # executed before 'addons'
           - echo 'pre-operation'

@@ -6,11 +6,11 @@ import traceback
 import sys
 
 from datetime import datetime
-from distutils.version import StrictVersion
 
 from .database import IrModuleModule
 from .exception import MigrationError
 from .output import print_decorated, safe_print
+from .version import MarabuntaVersion
 
 LOG_DECORATION = u'|> '
 
@@ -64,8 +64,10 @@ class Runner(object):
                 )
 
         if not self.config.force_version and db_versions and unprocessed:
-            installed = max(StrictVersion(v.number) for v in db_versions)
-            next_unprocess = min(StrictVersion(v.number) for v in unprocessed)
+            installed = max(MarabuntaVersion(v.number) for v in db_versions)
+            next_unprocess = min(
+                MarabuntaVersion(v.number) for v in unprocessed
+            )
             if installed > next_unprocess:
                 raise MigrationError(
                     u'The version you are trying to install ({}) is below '
