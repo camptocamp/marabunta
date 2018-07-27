@@ -10,7 +10,8 @@ FIRST_VERSION = 'setup'
 
 
 class MarabuntaVersion(Version):
-    """Version numbering for anal retentives and software idealists.
+
+    """Version numbering for Camptocamp software idealists.
     Implements the Camptocamp interface for version number classes as
     described above. A version number consists of three or five
     dot-separated numeric components, without any options.
