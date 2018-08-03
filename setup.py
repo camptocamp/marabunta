@@ -21,7 +21,7 @@ setup(
     url='https://github.com/camptocamp/marabunta',
     license='AGPLv3+',
     packages=find_packages(exclude=('tests', 'docs')),
-    install_requires=["psycopg2",
+    install_requires=["psycopg2-binary",
                       "PyYAML",
                       "pexpect",
                       "werkzeug",
