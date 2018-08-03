@@ -6,9 +6,11 @@ from __future__ import print_function
 
 
 import yaml
+import warnings
 
 from .exception import ParseError
 from .model import Migration, MigrationOption, Version, Operation
+from .version import FIRST_VERSION
 
 YAML_EXAMPLE = u"""
 migration:
@@ -17,7 +19,7 @@ migration:
     install_command: odoo
     install_args: --log-level=debug
   versions:
-    - version: 0.0.1
+    - version: setup
       operations:
         pre:  # executed before 'addons'
           - echo 'pre-operation'
@@ -76,7 +78,7 @@ class YamlParser(object):
     @classmethod
     def parse_from_file(cls, filename):
         """Construct YamlParser from a filename."""
-        with open(filename, 'rU') as fh:
+        with open(filename, 'r') as fh:
             return cls.parser_from_buffer(fh)
 
     def check_dict_expected_keys(self, expected_keys, current, dict_name):
@@ -126,6 +128,9 @@ class YamlParser(object):
         versions = migration.get('versions') or []
         if not isinstance(versions, list):
             raise ParseError(u"'versions' key must be a list", YAML_EXAMPLE)
+        if versions[0]['version'] != FIRST_VERSION:
+            warnings_msg = u'First version should be named `setup`'
+            warnings.warn(warnings_msg, FutureWarning)
         return [self._parse_version(version, options) for version in versions]
 
     def _parse_operations(self, version, operations, mode=None):

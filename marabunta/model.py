@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016-2017 Camptocamp SA
+# Copyright 2016-2018 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 import shlex
 import sys
 
 from builtins import object
-from distutils.version import StrictVersion
 from io import StringIO
 
 import pexpect
 
 from .exception import ConfigurationError, OperationError
 from .helpers import string_types
+from .version import MarabuntaVersion
 
 
 class Migration(object):
@@ -22,7 +22,7 @@ class Migration(object):
 
     @property
     def versions(self):
-        return sorted(self._versions, key=lambda v: StrictVersion(v.number))
+        return sorted(self._versions, key=lambda v: MarabuntaVersion(v.number))
 
 
 class MigrationOption(object):
@@ -36,7 +36,7 @@ class Version(object):
 
     def __init__(self, number, options):
         try:
-            StrictVersion().parse(number)
+            MarabuntaVersion().parse(number)
         except ValueError:
             raise ConfigurationError(
                 u'{} is not a valid version'.format(number)
