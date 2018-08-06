@@ -8,7 +8,13 @@ Unreleased
 
 **Features**
 
+* New versioning system FIXME
+
+
 **Bugfixes**
+
+* Build Py3 wheel on release FIXME
+
 
 **Improvements**
 
