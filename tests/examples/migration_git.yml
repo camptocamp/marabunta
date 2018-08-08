@@ -1,0 +1,34 @@
+migration:
+  options:
+    # --workers=0 --stop-after-init are automatically added
+    install_command: odoo
+    install_args: --log-level=debug
+  versions:
+    - version: 0.0.1
+      operations:
+        pre:  # executed before 'addons'
+          - echo 'pre-operation'
+        post:  # executed after 'addons'
+          - echo 'post-operation'
+      modes:
+        prod:
+          operations:
+            pre:
+              - echo 'pre-operation executed only when the mode is prod'
+        demo:
+          operations:
+            post:
+              - echo 'post-operation executed only when the mode is demo'
+
+    - version: 0.0.2
+      # nothing to do
+
+    - version: 0.0.3
+      operations:
+        pre:
+          - echo 'foobar'
+          - echo 'foobarbaz'
+        post:
+          - echo 'post-op with unicode é â'
+
+    - version: 0.0.4

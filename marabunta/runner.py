@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016-2017 Camptocamp SA
+# Copyright 2016-2018 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 import traceback
@@ -116,6 +116,10 @@ class VersionRunner(object):
 
     def start(self):
         self.log(u'start')
+        # # self.git
+        # if self.config.use_git:
+        #     self.version.git_checkout(self.config)
+
         self.table.start_version(self.version.number, datetime.now())
 
     def finish(self):
@@ -151,6 +155,9 @@ class VersionRunner(object):
         self.finish()
 
     def perform_version(self, version):
+        if self.config and self.config.use_git:
+            self.version.git_checkout(self.log)
+
         if version.is_noop():
             self.log(u'version {} is a noop'.format(version.number))
 

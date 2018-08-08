@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016-2017 Camptocamp SA
+# Copyright 2016-2018 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 import argparse
@@ -20,7 +20,9 @@ class Config(object):
                  force_version=None,
                  web_host='localhost',
                  web_port=8069,
-                 web_custom_html=None):
+                 web_custom_html=None,
+                 use_git=False,
+                 version_as_tag=True):
         self.migration_file = migration_file
         self.database = database
         self.db_user = db_user
@@ -35,6 +37,8 @@ class Config(object):
         self.web_host = web_host
         self.web_port = web_port
         self.web_custom_html = web_custom_html
+        self.use_git = use_git
+        self.version_as_tag = version_as_tag
 
     @classmethod
     def from_parse_args(cls, args):
@@ -57,6 +61,8 @@ class Config(object):
                    web_host=args.web_host,
                    web_port=args.web_port,
                    web_custom_html=args.web_custom_html,
+                   use_git=args.use_git,
+                   version_as_tag=args.version_as_tag,
                    )
 
 
@@ -146,4 +152,20 @@ def get_args_parser():
                            'MARABUNTA_WEB_CUSTOM_HTML'
                        ),
                        help='Path to a custom html file to publish')
+    group = parser.add_argument_group(
+        title='Git',
+        description='Configuration related to GIT VCS.',
+    )
+    group.add_argument('--use-git', '-g',
+                       required=False,
+                       default=os.environ.get('MARABUNTA_USE_GIT'),
+                       help='Specify if Marabunta should use git for checkout'
+                            ' correct code. Default: True.')
+    group.add_argument('--version-as-tag', '-t',
+                       required=False,
+                       default=os.environ.get(
+                           'MARABUNTA_VERSION_AS_TAG', True
+                       ),
+                       help='Specify if Marabunta should use version number as'
+                            ' git tag for checkout. Default: True.')
     return parser
