@@ -25,6 +25,5 @@ follows::
   $ cd marabunta
   $ virtualenv -p YOUR_PYTHON env
   $ source env/bin/activate
-  $ pip install -e .
-  $ pip install pytest
+  $ pip install '.[test]'
   $ py.test tests
