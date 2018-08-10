@@ -127,6 +127,8 @@ class VersionRunner(object):
                                   [state._asdict() for state in addons_state])
 
     def perform(self):
+        """Perform the version upgrade on the database.
+        """
         db_versions = self.table.versions()
 
         version = self.version
@@ -139,7 +141,7 @@ class VersionRunner(object):
 
         self.start()
         try:
-            self.perform_version(version)
+            self._perform_version(version)
         except Exception:
             if sys.version_info < (3, 4):
                 msg = traceback.format_exc().decode('utf8', errors='ignore')
@@ -150,11 +152,21 @@ class VersionRunner(object):
             raise
         self.finish()
 
-    def perform_version(self, version):
+    def _perform_version(self, version):
+        """Inner method for version upgrade.
+
+        Not intended for standalone use. This method performs the actual
+        version upgrade with all the pre, post operations and addons upgrades.
+
+        :param version: The migration version to upgrade to
+        :type vesrion: Instance of Version class
+        """
         if version.is_noop():
             self.log(u'version {} is a noop'.format(version.number))
 
         else:
+            if version.backup:
+                version.options.backup.command.execute(self.log)
             self.log(u'execute base pre-operations')
             for operation in version.pre_operations():
                 operation.execute(self.log)

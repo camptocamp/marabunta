@@ -9,7 +9,13 @@ import yaml
 import warnings
 
 from .exception import ParseError
-from .model import Migration, MigrationOption, Version, Operation
+from .model import (
+    Migration,
+    MigrationOption,
+    Version,
+    Operation,
+    MigrationBackupOption,
+)
 from .version import FIRST_VERSION
 
 YAML_EXAMPLE = u"""
@@ -18,6 +24,11 @@ migration:
     # --workers=0 --stop-after-init are automatically added
     install_command: odoo
     install_args: --log-level=debug
+    backup:
+      command: echo
+      args: "backup command"
+      stop_on_failure: true
+      ignore_if: test "${RUNNING_ENV}" != "prod"
   versions:
     - version: setup
       operations:
@@ -46,6 +57,7 @@ migration:
               - demo_addon
 
     - version: 0.0.2
+      backup: false
       # nothing to do
 
     - version: 0.0.3
@@ -58,6 +70,7 @@ migration:
           - echo 'post-op'
 
     - version: 0.0.4
+      backup: false
       addons:
         upgrade:
           - popeye
@@ -118,11 +131,22 @@ class YamlParser(object):
         return Migration(versions)
 
     def _parse_options(self, migration):
-        options = migration.get('options') or {}
+        options = migration.get('options', {})
         install_command = options.get('install_command')
-        install_args = options.get('install_args') or ''
-        return MigrationOption(install_command=install_command,
-                               install_args=install_args.split())
+        install_args = options.get('install_args', '')
+        backup = options.get('backup')
+        if backup:
+            backup = MigrationBackupOption(
+                command=backup.get('command'),
+                command_args=backup.get('args', ''),
+                ignore_if=backup.get('ignore_if'),
+                stop_on_failure=backup.get('stop_on_failure', True),
+            )
+        return MigrationOption(
+            install_command=install_command,
+            install_args=install_args.split(),
+            backup=backup,
+        )
 
     def _parse_versions(self, migration, options):
         versions = migration.get('versions') or []
@@ -163,17 +187,25 @@ class YamlParser(object):
                 raise ParseError(u"'remove' key must be a list", YAML_EXAMPLE)
             version.add_remove_addons(remove, mode=mode)
 
+    def _parse_backup(self, version, backup=True, mode=None):
+        if not isinstance(backup, bool):
+            raise ParseError(u"'backup' key must be a boolean", YAML_EXAMPLE)
+        version.add_backup_operation(backup, mode=mode)
+
     def _parse_version(self, parsed_version, options):
         self.check_dict_expected_keys(
-            {'version', 'operations', 'addons', 'modes'},
+            {'version', 'operations', 'addons', 'modes', 'backup'},
             parsed_version, 'versions',
         )
         number = parsed_version.get('version')
         version = Version(number, options)
 
-        # parse the main operations and addons
+        # parse the main operations, backup and addons
         operations = parsed_version.get('operations') or {}
         self._parse_operations(version, operations)
+
+        backup = parsed_version.get('backup', True)
+        self._parse_backup(version, backup)
 
         addons = parsed_version.get('addons') or {}
         self._parse_addons(version, addons)

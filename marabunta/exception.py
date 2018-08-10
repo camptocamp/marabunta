@@ -32,3 +32,6 @@ class ConfigurationError(MarabuntaError):
 
 class OperationError(MarabuntaError):
     pass
+
+class BackupError(MarabuntaError):
+    pass
