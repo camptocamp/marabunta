@@ -33,5 +33,9 @@ class ConfigurationError(MarabuntaError):
 class OperationError(MarabuntaError):
     pass
 
-class BackupError(MarabuntaError):
+
+class BackupError(MigrationError):
+    """MigrationError subclass. Raised when backup command is
+    failed to execute and stop_on_failure is set.
+    """
     pass

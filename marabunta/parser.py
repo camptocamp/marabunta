@@ -131,6 +131,8 @@ class YamlParser(object):
         return Migration(versions)
 
     def _parse_options(self, migration):
+        """Build :class:`MigrationOption` and
+        :class:`MigrationBackupOption` instances."""
         options = migration.get('options', {})
         install_command = options.get('install_command')
         install_args = options.get('install_args', '')

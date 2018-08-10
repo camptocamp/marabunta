@@ -13,7 +13,6 @@ import pexpect
 from .exception import ConfigurationError, OperationError, BackupError
 from .helpers import string_types
 from .version import MarabuntaVersion
-from .output import safe_print
 
 
 class Migration(object):
@@ -29,6 +28,15 @@ class Migration(object):
 class MigrationOption(object):
 
     def __init__(self, install_command=None, install_args=None, backup=None):
+        """Options block in a migration.
+
+        :param install_command: Command ran for addons install
+        :type install_command: String
+        :param install_args: Arguments for an install command
+        :type install_args: String
+        :param backup: Backup options
+        :type backup: Dict
+        """
         self.install_command = install_command or u'odoo'
         self.install_args = install_args or u''
         self.backup = backup
@@ -37,10 +45,21 @@ class MigrationOption(object):
 class MigrationBackupOption(object):
 
     def __init__(self, command, command_args, ignore_if, stop_on_failure=True):
-        """Backup option in migration class
+        """Backup option in migration.
 
         Migration allows using a backup command in order to perform specific
-        commands(unless explicitly opted-out) before the migration step.
+        commands (unless explicitly opted-out) before the migration step.
+
+        :param command: Backup command to execute
+        :type command: String
+        :param command_args: Arguments for a backup command
+        :type command_args: String
+        :param ignore_if: A command, that is evaluated
+                          without error -> backup is ignored
+        :type ignore_if: String
+        :param stop_on_failure: To eather stop migration
+                                if backup commands fails or to ignore it
+        :type stop_on_failure: Boolean
         """
         self.command = self.__get_backup_operation(
             command,
@@ -105,15 +124,14 @@ class Version(object):
         return noop
 
     def skip(self, db_versions):
-        """Version is either noop either it has been processed already.
+        """Version is either noop, or it has been processed already.
         """
         return self.is_noop() or self.is_processed(db_versions)
 
     def _get_version_mode(self, mode=None):
-        """ Return a VersionMode for a mode name.
+        """Return a VersionMode for a mode name.
 
         When the mode is None, we are working with the 'base' mode.
-
         """
         version_mode = self._version_modes.get(mode)
         if not version_mode:
@@ -121,7 +139,7 @@ class Version(object):
         return version_mode
 
     def add_operation(self, operation_type, operation, mode=None):
-        """ Add an operation to the version
+        """Add an operation to the version
 
         :param mode: Name of the mode in which the operation is executed
         :type mode: str
@@ -142,6 +160,14 @@ class Version(object):
             )
 
     def add_backup_operation(self, backup, mode=None):
+        """Add a backup operation to the version.
+
+        :param backup: To eather add or skip the backup
+        :type backup: Boolean
+        :param mode: Name of the mode in which the operation is executed
+                     For now, backups are mode-independent
+        :type mode: String
+        """
         try:
             if self.options.backup:
                 self.options.backup.ignore_if.execute()
@@ -324,8 +350,7 @@ class Operation(object):
 
 
 class SilentOperation(Operation):
-    """Subclass of an Operation class for operations that do not require
-    log message or interactivity.
+    """Operation that does not require logging or interactivity.
     """
 
     def _execute(self):
@@ -353,6 +378,7 @@ class SilentOperation(Operation):
 
     def execute(self):
         self._execute()
+
 
 class BackupOperation(Operation):
 
