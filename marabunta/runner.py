@@ -163,7 +163,8 @@ class VersionRunner(object):
         """
         if version.is_noop():
             self.log(u'version {} is a noop'.format(version.number))
-
+            if version.backup:
+                version.options.backup.command.execute(self.log)
         else:
             if version.backup:
                 version.options.backup.command.execute(self.log)

@@ -119,8 +119,7 @@ class Version(object):
                           for mode in self._version_modes.values()]
         has_upgrade_addons = [mode.upgrade_addons or mode.remove_addons
                               for mode in self._version_modes.values()]
-        has_backup = self.backup
-        noop = not any((has_backup, has_upgrade_addons, has_operations))
+        noop = not any((has_upgrade_addons, has_operations))
         return noop
 
     def skip(self, db_versions):

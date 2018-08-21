@@ -206,9 +206,6 @@ class YamlParser(object):
         operations = parsed_version.get('operations') or {}
         self._parse_operations(version, operations)
 
-        backup = parsed_version.get('backup', True)
-        self._parse_backup(version, backup)
-
         addons = parsed_version.get('addons') or {}
         self._parse_addons(version, addons)
 
@@ -225,5 +222,15 @@ class YamlParser(object):
 
             mode_addons = mode.get('addons') or {}
             self._parse_addons(version, mode_addons, mode=mode_name)
+
+        # backup should be added last, as it depends if the version is noop
+        backup = parsed_version.get('backup')
+        if backup is None:
+            if version.is_noop():
+                # For noop steps backup defaults to False
+                backup = False
+            else:
+                backup = True
+        self._parse_backup(version, backup)
 
         return version

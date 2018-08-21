@@ -26,7 +26,6 @@ migration:
               - echo 'post-operation executed only when the mode is demo'
 
     - version: 0.0.2
-      backup: false
       # nothing to do
 
     - version: 0.0.3
@@ -38,3 +37,4 @@ migration:
           - echo 'post-op with unicode é â'
 
     - version: 0.0.4
+      backup: true
