@@ -35,7 +35,6 @@ class OperationError(MarabuntaError):
 
 
 class BackupError(MigrationError):
-    """MigrationError subclass. Raised when backup command is
-    failed to execute and stop_on_failure is set.
+    """An error happened during the execution of the backup.
     """
     pass

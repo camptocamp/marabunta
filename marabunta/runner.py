@@ -159,7 +159,7 @@ class VersionRunner(object):
         version upgrade with all the pre, post operations and addons upgrades.
 
         :param version: The migration version to upgrade to
-        :type vesrion: Instance of Version class
+        :type version: Instance of Version class
         """
         if version.is_noop():
             self.log(u'version {} is a noop'.format(version.number))

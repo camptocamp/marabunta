@@ -57,7 +57,7 @@ class MigrationBackupOption(object):
         :param ignore_if: A command, that is evaluated
                           without error -> backup is ignored
         :type ignore_if: String
-        :param stop_on_failure: To eather stop migration
+        :param stop_on_failure: To either stop migration
                                 if backup commands fails or to ignore it
         :type stop_on_failure: Boolean
         """
@@ -162,7 +162,7 @@ class Version(object):
     def add_backup_operation(self, backup, mode=None):
         """Add a backup operation to the version.
 
-        :param backup: To eather add or skip the backup
+        :param backup: To either add or skip the backup
         :type backup: Boolean
         :param mode: Name of the mode in which the operation is executed
                      For now, backups are mode-independent
@@ -395,9 +395,8 @@ class BackupOperation(Operation):
         except OperationError:
             if self.stop_on_failure:
                 raise BackupError(
-                    u"Backup command failed! Stop_on_failure is true,"
-                    u" stopping migration"
+                    u"Backup command failed, stopping migration."
                 )
             else:
-                log(u"Backup command failed! Stop_on_failure is false,"
-                    u" resuming migration")
+                log(u"Backup command failed, ignored by configuration. "
+                    u"Resuming migration")
