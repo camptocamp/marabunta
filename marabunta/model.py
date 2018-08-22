@@ -17,8 +17,9 @@ from .version import MarabuntaVersion
 
 class Migration(object):
 
-    def __init__(self, versions):
+    def __init__(self, versions, options):
         self._versions = versions
+        self.options = options
 
     @property
     def versions(self):

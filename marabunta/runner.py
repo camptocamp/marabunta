@@ -28,8 +28,16 @@ class Runner(object):
         # we don't want to do it again for another version
         self.upgraded_addons = set()
 
-    def log(self, message):
-        print_decorated(u'migration: {}'.format(message))
+    def log(self, message, decorated=True, stdout=True):
+        if not stdout:
+            return
+        if decorated:
+            app_message = u'migration: {}'.format(
+                message,
+            )
+            print_decorated(app_message)
+        else:
+            safe_print(message)
 
     def perform(self):
         self.table.create_if_not_exists()
@@ -60,7 +68,7 @@ class Runner(object):
                     u'Only one version can be upgraded at a time.\n'
                     u'The following versions need to be applied: {}.\n'.format(
                         [v.number for v in unprocessed]
-                        )
+                    )
                 )
 
         if not self.config.force_version and db_versions and unprocessed:
@@ -75,7 +83,8 @@ class Runner(object):
                         next_unprocess, installed
                     )
                 )
-
+        if any(map(lambda x: x.backup, self.migration.versions)):
+            self.migration.options.backup.command.execute(self.log)
         for version in self.migration.versions:
             # when we force-execute one version, we skip all the others
             if self.config.force_version:
@@ -163,11 +172,7 @@ class VersionRunner(object):
         """
         if version.is_noop():
             self.log(u'version {} is a noop'.format(version.number))
-            if version.backup:
-                version.options.backup.command.execute(self.log)
         else:
-            if version.backup:
-                version.options.backup.command.execute(self.log)
             self.log(u'execute base pre-operations')
             for operation in version.pre_operations():
                 operation.execute(self.log)

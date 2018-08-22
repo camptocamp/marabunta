@@ -108,10 +108,12 @@ class YamlParser(object):
         if extra_keys:
             message = "u{}: the keys {} are unexpected. (allowed keys: {})"
             raise ParseError(
-               message.format(dict_name,
-                              list(extra_keys),
-                              list(expected_keys)),
-               YAML_EXAMPLE
+                message.format(
+                    dict_name,
+                    list(extra_keys),
+                    list(expected_keys),
+                ),
+                YAML_EXAMPLE,
             )
 
     def parse(self):
@@ -128,7 +130,7 @@ class YamlParser(object):
         migration = self.parsed['migration']
         options = self._parse_options(migration)
         versions = self._parse_versions(migration, options)
-        return Migration(versions)
+        return Migration(versions, options)
 
     def _parse_options(self, migration):
         """Build :class:`MigrationOption` and

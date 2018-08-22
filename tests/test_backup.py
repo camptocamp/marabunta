@@ -47,10 +47,10 @@ def test_backup(runner_gen, parse_yaml, request, capfd):
     runner = runner_gen(backup_params, config)
     runner.perform()
     expected = (
+        u'|> migration: Backing up...\n'
+        u'backup command\r\n'
         u'|> migration: processing version setup\n'
         u'|> version setup: start\n'
-        u'|> version setup: Backing up...\n'
-        u'backup command\r\n'
         u'|> version setup: execute base pre-operations\n'
         u'|> version setup: echo pre-operation\n'
         u'pre-operation\r\n'
@@ -65,8 +65,6 @@ def test_backup(runner_gen, parse_yaml, request, capfd):
         u'|> version 0.0.2: done\n'
         u'|> migration: processing version 0.0.3\n'
         u'|> version 0.0.3: start\n'
-        u'|> version 0.0.3: Backing up...\n'
-        u'backup command\r\n'
         u'|> version 0.0.3: execute base pre-operations\n'
         u'|> version 0.0.3: echo foobar\n'
         u'foobar\r\n'
@@ -80,12 +78,10 @@ def test_backup(runner_gen, parse_yaml, request, capfd):
         u'|> migration: processing version 0.0.4\n'
         u'|> version 0.0.4: start\n'
         u'|> version 0.0.4: version 0.0.4 is a noop\n'
-        u'|> version 0.0.4: Backing up...\n'
-        u'backup command\r\n'
-        u'|> version 0.0.4: done\n',
-        u''
+        u'|> version 0.0.4: done\n'
     )
-    assert expected == capfd.readouterr()
+    out = capfd.readouterr().out
+    assert expected == out
 
 
 def test_backup_ignore_1(runner_gen, parse_yaml, request, capfd):
@@ -126,10 +122,10 @@ def test_backup_ignore_1(runner_gen, parse_yaml, request, capfd):
         u'|> migration: processing version 0.0.4\n'
         u'|> version 0.0.4: start\n'
         u'|> version 0.0.4: version 0.0.4 is a noop\n'
-        u'|> version 0.0.4: done\n',
-        u''
+        u'|> version 0.0.4: done\n'
     )
-    assert expected == capfd.readouterr()
+    out = capfd.readouterr().out
+    assert expected == out
 
 
 def test_backup_ignore_2(runner_gen, parse_yaml, request, capfd):
@@ -139,10 +135,10 @@ def test_backup_ignore_2(runner_gen, parse_yaml, request, capfd):
     runner = runner_gen(backup_params, config)
     runner.perform()
     expected = (
+        u'|> migration: Backing up...\n'
+        u'backup command\r\n'
         u'|> migration: processing version setup\n'
         u'|> version setup: start\n'
-        u'|> version setup: Backing up...\n'
-        u'backup command\r\n'
         u'|> version setup: execute base pre-operations\n'
         u'|> version setup: echo pre-operation\n'
         u'pre-operation\r\n'
@@ -157,8 +153,6 @@ def test_backup_ignore_2(runner_gen, parse_yaml, request, capfd):
         u'|> version 0.0.2: done\n'
         u'|> migration: processing version 0.0.3\n'
         u'|> version 0.0.3: start\n'
-        u'|> version 0.0.3: Backing up...\n'
-        u'backup command\r\n'
         u'|> version 0.0.3: execute base pre-operations\n'
         u'|> version 0.0.3: echo foobar\n'
         u'foobar\r\n'
@@ -172,12 +166,10 @@ def test_backup_ignore_2(runner_gen, parse_yaml, request, capfd):
         u'|> migration: processing version 0.0.4\n'
         u'|> version 0.0.4: start\n'
         u'|> version 0.0.4: version 0.0.4 is a noop\n'
-        u'|> version 0.0.4: Backing up...\n'
-        u'backup command\r\n'
-        u'|> version 0.0.4: done\n',
-        u''
+        u'|> version 0.0.4: done\n'
     )
-    assert expected == capfd.readouterr()
+    out = capfd.readouterr().out
+    assert expected == out
 
 
 def test_backup_stop_on_failure_true(runner_gen, parse_yaml, request, capfd):
@@ -222,11 +214,11 @@ def test_backup_stop_on_failure_false(runner_gen, parse_yaml, request, capfd):
     runner.perform()
 
     expected = (
+        u'|> migration: Backing up...\n'
+        u'|> migration: Backup command failed, ignored by configuration.'
+        u' Resuming migration\n'
         u'|> migration: processing version setup\n'
         u'|> version setup: start\n'
-        u'|> version setup: Backing up...\n'
-        u'|> version setup: Backup command failed, ignored by configuration.'
-        u' Resuming migration\n'
         u'|> version setup: execute base pre-operations\n'
         u'|> version setup: echo pre-operation\n'
         u'pre-operation\r\n'
@@ -241,9 +233,6 @@ def test_backup_stop_on_failure_false(runner_gen, parse_yaml, request, capfd):
         u'|> version 0.0.2: done\n'
         u'|> migration: processing version 0.0.3\n'
         u'|> version 0.0.3: start\n'
-        u'|> version 0.0.3: Backing up...\n'
-        u'|> version 0.0.3: Backup command failed, ignored by configuration.'
-        u' Resuming migration\n'
         u'|> version 0.0.3: execute base pre-operations\n'
         u'|> version 0.0.3: echo foobar\n'
         u'foobar\r\n'
@@ -257,10 +246,55 @@ def test_backup_stop_on_failure_false(runner_gen, parse_yaml, request, capfd):
         u'|> migration: processing version 0.0.4\n'
         u'|> version 0.0.4: start\n'
         u'|> version 0.0.4: version 0.0.4 is a noop\n'
-        u'|> version 0.0.4: Backing up...\n'
-        u'|> version 0.0.4: Backup command failed, ignored by configuration.'
-        u' Resuming migration\n'
-        u'|> version 0.0.4: done\n',
-        u''
+        u'|> version 0.0.4: done\n'
     )
-    assert expected == capfd.readouterr()
+    out = capfd.readouterr().out
+    assert expected == out
+
+
+def test_backup_noop(runner_gen, parse_yaml, request, capfd):
+    # Test that backup is triggered when noop version has explicit backup=true
+    backup_params, config = parse_yaml('migration_with_backup.yml')
+    # set all migration steps to backup false except the last one
+    for version in backup_params.parsed['migration']['versions']:
+        if version['version'] not in ['0.0.4', '0.0.2']:
+            version['backup'] = False
+    runner = runner_gen(backup_params, config)
+    runner.perform()
+
+    expected = (
+        u'|> migration: Backing up...\n'
+        u'backup command\r\n'
+        u'|> migration: processing version setup\n'
+        u'|> version setup: start\n'
+        u'|> version setup: execute base pre-operations\n'
+        u'|> version setup: echo pre-operation\n'
+        u'pre-operation\r\n'
+        u'|> version setup: installation / upgrade of addons\n'
+        u'|> version setup: execute base post-operations\n'
+        u'|> version setup: echo post-operation\n'
+        u'post-operation\r\n'
+        u'|> version setup: done\n'
+        u'|> migration: processing version 0.0.2\n'
+        u'|> version 0.0.2: start\n'
+        u'|> version 0.0.2: version 0.0.2 is a noop\n'
+        u'|> version 0.0.2: done\n'
+        u'|> migration: processing version 0.0.3\n'
+        u'|> version 0.0.3: start\n'
+        u'|> version 0.0.3: execute base pre-operations\n'
+        u'|> version 0.0.3: echo foobar\n'
+        u'foobar\r\n'
+        u'|> version 0.0.3: echo foobarbaz\n'
+        u'foobarbaz\r\n'
+        u'|> version 0.0.3: installation / upgrade of addons\n'
+        u'|> version 0.0.3: execute base post-operations\n'
+        u'|> version 0.0.3: echo post-op with unicode é â\n'
+        u'post-op with unicode é â\r\n'
+        u'|> version 0.0.3: done\n'
+        u'|> migration: processing version 0.0.4\n'
+        u'|> version 0.0.4: start\n'
+        u'|> version 0.0.4: version 0.0.4 is a noop\n'
+        u'|> version 0.0.4: done\n'
+    )
+    out = capfd.readouterr().out
+    assert expected == out
