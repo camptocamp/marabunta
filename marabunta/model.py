@@ -10,15 +10,16 @@ from io import StringIO
 
 import pexpect
 
-from .exception import ConfigurationError, OperationError
+from .exception import ConfigurationError, OperationError, BackupError
 from .helpers import string_types
 from .version import MarabuntaVersion
 
 
 class Migration(object):
 
-    def __init__(self, versions):
+    def __init__(self, versions, options):
         self._versions = versions
+        self.options = options
 
     @property
     def versions(self):
@@ -27,14 +28,73 @@ class Migration(object):
 
 class MigrationOption(object):
 
-    def __init__(self, install_command=None, install_args=None):
+    def __init__(self, install_command=None, install_args=None, backup=None):
+        """Options block in a migration.
+
+        :param install_command: Command ran for addons install
+        :type install_command: String
+        :param install_args: Arguments for an install command
+        :type install_args: String
+        :param backup: Backup options
+        :type backup: Dict
+        """
         self.install_command = install_command or u'odoo'
         self.install_args = install_args or u''
+        self.backup = backup
+
+
+class MigrationBackupOption(object):
+
+    def __init__(self, command, command_args, ignore_if, stop_on_failure=True):
+        """Backup option in migration.
+
+        Migration allows using a backup command in order to perform specific
+        commands (unless explicitly opted-out) before the migration step.
+
+        :param command: Backup command to execute
+        :type command: String
+        :param command_args: Arguments for a backup command
+        :type command_args: String
+        :param ignore_if: A command, that is evaluated
+                          without error -> backup is ignored
+        :type ignore_if: String
+        :param stop_on_failure: To either stop migration
+                                if backup commands fails or to ignore it
+        :type stop_on_failure: Boolean
+        """
+        self.command = self.__get_backup_operation(
+            command,
+            command_args,
+            stop_on_failure,
+        )
+        self.ignore_if = self.__get_ignore_if_operation(ignore_if)
+
+    def __get_ignore_if_operation(self, ignore_if):
+        if ignore_if is None or ignore_if is False:
+            # if ignore_if parameter was not specified - always backup
+            return SilentOperation(['false'])
+        elif ignore_if is True:
+            # if it is specifically True
+            return SilentOperation(['true'])
+        return SilentOperation(ignore_if.split())
+
+    def __get_backup_operation(self, command, command_args, stop_on_failure):
+        return BackupOperation(
+            [command] + command_args.split(),
+            stop_on_failure,
+        )
 
 
 class Version(object):
 
     def __init__(self, number, options):
+        """Base class for a migration version.
+
+        :param number: Valid version number
+        :type number: String
+        :param options: Version options
+        :type options: Instance of a MigrationOption class
+        """
         try:
             MarabuntaVersion().parse(number)
         except ValueError:
@@ -44,27 +104,34 @@ class Version(object):
         self.number = number
         self._version_modes = {}
         self.options = options
+        self.backup = False
 
     def is_processed(self, db_versions):
+        """Check if version is already applied in the database.
+
+        :param db_versions:
+        """
         return self.number in (v.number for v in db_versions if v.date_done)
 
     def is_noop(self):
+        """Check if version is a no operation version.
+        """
         has_operations = [mode.pre_operations or mode.post_operations
                           for mode in self._version_modes.values()]
         has_upgrade_addons = [mode.upgrade_addons or mode.remove_addons
                               for mode in self._version_modes.values()]
-        noop = (not has_operations and not has_upgrade_addons)
+        noop = not any((has_upgrade_addons, has_operations))
         return noop
 
     def skip(self, db_versions):
-        """ Version is either noop either it has been processed already """
+        """Version is either noop, or it has been processed already.
+        """
         return self.is_noop() or self.is_processed(db_versions)
 
     def _get_version_mode(self, mode=None):
-        """ Return a VersionMode for a mode name.
+        """Return a VersionMode for a mode name.
 
         When the mode is None, we are working with the 'base' mode.
-
         """
         version_mode = self._version_modes.get(mode)
         if not version_mode:
@@ -72,7 +139,7 @@ class Version(object):
         return version_mode
 
     def add_operation(self, operation_type, operation, mode=None):
-        """ Add an operation to the version
+        """Add an operation to the version
 
         :param mode: Name of the mode in which the operation is executed
         :type mode: str
@@ -91,6 +158,21 @@ class Version(object):
                 u"Type of operation must be 'pre' or 'post', got %s" %
                 (operation_type,)
             )
+
+    def add_backup_operation(self, backup, mode=None):
+        """Add a backup operation to the version.
+
+        :param backup: To either add or skip the backup
+        :type backup: Boolean
+        :param mode: Name of the mode in which the operation is executed
+                     For now, backups are mode-independent
+        :type mode: String
+        """
+        try:
+            if self.options.backup:
+                self.options.backup.ignore_if.execute()
+        except OperationError:
+            self.backup = backup
 
     def add_upgrade_addons(self, addons, mode=None):
         version_mode = self._get_version_mode(mode=mode)
@@ -265,3 +347,56 @@ class Operation(object):
 
     def __repr__(self):
         return u'Operation<{}>'.format(' '.join(self.command))
+
+
+class SilentOperation(Operation):
+    """Operation that does not require logging or interactivity.
+    """
+
+    def _execute(self):
+        assert self.command
+        executable = self.command[0]
+        params = self.command[1:]
+        child = pexpect.spawn(executable, params, timeout=None,
+                              encoding='utf8')
+        child.expect(pexpect.EOF)
+        child.close()
+        if child.signalstatus is not None:
+            raise OperationError(
+                u"command '{}' has been interrupted by signal {}".format(
+                    ' '.join(self.command),
+                    child.signalstatus
+                )
+            )
+        elif child.exitstatus != 0:
+            raise OperationError(
+                u"command '{}' returned {}".format(
+                    ' '.join(self.command),
+                    child.exitstatus
+                )
+            )
+
+    def execute(self):
+        self._execute()
+
+
+class BackupOperation(Operation):
+
+    def __init__(self, command, stop_on_failure):
+        if isinstance(command, string_types):
+            command = self._shlex_split_unicode(command)
+        self.command = command
+        self.stop_on_failure = stop_on_failure
+
+    def execute(self, log):
+        log('Backing up...')
+        try:
+            self._execute(log, interactive=sys.stdout.isatty())
+        except OperationError:
+            if self.stop_on_failure:
+                raise BackupError(
+                    u"Backup command failed, stopping migration."
+                )
+            else:
+                log(u"Backup command failed, ignored by configuration. "
+                    u"Resuming migration")

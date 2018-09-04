@@ -11,6 +11,15 @@ with open('README.rst') as f:
 with open('HISTORY.rst') as f:
     history = f.read()
 
+test_deps = [
+    "pytest",
+    "mock",
+]
+
+extras = {
+    'test': test_deps,
+}
+
 setup(
     name='marabunta',
     version=version,
@@ -21,14 +30,15 @@ setup(
     url='https://github.com/camptocamp/marabunta',
     license='AGPLv3+',
     packages=find_packages(exclude=('tests', 'docs')),
-    install_requires=["psycopg2",
-                      "PyYAML",
-                      "pexpect",
-                      "werkzeug",
-                      "future",
-                      ],
-    tests_require=["pytest",
-                   "mock"],
+    install_requires=[
+        "psycopg2",
+        "PyYAML",
+        "pexpect",
+        "werkzeug",
+        "future",
+    ],
+    tests_require=test_deps,
+    extras_require=extras,
     include_package_data=True,
     package_data={
         'marabunta': ['html/*.html'],

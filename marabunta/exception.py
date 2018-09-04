@@ -32,3 +32,9 @@ class ConfigurationError(MarabuntaError):
 
 class OperationError(MarabuntaError):
     pass
+
+
+class BackupError(MigrationError):
+    """An error happened during the execution of the backup.
+    """
+    pass
