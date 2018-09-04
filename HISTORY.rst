@@ -8,12 +8,49 @@ Unreleased
 
 **Features**
 
-* New versioning system FIXME
+**Bugfixes**
+
+**Improvements**
+
+**Documentation**
+
+**Build**
+
+0.9.0 (2018-08-04)
+++++++++++++++++++
+
+**Features**
+
+
+* 1st version it's always "setup"
+
+  In all projects' usecases the 1st version is always to setup the initial state.
+  Adopting `setup` as the 1st version makes also easier to squash intermediate version
+  all in one as the project and its releases grow up.
+
+* Support 5 digits version
+
+  Now you can use 5 digits versions as per odoo modules.
+  For instance: `11.0.3.0.1`. This give us better numbering for patches
+  and makes versionig withing Odoo world more consistent.
+  Old 3 digits versions are still supported for backward compat.
+
+Full rationale for above changes available here
+
+https://github.com/camptocamp/marabunta/commit/9b96acaff8e7eecbf82ff592b7bb927b4cd82f02
+
+* Backup option
+
+  Migration allows using a `backup` command in order to perform specific
+  commands (unless explicitly opted-out) before the migration step.
+
+  No backup machinery provided as you are suppose to run your own command
+  to execute the backup.
 
 
 **Bugfixes**
 
-* Build Py3 wheel on release FIXME
+* Build Py3 wheel on release
 
 
 **Improvements**
