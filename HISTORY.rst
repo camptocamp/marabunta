@@ -16,7 +16,7 @@ Unreleased
 
 **Build**
 
-0.9.0 (2018-08-04)
+0.9.0 (2018-09-04)
 ++++++++++++++++++
 
 **Features**
@@ -52,12 +52,6 @@ https://github.com/camptocamp/marabunta/commit/9b96acaff8e7eecbf82ff592b7bb927b4
 
 * Build Py3 wheel on release
 
-
-**Improvements**
-
-**Documentation**
-
-**Build**
 
 0.8.0 (2017-11-16)
 ++++++++++++++++++
