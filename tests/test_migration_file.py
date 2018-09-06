@@ -8,14 +8,14 @@ import os
 import mock
 
 from marabunta.config import Config
-from marabunta.database import Database, MigrationTable
+from marabunta.database import Database, MigrationTable, VersionRecord
 from marabunta.parser import YamlParser
 from marabunta.runner import Runner
 
 
 @pytest.fixture
 def runner_gen(request):
-    def runner(filename, allow_serie=True, mode=None):
+    def runner(filename, allow_serie=True, mode=None, db_versions=None):
         migration_file = os.path.join(request.fspath.dirname,
                                       'examples', filename)
         config = Config(migration_file,
@@ -25,7 +25,7 @@ def runner_gen(request):
         migration_parser = YamlParser.parse_from_file(config.migration_file)
         migration = migration_parser.parse()
         table = mock.MagicMock(spec=MigrationTable)
-        table.versions.return_value = []
+        table.versions.return_value = db_versions or []
         database = mock.MagicMock(spec=Database)
         return Runner(config, migration, database, table)
     return runner
@@ -209,3 +209,39 @@ def test_example_no_setup_file_output_mode(runner_gen, request, capfd):
     assert 1 == len(record)
     warnings_msg = u'First version should be named `setup`'
     assert warnings_msg == record[0].message.args[0]
+
+
+def test_mixed_digits_output_mode(runner_gen, request, capfd):
+    old_versions = [
+        # 'number date_start date_done log addons'
+        VersionRecord('11.0.2', '2018-09-01', '2018-09-01', '', ''),
+        VersionRecord('11.1.0', '2018-09-02', '2018-09-02', '', ''),
+        VersionRecord('11.1.5', '2018-09-03', '2018-09-03', '', ''),
+        VersionRecord('11.2.0', '2018-09-04', '2018-09-04', '', ''),
+        VersionRecord('11.3.0', '2018-09-05', '2018-09-05', '', ''),
+    ]
+    runner = runner_gen(
+        'migration_mixed_digits.yml', mode='prod', db_versions=old_versions)
+    runner.perform()
+    expected = (
+        u'|> migration: processing version setup',
+        u'|> version setup: start',
+        u'|> version setup: version setup is a noop',
+        u'|> version setup: done',
+        u'|> migration: processing version 11.0.2',
+        u'|> version 11.0.2: version 11.0.2 is already installed',
+        u'|> migration: processing version 11.1.0',
+        u'|> version 11.1.0: version 11.1.0 is already installed',
+        u'|> migration: processing version 11.1.5',
+        u'|> version 11.1.5: version 11.1.5 is already installed',
+        u'|> migration: processing version 11.2.0',
+        u'|> version 11.2.0: version 11.2.0 is already installed',
+        u'|> migration: processing version 11.3.0',
+        u'|> version 11.3.0: version 11.3.0 is already installed',
+        u'|> migration: processing version 11.0.3.0.1',
+        u'|> version 11.0.3.0.1: start',
+        u'|> version 11.0.3.0.1: version 11.0.3.0.1 is a noop',
+        u'|> version 11.0.3.0.1: done',
+    )
+    output = capfd.readouterr()  # ease debug
+    assert expected == tuple(output.out.splitlines())

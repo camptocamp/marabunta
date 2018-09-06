@@ -45,15 +45,18 @@ class Database(object):
                 yield cursor
 
 
+VersionRecord = namedtuple(
+    'VersionRecord',
+    'number date_start date_done log addons'
+)
+
+
 class MigrationTable(object):
 
     def __init__(self, database):
         self.database = database
         self.table_name = 'marabunta_version'
-        self.VersionRecord = namedtuple(
-            'VersionRecord',
-            'number date_start date_done log addons'
-        )
+        self.VersionRecord = VersionRecord
         self._versions = None
 
     def create_if_not_exists(self):
