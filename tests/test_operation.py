@@ -44,16 +44,16 @@ def test_log_execute_output(capfd):
 
 def test_shell_operation(capfd):
     # must be able to read env. variables
-    home = os.environ['HOME']
-    op = Operation('echo $HOME', shell=True)
+    user = os.environ['USER']
+    op = Operation('echo $USER', shell=True)
     logs = []
 
     def log(msg, **kwargs):
         logs.append(msg)
 
     op.execute(log)
-    assert logs == [u'echo $HOME', home]
-    assert capfd.readouterr() == (u'%s\r\n' % home, '')
+    assert logs == [u'echo $USER', user]
+    assert capfd.readouterr() == (u'%s\r\n' % user, '')
 
 
 def test_silent_operation(capfd):
