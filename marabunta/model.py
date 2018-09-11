@@ -6,6 +6,7 @@ import sys
 
 from builtins import object
 from io import StringIO
+from string import Template
 
 import pexpect
 
@@ -50,6 +51,15 @@ class MigrationBackupOption(object):
         Migration allows using a backup command in order to perform specific
         commands (unless explicitly opted-out) before the migration step.
 
+        The command can contain placeholders that will be replaced by the
+        current configuration values:
+
+         * ``$database``
+         * ``$db_user``
+         * ``$db_password``
+         * ``$db_host``
+         * ``$db_port``
+
         :param command: Backup command to execute
         :type command: String
         :param ignore_if: A command, that is evaluated
@@ -59,27 +69,34 @@ class MigrationBackupOption(object):
                                 if backup commands fails or to ignore it
         :type stop_on_failure: Boolean
         """
-        self.command = self.__get_backup_operation(
-            command,
-            stop_on_failure,
+        self._command = command
+        self._ignore_if = ignore_if
+        self._stop_on_failure = stop_on_failure
+        self._ignore_if = ignore_if
+
+    def command_operation(self, config):
+        template = Template(self._command)
+        command = template.safe_substitute(
+            database=config.database,
+            db_user=config.db_user,
+            db_password=config.db_password,
+            db_port=config.db_port,
+            db_host=config.db_host,
         )
-        self.ignore_if = self.__get_ignore_if_operation(ignore_if)
-
-    def __get_ignore_if_operation(self, ignore_if):
-        if ignore_if is None or ignore_if is False:
-            # if ignore_if parameter was not specified - always backup
-            return SilentOperation('false', shell=True)
-        elif ignore_if is True:
-            # if it is specifically True
-            return SilentOperation('true', shell=True)
-        return SilentOperation(ignore_if, shell=True)
-
-    def __get_backup_operation(self, command, stop_on_failure):
         return BackupOperation(
             command,
             shell=True,
-            stop_on_failure=stop_on_failure,
+            stop_on_failure=self._stop_on_failure,
         )
+
+    def ignore_if_operation(self):
+        if self._ignore_if is None or self._ignore_if is False:
+            # if ignore_if parameter was not specified - always backup
+            return SilentOperation('false', shell=True)
+        elif self._ignore_if is True:
+            # if it is specifically True
+            return SilentOperation('true', shell=True)
+        return SilentOperation(self._ignore_if, shell=True)
 
 
 class Version(object):
@@ -167,7 +184,7 @@ class Version(object):
         """
         try:
             if self.options.backup:
-                self.options.backup.ignore_if.execute()
+                self.options.backup.ignore_if_operation().execute()
         except OperationError:
             self.backup = backup
 

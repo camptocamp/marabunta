@@ -83,8 +83,12 @@ class Runner(object):
                         next_unprocess, installed
                     )
                 )
+
         if any(map(lambda x: x.backup, self.migration.versions)):
-            self.migration.options.backup.command.execute(self.log)
+            backup = self.migration.options.backup
+            backup_operation = backup.command_operation(self.config)
+            backup_operation.execute(self.log)
+
         for version in self.migration.versions:
             # when we force-execute one version, we skip all the others
             if self.config.force_version:

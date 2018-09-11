@@ -18,6 +18,7 @@ from .model import (
 )
 from .version import FIRST_VERSION
 
+
 YAML_EXAMPLE = u"""
 migration:
   options:
@@ -25,7 +26,7 @@ migration:
     install_command: odoo
     install_args: --log-level=debug
     backup:
-      command: echo "backup command on ${DB_NAME}"
+      command: echo "backup command on $database $db_user $db_password $db_host $db_port"
       stop_on_failure: true
       ignore_if: test "${RUNNING_ENV}" != "prod"
   versions:
@@ -74,7 +75,7 @@ migration:
         upgrade:
           - popeye
 
-"""
+"""  # noqa
 
 
 class YamlParser(object):
