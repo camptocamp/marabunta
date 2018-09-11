@@ -44,16 +44,16 @@ def test_log_execute_output(capfd):
 
 def test_shell_operation(capfd):
     # must be able to read env. variables
-    user = os.environ['USER']
-    op = Operation('echo $USER', shell=True)
+    test = os.environ['PYTEST_CURRENT_TEST']
+    op = Operation('echo $PYTEST_CURRENT_TEST', shell=True)
     logs = []
 
     def log(msg, **kwargs):
         logs.append(msg)
 
     op.execute(log)
-    assert logs == [u'echo $USER', user]
-    assert capfd.readouterr() == (u'%s\r\n' % user, '')
+    assert logs == [u'echo $PYTEST_CURRENT_TEST', test]
+    assert capfd.readouterr() == (u'%s\r\n' % test, '')
 
 
 def test_silent_operation(capfd):
