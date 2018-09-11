@@ -6,7 +6,14 @@ Release History
 Unreleased
 ++++++++++
 
+**Backward incompatible change**
+
+* In the migration yaml file, the ``command`` and ``command_args`` options are now all merged into ``command``
+
 **Features**
+
+* Backup command and backup's ignore_if are now run with 'sh' so we can inject
+  environment variables in the commands
 
 **Bugfixes**
 

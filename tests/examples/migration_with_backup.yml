@@ -4,8 +4,7 @@ migration:
     install_command: odoo
     install_args: --log-level=debug
     backup:
-      command: echo
-      args: "backup command"
+      command: echo "backup command"
       stop_on_failure: true
       ignore_if: test 1 != 1
   versions:

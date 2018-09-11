@@ -52,11 +52,11 @@ def test_backup(runner_gen, parse_yaml, request, capfd):
         u'|> migration: processing version setup\n'
         u'|> version setup: start\n'
         u'|> version setup: execute base pre-operations\n'
-        u'|> version setup: echo pre-operation\n'
+        u'|> version setup: echo \'pre-operation\'\n'
         u'pre-operation\r\n'
         u'|> version setup: installation / upgrade of addons\n'
         u'|> version setup: execute base post-operations\n'
-        u'|> version setup: echo post-operation\n'
+        u'|> version setup: echo \'post-operation\'\n'
         u'post-operation\r\n'
         u'|> version setup: done\n'
         u'|> migration: processing version 0.0.2\n'
@@ -66,13 +66,13 @@ def test_backup(runner_gen, parse_yaml, request, capfd):
         u'|> migration: processing version 0.0.3\n'
         u'|> version 0.0.3: start\n'
         u'|> version 0.0.3: execute base pre-operations\n'
-        u'|> version 0.0.3: echo foobar\n'
+        u'|> version 0.0.3: echo \'foobar\'\n'
         u'foobar\r\n'
-        u'|> version 0.0.3: echo foobarbaz\n'
+        u'|> version 0.0.3: echo \'foobarbaz\'\n'
         u'foobarbaz\r\n'
         u'|> version 0.0.3: installation / upgrade of addons\n'
         u'|> version 0.0.3: execute base post-operations\n'
-        u'|> version 0.0.3: echo post-op with unicode é â\n'
+        u'|> version 0.0.3: echo \'post-op with unicode é â\'\n'
         u'post-op with unicode é â\r\n'
         u'|> version 0.0.3: done\n'
         u'|> migration: processing version 0.0.4\n'
@@ -96,11 +96,11 @@ def test_backup_ignore_1(runner_gen, parse_yaml, request, capfd):
         u'|> migration: processing version setup\n'
         u'|> version setup: start\n'
         u'|> version setup: execute base pre-operations\n'
-        u'|> version setup: echo pre-operation\n'
+        u'|> version setup: echo \'pre-operation\'\n'
         u'pre-operation\r\n'
         u'|> version setup: installation / upgrade of addons\n'
         u'|> version setup: execute base post-operations\n'
-        u'|> version setup: echo post-operation\n'
+        u'|> version setup: echo \'post-operation\'\n'
         u'post-operation\r\n'
         u'|> version setup: done\n'
         u'|> migration: processing version 0.0.2\n'
@@ -110,13 +110,13 @@ def test_backup_ignore_1(runner_gen, parse_yaml, request, capfd):
         u'|> migration: processing version 0.0.3\n'
         u'|> version 0.0.3: start\n'
         u'|> version 0.0.3: execute base pre-operations\n'
-        u'|> version 0.0.3: echo foobar\n'
+        u'|> version 0.0.3: echo \'foobar\'\n'
         u'foobar\r\n'
-        u'|> version 0.0.3: echo foobarbaz\n'
+        u'|> version 0.0.3: echo \'foobarbaz\'\n'
         u'foobarbaz\r\n'
         u'|> version 0.0.3: installation / upgrade of addons\n'
         u'|> version 0.0.3: execute base post-operations\n'
-        u'|> version 0.0.3: echo post-op with unicode é â\n'
+        u'|> version 0.0.3: echo \'post-op with unicode é â\'\n'
         u'post-op with unicode é â\r\n'
         u'|> version 0.0.3: done\n'
         u'|> migration: processing version 0.0.4\n'
@@ -140,11 +140,11 @@ def test_backup_ignore_2(runner_gen, parse_yaml, request, capfd):
         u'|> migration: processing version setup\n'
         u'|> version setup: start\n'
         u'|> version setup: execute base pre-operations\n'
-        u'|> version setup: echo pre-operation\n'
+        u'|> version setup: echo \'pre-operation\'\n'
         u'pre-operation\r\n'
         u'|> version setup: installation / upgrade of addons\n'
         u'|> version setup: execute base post-operations\n'
-        u'|> version setup: echo post-operation\n'
+        u'|> version setup: echo \'post-operation\'\n'
         u'post-operation\r\n'
         u'|> version setup: done\n'
         u'|> migration: processing version 0.0.2\n'
@@ -154,13 +154,13 @@ def test_backup_ignore_2(runner_gen, parse_yaml, request, capfd):
         u'|> migration: processing version 0.0.3\n'
         u'|> version 0.0.3: start\n'
         u'|> version 0.0.3: execute base pre-operations\n'
-        u'|> version 0.0.3: echo foobar\n'
+        u'|> version 0.0.3: echo \'foobar\'\n'
         u'foobar\r\n'
-        u'|> version 0.0.3: echo foobarbaz\n'
+        u'|> version 0.0.3: echo \'foobarbaz\'\n'
         u'foobarbaz\r\n'
         u'|> version 0.0.3: installation / upgrade of addons\n'
         u'|> version 0.0.3: execute base post-operations\n'
-        u'|> version 0.0.3: echo post-op with unicode é â\n'
+        u'|> version 0.0.3: echo \'post-op with unicode é â\'\n'
         u'post-op with unicode é â\r\n'
         u'|> version 0.0.3: done\n'
         u'|> migration: processing version 0.0.4\n'
@@ -178,8 +178,7 @@ def test_backup_stop_on_failure_true(runner_gen, parse_yaml, request, capfd):
     with pytest.raises(BackupError):
         backup_params, config = parse_yaml('migration_with_backup.yml')
         backup_params.parsed['migration']['options']['backup'].update({
-            'command': 'test',
-            'args': '1 != 1',
+            'command': 'test 1 != 1',
         })
         runner = runner_gen(backup_params, config)
         runner.perform()
@@ -191,8 +190,7 @@ def test_backup_no_stop_on_failure(runner_gen, parse_yaml, request, capfd):
     with pytest.raises(BackupError):
         backup_params, config = parse_yaml('migration_with_backup.yml')
         backup_params.parsed['migration']['options']['backup'].update({
-            'command': 'test',
-            'args': '1 != 1',
+            'command': 'test 1 != 1',
         })
         backup_params.parsed['migration']['options']['backup'].pop(
             "stop_on_failure",
@@ -206,8 +204,7 @@ def test_backup_stop_on_failure_false(runner_gen, parse_yaml, request, capfd):
     # backup command fails
     backup_params, config = parse_yaml('migration_with_backup.yml')
     backup_params.parsed['migration']['options']['backup'].update({
-        'command': 'test',
-        'args': '1 != 1',
+        'command': 'test 1 != 1',
         'stop_on_failure': False,
     })
     runner = runner_gen(backup_params, config)
@@ -220,11 +217,11 @@ def test_backup_stop_on_failure_false(runner_gen, parse_yaml, request, capfd):
         u'|> migration: processing version setup\n'
         u'|> version setup: start\n'
         u'|> version setup: execute base pre-operations\n'
-        u'|> version setup: echo pre-operation\n'
+        u'|> version setup: echo \'pre-operation\'\n'
         u'pre-operation\r\n'
         u'|> version setup: installation / upgrade of addons\n'
         u'|> version setup: execute base post-operations\n'
-        u'|> version setup: echo post-operation\n'
+        u'|> version setup: echo \'post-operation\'\n'
         u'post-operation\r\n'
         u'|> version setup: done\n'
         u'|> migration: processing version 0.0.2\n'
@@ -234,13 +231,13 @@ def test_backup_stop_on_failure_false(runner_gen, parse_yaml, request, capfd):
         u'|> migration: processing version 0.0.3\n'
         u'|> version 0.0.3: start\n'
         u'|> version 0.0.3: execute base pre-operations\n'
-        u'|> version 0.0.3: echo foobar\n'
+        u'|> version 0.0.3: echo \'foobar\'\n'
         u'foobar\r\n'
-        u'|> version 0.0.3: echo foobarbaz\n'
+        u'|> version 0.0.3: echo \'foobarbaz\'\n'
         u'foobarbaz\r\n'
         u'|> version 0.0.3: installation / upgrade of addons\n'
         u'|> version 0.0.3: execute base post-operations\n'
-        u'|> version 0.0.3: echo post-op with unicode é â\n'
+        u'|> version 0.0.3: echo \'post-op with unicode é â\'\n'
         u'post-op with unicode é â\r\n'
         u'|> version 0.0.3: done\n'
         u'|> migration: processing version 0.0.4\n'
@@ -268,11 +265,11 @@ def test_backup_noop(runner_gen, parse_yaml, request, capfd):
         u'|> migration: processing version setup\n'
         u'|> version setup: start\n'
         u'|> version setup: execute base pre-operations\n'
-        u'|> version setup: echo pre-operation\n'
+        u'|> version setup: echo \'pre-operation\'\n'
         u'pre-operation\r\n'
         u'|> version setup: installation / upgrade of addons\n'
         u'|> version setup: execute base post-operations\n'
-        u'|> version setup: echo post-operation\n'
+        u'|> version setup: echo \'post-operation\'\n'
         u'post-operation\r\n'
         u'|> version setup: done\n'
         u'|> migration: processing version 0.0.2\n'
@@ -282,13 +279,13 @@ def test_backup_noop(runner_gen, parse_yaml, request, capfd):
         u'|> migration: processing version 0.0.3\n'
         u'|> version 0.0.3: start\n'
         u'|> version 0.0.3: execute base pre-operations\n'
-        u'|> version 0.0.3: echo foobar\n'
+        u'|> version 0.0.3: echo \'foobar\'\n'
         u'foobar\r\n'
-        u'|> version 0.0.3: echo foobarbaz\n'
+        u'|> version 0.0.3: echo \'foobarbaz\'\n'
         u'foobarbaz\r\n'
         u'|> version 0.0.3: installation / upgrade of addons\n'
         u'|> version 0.0.3: execute base post-operations\n'
-        u'|> version 0.0.3: echo post-op with unicode é â\n'
+        u'|> version 0.0.3: echo \'post-op with unicode é â\'\n'
         u'post-op with unicode é â\r\n'
         u'|> version 0.0.3: done\n'
         u'|> migration: processing version 0.0.4\n'
