@@ -2,7 +2,6 @@
 # Copyright 2016-2018 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-import shlex
 import sys
 
 from builtins import object
@@ -293,17 +292,17 @@ class Operation(object):
 
     def _spawn_command(self):
         if self.shell:
-            return "sh -c '%s'" % (self.command,)
+            return "sh", ["-c", self.command]
         else:
-            return self.command
+            return self.command, []
 
     def __bool__(self):
         return bool(self.command)
 
     def _execute(self, log, interactive=True):
         assert self.command
-        child = pexpect.spawn(self._spawn_command(), timeout=None,
-                              encoding='utf8')
+        cmd, options = self._spawn_command()
+        child = pexpect.spawn(cmd, options, timeout=None, encoding='utf8')
         # interact() will transfer the child's stdout to
         # stdout, but we also copy the output in a buffer
         # so we can save the logs in the database
@@ -355,8 +354,8 @@ class SilentOperation(Operation):
 
     def _execute(self):
         assert self.command
-        child = pexpect.spawn(self._spawn_command(), timeout=None,
-                              encoding='utf8')
+        cmd, options = self._spawn_command()
+        child = pexpect.spawn(cmd, options, timeout=None, encoding='utf8')
         child.expect(pexpect.EOF)
         child.close()
         if child.signalstatus is not None:
