@@ -25,8 +25,7 @@ migration:
     install_command: odoo
     install_args: --log-level=debug
     backup:
-      command: echo
-      args: "backup command"
+      command: echo "backup command on ${DB_NAME}"
       stop_on_failure: true
       ignore_if: test "${RUNNING_ENV}" != "prod"
   versions:
@@ -106,7 +105,7 @@ class YamlParser(object):
         current_keys = {key for key in current}
         extra_keys = current_keys - expected_keys
         if extra_keys:
-            message = "u{}: the keys {} are unexpected. (allowed keys: {})"
+            message = u"{}: the keys {} are unexpected. (allowed keys: {})"
             raise ParseError(
                 message.format(
                     dict_name,
@@ -137,18 +136,19 @@ class YamlParser(object):
         :class:`MigrationBackupOption` instances."""
         options = migration.get('options', {})
         install_command = options.get('install_command')
-        install_args = options.get('install_args', '')
         backup = options.get('backup')
         if backup:
+            self.check_dict_expected_keys(
+                {'command', 'ignore_if', 'stop_on_failure'},
+                options['backup'], 'backup',
+            )
             backup = MigrationBackupOption(
                 command=backup.get('command'),
-                command_args=backup.get('args', ''),
                 ignore_if=backup.get('ignore_if'),
                 stop_on_failure=backup.get('stop_on_failure', True),
             )
         return MigrationOption(
             install_command=install_command,
-            install_args=install_args.split(),
             backup=backup,
         )
 

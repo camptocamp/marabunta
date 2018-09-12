@@ -2,7 +2,6 @@
 # Copyright 2016-2018 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-import shlex
 import sys
 
 from builtins import object
@@ -45,7 +44,7 @@ class MigrationOption(object):
 
 class MigrationBackupOption(object):
 
-    def __init__(self, command, command_args, ignore_if, stop_on_failure=True):
+    def __init__(self, command, ignore_if, stop_on_failure=True):
         """Backup option in migration.
 
         Migration allows using a backup command in order to perform specific
@@ -53,8 +52,6 @@ class MigrationBackupOption(object):
 
         :param command: Backup command to execute
         :type command: String
-        :param command_args: Arguments for a backup command
-        :type command_args: String
         :param ignore_if: A command, that is evaluated
                           without error -> backup is ignored
         :type ignore_if: String
@@ -64,7 +61,6 @@ class MigrationBackupOption(object):
         """
         self.command = self.__get_backup_operation(
             command,
-            command_args,
             stop_on_failure,
         )
         self.ignore_if = self.__get_ignore_if_operation(ignore_if)
@@ -72,16 +68,17 @@ class MigrationBackupOption(object):
     def __get_ignore_if_operation(self, ignore_if):
         if ignore_if is None or ignore_if is False:
             # if ignore_if parameter was not specified - always backup
-            return SilentOperation(['false'])
+            return SilentOperation('false', shell=True)
         elif ignore_if is True:
             # if it is specifically True
-            return SilentOperation(['true'])
-        return SilentOperation(ignore_if.split())
+            return SilentOperation('true', shell=True)
+        return SilentOperation(ignore_if, shell=True)
 
-    def __get_backup_operation(self, command, command_args, stop_on_failure):
+    def __get_backup_operation(self, command, stop_on_failure):
         return BackupOperation(
-            [command] + command_args.split(),
-            stop_on_failure,
+            command,
+            shell=True,
+            stop_on_failure=stop_on_failure,
         )
 
 
@@ -281,28 +278,31 @@ class UpgradeAddonsOperation(object):
 
 class Operation(object):
 
-    def __init__(self, command):
-        if isinstance(command, string_types):
-            command = self._shlex_split_unicode(command)
-        self.command = command
+    def __init__(self, command, shell=False):
+        """ Wrap a pexpect spawn command
 
-    @staticmethod
-    def _shlex_split_unicode(command):
-        if sys.version_info < (3, 4):
-            return [l.decode('utf8') for l in shlex.split(
-                command.encode('utf-8'))]
+        :param command: the command to run as string
+        :param shell: boolean, when True, wraps the command in ``sh -c``
+                      so bash environment variables are interpolated
+        """
+        if not isinstance(command, string_types):
+            command = u' '.join(command)
+        self.command = command
+        self.shell = shell
+
+    def _spawn_command(self):
+        if self.shell:
+            return "sh", ["-c", self.command]
         else:
-            return shlex.split(command)
+            return self.command, []
 
     def __bool__(self):
         return bool(self.command)
 
     def _execute(self, log, interactive=True):
         assert self.command
-        executable = self.command[0]
-        params = self.command[1:]
-        child = pexpect.spawn(executable, params, timeout=None,
-                              encoding='utf8')
+        cmd, options = self._spawn_command()
+        child = pexpect.spawn(cmd, options, timeout=None, encoding='utf8')
         # interact() will transfer the child's stdout to
         # stdout, but we also copy the output in a buffer
         # so we can save the logs in the database
@@ -324,14 +324,14 @@ class Operation(object):
         if child.signalstatus is not None:
             raise OperationError(
                 u"command '{}' has been interrupted by signal {}".format(
-                    ' '.join(self.command),
+                    self.command,
                     child.signalstatus
                 )
             )
         elif child.exitstatus != 0:
             raise OperationError(
                 u"command '{}' returned {}".format(
-                    ' '.join(self.command),
+                    self.command,
                     child.exitstatus
                 )
             )
@@ -342,23 +342,20 @@ class Operation(object):
         log(msg, decorated=False, stdout=False)
 
     def execute(self, log):
-        log(u'{}'.format(u' '.join(self.command)))
+        log(u'{}'.format(self.command))
         self._execute(log, interactive=sys.stdout.isatty())
 
     def __repr__(self):
-        return u'Operation<{}>'.format(' '.join(self.command))
+        return u'Operation<{}>'.format(self.command)
 
 
 class SilentOperation(Operation):
-    """Operation that does not require logging or interactivity.
-    """
+    """Operation that does not require logging or interactivity. """
 
     def _execute(self):
         assert self.command
-        executable = self.command[0]
-        params = self.command[1:]
-        child = pexpect.spawn(executable, params, timeout=None,
-                              encoding='utf8')
+        cmd, options = self._spawn_command()
+        child = pexpect.spawn(cmd, options, timeout=None, encoding='utf8')
         child.expect(pexpect.EOF)
         child.close()
         if child.signalstatus is not None:
@@ -382,10 +379,8 @@ class SilentOperation(Operation):
 
 class BackupOperation(Operation):
 
-    def __init__(self, command, stop_on_failure):
-        if isinstance(command, string_types):
-            command = self._shlex_split_unicode(command)
-        self.command = command
+    def __init__(self, command, shell=False, stop_on_failure=True):
+        super(BackupOperation, self).__init__(command, shell=shell)
         self.stop_on_failure = stop_on_failure
 
     def execute(self, log):
