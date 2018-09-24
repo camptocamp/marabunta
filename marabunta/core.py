@@ -121,15 +121,15 @@ def migrate(config):
         else:
             if application_lock.replica:
                 # when a replica could finally acquire a lock, it
-                # means that the main process has finished the
-                # migration. In that case, the replica should just
-                # exit because the migration already took place. We
-                # wait till then to be sure we won't run Odoo before
-                # the main process could finish the migration.
+                # means that the concurrent process has finished the
+                # migration or that it failed to run it.
+                # In both cases after the lock is released, this process will
+                # verify if it has still to do something (if the other process
+                # failed mainly).
                 application_lock.stop = True
                 application_lock.join()
-                return
-            # we are not in the replica: go on for the migration
+            # we are not in the replica or the lock is released: go on for the
+            # migration
 
         try:
             table = MigrationTable(database)
