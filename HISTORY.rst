@@ -14,6 +14,9 @@ Unreleased
 
 * Backup command and backup's ignore_if are now run with 'sh' so we can inject
   environment variables in the commands
+* Backup command can now use ``$database``, ``$db_host``, ``$db_port``,
+  ``$db_user``, ``$db_password`` that will be substituted by the current
+  configuration values
 
 **Bugfixes**
 

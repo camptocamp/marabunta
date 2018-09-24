@@ -9,6 +9,7 @@ import mock
 
 from marabunta.config import Config
 from marabunta.database import Database, MigrationTable
+from marabunta.model import MigrationBackupOption
 from marabunta.parser import YamlParser
 from marabunta.runner import Runner
 from marabunta.exception import BackupError
@@ -295,3 +296,56 @@ def test_backup_noop(runner_gen, parse_yaml, request, capfd):
     )
     out = capfd.readouterr().out
     assert expected == out
+
+
+@pytest.fixture
+def placeholders_config():
+    database = 'a_db'
+    db_user = 'a_user'
+    db_password = 'a_password'
+    db_port = 'a_port'
+    db_host = 'a_host'
+    return Config(
+        'migration.yml',
+        database,
+        db_user=db_user,
+        db_password=db_password,
+        db_port=db_port,
+        db_host=db_host,
+    )
+
+
+def test_backup_command_placeholders(placeholders_config):
+    # all parameters are substituted
+    options = MigrationBackupOption(
+        'echo $database $db_user $db_password $db_host $db_port',
+        'test 1 != 1',
+    )
+    operation = options.command_operation(placeholders_config)
+    assert operation.command == (
+        'echo a_db a_user a_password a_host a_port'
+    )
+
+
+def test_backup_command_placeholders_extra(placeholders_config):
+    # extra parameters are ignored
+    options = MigrationBackupOption(
+        'echo $database $db_user $db_password $db_host $db_port $foo',
+        'test 1 != 1',
+    )
+    operation = options.command_operation(placeholders_config)
+    assert operation.command == (
+        'echo a_db a_user a_password a_host a_port $foo'
+    )
+
+
+def test_backup_command_placeholders_missing(placeholders_config):
+    # no failure if not using all placeholders
+    options = MigrationBackupOption(
+        'echo $database',
+        'test 1 != 1',
+    )
+    operation = options.command_operation(placeholders_config)
+    assert operation.command == (
+        'echo a_db'
+    )

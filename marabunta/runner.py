@@ -95,7 +95,10 @@ class Runner(object):
                    if not version.is_processed(db_versions))
         )
         if run_backup:
-            self.migration.options.backup.command.execute(self.log)
+            backup = self.migration.options.backup
+            backup_operation = backup.command_operation(self.config)
+            backup_operation.execute(self.log)
+
         for version in self.migration.versions:
             # when we force-execute one version, we skip all the others
             if self.config.force_version:
