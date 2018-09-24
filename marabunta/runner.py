@@ -83,7 +83,18 @@ class Runner(object):
                         next_unprocess, installed
                     )
                 )
-        if any(map(lambda x: x.backup, self.migration.versions)):
+
+        run_backup = (
+            # If we are forcing a version, we want a backup
+            self.config.force_version
+            # If any of the version not yet processed, including the noop
+            # versions, need a backup, we run it. (note: by default,
+            # noop versions don't trigger a backup but it can be
+            # explicitly activated)
+            or any(version.backup for version in self.migration.versions
+                   if not version.is_processed(db_versions))
+        )
+        if run_backup:
             self.migration.options.backup.command.execute(self.log)
         for version in self.migration.versions:
             # when we force-execute one version, we skip all the others
