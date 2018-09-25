@@ -20,6 +20,11 @@ Unreleased
 
 **Bugfixes**
 
+* When starting 2 concurrent marabunta process and the first fail, it releases
+  the lock and the second would start odoo without actually run the migration.
+  Now, when the migration lock is released, the other process(es) will recheck
+  all versions as well before running odoo.
+
 **Improvements**
 
 **Documentation**
