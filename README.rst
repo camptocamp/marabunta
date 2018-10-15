@@ -7,15 +7,15 @@
 *Marabunta is a name given to the migration of the legionary ants or to the ants
 themselves. Restless, they eat and digest everything in their way.*
 
-Marabunta is used to provide an easy way to provide updates to Odoo which can be created fast and run easily. It also allows to differentiate between different environment to provide for instance demodata.
+Marabunta is used to provide an easy way to create Updates for Odoo fast and run easily. It also allows to differentiate between different environment to provide for instance demodata.
 
 
 Usage
 =====
-After installing marabunta will be available as a console command. To run properly it requires a migration file () which defines what should be updated/executed) and odoos connection parameters (view options in the options section.
+After installing marabunta, it will be available as a console command. To run properly it requires a migration file (which defines what has to updated/executed) and odoos connection parameters (view options in the options section.
 
 At each run marabunta verifies the versions from the migration file and and processes new ones.
-It is very much recomended to configure it, so that marabunta is ran automatically if odoo is started.
+It is very much recommended to configure it, so that marabunta is ran automatically if odoo is started.
 For instance adding it to your docker entrypoint.
 
 Features
@@ -25,7 +25,7 @@ Features
 * addon upgrades: Marabunta is able to install or upgrade odoo addons.
 * addon uninstall: Addons which were previously installed can be removed with marabunta.
 * operations: Allows to execute commands before or after upgrading modules.
-* modes: Modes allow the user to execute commands only on a certain environment. i.e. creation of demodata on a dev system.
+* modes: Modes allow the user to execute commands only on a certain environment. e.g. creation of demodata on a dev system.
 * maintenance page: publish an html page during the migration.
 
 Versioning systems
