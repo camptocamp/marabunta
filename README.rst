@@ -67,7 +67,63 @@ Options
                                                           
 YAML layout & Example
 =====================
-.. include:: docs/migration_example.yml
+Here is an Example migration file::
+
+    migration:
+      options:
+        # This includes general options which are used everytime marabunta is called.
+        # --workers=0 --stop-after-init are automatically added
+        install_command: odoo #Command which starts odoo
+        install_args: --log-level=debug # additional Arguments
+        backup: # Defines how the backup should be done before the migration.
+          command: echo "backup command on ${DB_NAME}"
+          stop_on_failure: true
+          ignore_if: test "${RUNNING_ENV}" != "prod"
+      versions:
+        - version: setup # Setup is always the initia. version<
+          operations:
+            pre:  # executed before 'addons'
+              - echo 'pre-operation'
+            post:  # executed after 'addons'
+              - anthem songs::install
+          addons:
+            upgrade:  # executed as odoo --stop-after-init -i/-u ...
+              - base
+              - document
+            # remove:  # uninstalled with a python script
+          modes:
+            prod:
+              operations:
+                pre:
+                  - echo 'pre-operation executed only when the mode is prod'
+                post:
+                  - anthem songs::load_production_data
+            demo:
+              operations:
+                post:
+                  - anthem songs::load_demo_data
+              addons:
+                upgrade:
+                  - demo_addon
+
+        - version: 0.0.2
+          backup: false
+          # nothing to do this can be used to keep marabunta and gittag in sync
+
+        - version: 0.0.3
+          operations:
+            pre: # we also can execute os commands
+              - echo 'foobar'
+              - ls
+              - bin/script_test.sh
+            post:
+              - echo 'post-op'
+
+        - version: 0.0.4
+          backup: false
+          addons:
+            upgrade:
+              - popeye
 
 
 Run the tests
