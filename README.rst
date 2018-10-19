@@ -23,7 +23,6 @@ Features
 
 * backup: Marabunta allows for a backup command to be executed before the migration.
 * addon upgrades: Marabunta is able to install or upgrade odoo addons.
-* addon uninstall: Addons which were previously installed can be removed with marabunta.
 * operations: Allows to execute commands before or after upgrading modules.
 * modes: Modes allow the user to execute commands only on a certain environment. e.g. creation of demodata on a dev system.
 * maintenance page: publish an html page during the migration.
@@ -90,7 +89,6 @@ Here is an Example migration file::
             upgrade:  # executed as odoo --stop-after-init -i/-u ...
               - base
               - document
-            # remove:  # uninstalled with a python script
           modes:
             prod:
               operations:
