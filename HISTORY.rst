@@ -6,14 +6,28 @@ Release History
 Unreleased
 ++++++++++
 
+**Features**
+
+**Bugfixes**
+
+**Improvements**
+
+**Documentation**
+
+**Build**
+
+0.10.0 (2018-11-06)
++++++++++++++++++++
+
 **Backward incompatible change**
 
-* In the migration yaml file, the ``command`` and ``command_args`` options are now all merged into ``command``
+* In the migration yaml file, the ``command`` and ``command_args`` options are
+  now all merged into ``command``
 
 **Features**
 
-* Backup command and backup's ignore_if are now run with 'sh' so we can inject
-  environment variables in the commands
+* Backup command and backup's ignore_if are now run in a 'sh' shell so we can
+  inject environment variables in the commands
 * Backup command can now use ``$database``, ``$db_host``, ``$db_port``,
   ``$db_user``, ``$db_password`` that will be substituted by the current
   configuration values
@@ -25,11 +39,10 @@ Unreleased
   Now, when the migration lock is released, the other process(es) will recheck
   all versions as well before running odoo.
 
-**Improvements**
-
 **Documentation**
 
-**Build**
+* Add some high-level documentation
+
 
 0.9.0 (2018-09-04)
 ++++++++++++++++++
