@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import re
-
 from setuptools import setup, find_packages
 
-with open('marabunta/core.py') as f:
-    version = re.search('^__version__\s*=\s*"(.*)"', f.read(), re.M).group(1)
 with open('README.rst') as f:
     readme = f.read()
 with open('HISTORY.rst') as f:
@@ -22,7 +18,7 @@ extras = {
 
 setup(
     name='marabunta',
-    version=version,
+    use_scm_version=True,
     description='Migration tool for Odoo',
     long_description=readme + '\n\n' + history,
     author='Camptocamp (Guewen Baconnier)',
@@ -36,6 +32,9 @@ setup(
         "pexpect",
         "werkzeug",
         "future",
+    ],
+    setup_requires=[
+        'setuptools_scm',
     ],
     tests_require=test_deps,
     extras_require=extras,
