@@ -14,3 +14,14 @@ before_script:
 
 script:
   - tox
+
+deploy:
+  provider: pypi
+  skip_existing: true
+  user: $PYPI_USER
+  password: $PYPI_PASSWORD
+  distributions: sdist bdist_wheel
+  on:
+    repo: camptocamp/marabunta
+    branch: master
+    tags: true
