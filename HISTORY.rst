@@ -10,13 +10,18 @@ Unreleased
 
 **Bugfixes**
 
-* Crash when forcing upgrade of a version and no backup command is configured
-
 **Improvements**
 
 **Documentation**
 
 **Build**
+
+0.10.2 (2018-12-12)
++++++++++++++++++++
+
+**Bugfixes**
+
+* Crash when forcing upgrade of a version and no backup command is configured
 
 0.10.1 (2018-11-09)
 +++++++++++++++++++
