@@ -10,6 +10,8 @@ Unreleased
 
 **Bugfixes**
 
+* Crash when forcing upgrade of a version and no backup command is configured
+
 **Improvements**
 
 **Documentation**

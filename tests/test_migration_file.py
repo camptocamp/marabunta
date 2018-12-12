@@ -118,7 +118,7 @@ def test_example_file_output_mode(runner_gen, request, capfd):
 
 def test_example_no_setup_file_output(runner_gen, request, capfd):
     with pytest.warns(FutureWarning) as record:
-        runner = runner_gen('migration_no_setup.yml')
+        runner = runner_gen('migration_no_backup.yml')
         runner.perform()
         expected = (
             u'|> migration: processing version 0.0.1\n'
@@ -162,7 +162,7 @@ def test_example_no_setup_file_output(runner_gen, request, capfd):
 
 def test_example_no_setup_file_output_mode(runner_gen, request, capfd):
     with pytest.warns(FutureWarning) as record:
-        runner = runner_gen('migration_no_setup.yml', mode='prod')
+        runner = runner_gen('migration_no_backup.yml', mode='prod')
         runner.perform()
         expected = (
             u'|> migration: processing version 0.0.1\n'

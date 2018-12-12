@@ -84,19 +84,21 @@ class Runner(object):
                     )
                 )
 
+        backup_options = self.migration.options.backup
         run_backup = (
-            # If we are forcing a version, we want a backup
-            self.config.force_version
-            # If any of the version not yet processed, including the noop
-            # versions, need a backup, we run it. (note: by default,
-            # noop versions don't trigger a backup but it can be
-            # explicitly activated)
-            or any(version.backup for version in self.migration.versions
-                   if not version.is_processed(db_versions))
+            backup_options and (
+                # If we are forcing a version, we want a backup
+                self.config.force_version
+                # If any of the version not yet processed, including the noop
+                # versions, need a backup, we run it. (note: by default,
+                # noop versions don't trigger a backup but it can be
+                # explicitly activated)
+                or any(version.backup for version in self.migration.versions
+                       if not version.is_processed(db_versions))
+            )
         )
         if run_backup:
-            backup = self.migration.options.backup
-            backup_operation = backup.command_operation(self.config)
+            backup_operation = backup_options.command_operation(self.config)
             backup_operation.execute(self.log)
 
         for version in self.migration.versions:

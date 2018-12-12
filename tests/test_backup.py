@@ -349,3 +349,57 @@ def test_backup_command_placeholders_missing(placeholders_config):
     assert operation.command == (
         'echo a_db'
     )
+
+
+def test_backup_force_version(runner_gen, parse_yaml, request, capfd):
+    # Test that backup is triggered when using force_version
+    backup_params, config = parse_yaml('migration_with_backup.yml')
+    config.force_version = '0.0.3'
+    runner = runner_gen(backup_params, config)
+    runner.perform()
+    expected = (
+        u'|> migration: Backing up...\n'
+        u'backup command\r\n'
+        u'|> migration: force-execute version 0.0.3\n'
+        u'|> migration: processing version 0.0.3\n'
+        u'|> version 0.0.3: start\n'
+        u'|> version 0.0.3: execute base pre-operations\n'
+        u"|> version 0.0.3: echo 'foobar'\n"
+        u'foobar\r\n'
+        u"|> version 0.0.3: echo 'foobarbaz'\n"
+        u'foobarbaz\r\n'
+        u'|> version 0.0.3: installation / upgrade of addons\n'
+        u'|> version 0.0.3: execute base post-operations\n'
+        u"|> version 0.0.3: echo 'post-op with unicode é â'\n"
+        u'post-op with unicode é â\r\n'
+        u'|> version 0.0.3: done\n'
+    )
+    out = capfd.readouterr().out
+    assert expected == out
+
+
+def test_backup_force_version_no_backup_command(runner_gen, parse_yaml,
+                                                request, capfd):
+    # Test that backup is not triggered when using force_version but no backup
+    # command is configured
+    backup_params, config = parse_yaml('migration_no_backup.yml')
+    config.force_version = '0.0.3'
+    runner = runner_gen(backup_params, config)
+    runner.perform()
+    expected = (
+        u'|> migration: force-execute version 0.0.3\n'
+        u'|> migration: processing version 0.0.3\n'
+        u'|> version 0.0.3: start\n'
+        u'|> version 0.0.3: execute base pre-operations\n'
+        u"|> version 0.0.3: echo 'foobar'\n"
+        u'foobar\r\n'
+        u"|> version 0.0.3: echo 'foobarbaz'\n"
+        u'foobarbaz\r\n'
+        u'|> version 0.0.3: installation / upgrade of addons\n'
+        u'|> version 0.0.3: execute base post-operations\n'
+        u"|> version 0.0.3: echo 'post-op with unicode é â'\n"
+        u'post-op with unicode é â\r\n'
+        u'|> version 0.0.3: done\n'
+    )
+    out = capfd.readouterr().out
+    assert expected == out
