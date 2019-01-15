@@ -238,10 +238,55 @@ def test_mixed_digits_output_mode(runner_gen, request, capfd):
         u'|> version 11.2.0: version 11.2.0 is already installed',
         u'|> migration: processing version 11.3.0',
         u'|> version 11.3.0: version 11.3.0 is already installed',
-        u'|> migration: processing version 11.0.3.0.1',
-        u'|> version 11.0.3.0.1: start',
-        u'|> version 11.0.3.0.1: version 11.0.3.0.1 is a noop',
-        u'|> version 11.0.3.0.1: done',
+        u'|> migration: processing version 11.0.0.3.1',
+        u'|> version 11.0.0.3.1: start',
+        u'|> version 11.0.0.3.1: version 11.0.0.3.1 is a noop',
+        u'|> version 11.0.0.3.1: done',
+        u'|> migration: processing version 11.0.0.3.2',
+        u'|> version 11.0.0.3.2: start',
+        u'|> version 11.0.0.3.2: version 11.0.0.3.2 is a noop',
+        u'|> version 11.0.0.3.2: done',
+        u'|> migration: processing version 11.0.1.0.0',
+        u'|> version 11.0.1.0.0: start',
+        u'|> version 11.0.1.0.0: version 11.0.1.0.0 is a noop',
+        u'|> version 11.0.1.0.0: done',
+        u'|> migration: processing version 11.0.2.0.0',
+        u'|> version 11.0.2.0.0: start',
+        u'|> version 11.0.2.0.0: version 11.0.2.0.0 is a noop',
+        u'|> version 11.0.2.0.0: done',
+    )
+    output = capfd.readouterr()  # ease debug
+    assert expected == tuple(output.out.splitlines())
+
+
+def test_mixed_digits_output_mode2(runner_gen, request, capfd):
+    # migrate 1st one 3 digit version then a 5 digit one
+    old_versions = [
+        # 'number date_start date_done log addons'
+        VersionRecord('10.17.0', '2018-09-06', '2018-09-06', '', ''),
+    ]
+    runner = runner_gen(
+        'migration_mixed_digits2.yml', mode='prod', db_versions=old_versions)
+    runner.perform()
+    expected = (
+        u'|> migration: processing version setup',
+        u'|> version setup: start',
+        u'|> version setup: version setup is a noop',
+        u'|> version setup: done',
+        u'|> migration: processing version 10.17.0',
+        u'|> version 10.17.0: version 10.17.0 is already installed',
+        u'|> migration: processing version 10.17.1',
+        u'|> version 10.17.1: start',
+        u'|> version 10.17.1: version 10.17.1 is a noop',
+        u'|> version 10.17.1: done',
+        u'|> migration: processing version 10.0.0.18.0',
+        u'|> version 10.0.0.18.0: start',
+        u'|> version 10.0.0.18.0: version 10.0.0.18.0 is a noop',
+        u'|> version 10.0.0.18.0: done',
+        u'|> migration: processing version 10.0.0.19.0',
+        u'|> version 10.0.0.19.0: start',
+        u'|> version 10.0.0.19.0: version 10.0.0.19.0 is a noop',
+        u'|> version 10.0.0.19.0: done',
     )
     output = capfd.readouterr()  # ease debug
     assert expected == tuple(output.out.splitlines())
