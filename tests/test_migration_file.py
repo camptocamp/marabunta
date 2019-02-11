@@ -11,6 +11,7 @@ from marabunta.config import Config
 from marabunta.database import Database, MigrationTable, VersionRecord
 from marabunta.parser import YamlParser
 from marabunta.runner import Runner
+from marabunta.exception import MigrationError
 
 
 @pytest.fixture
@@ -290,3 +291,14 @@ def test_mixed_digits_output_mode2(runner_gen, request, capfd):
     )
     output = capfd.readouterr()  # ease debug
     assert expected == tuple(output.out.splitlines())
+
+
+# All other tests already rely on allow series working when set to true.
+# so we only have one test making sure it doesn't work if it is set false.
+def test_allow_series_false(runner_gen, request, capfd):
+    runner = runner_gen('migration.yml', allow_serie=False)
+    with pytest.raises(
+            MigrationError,
+            match=r"[.]*Only one version can be upgraded at a time.[.]*"
+    ):
+        runner.perform()

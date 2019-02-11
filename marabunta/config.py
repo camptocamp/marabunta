@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2016-2017 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
-
+from distutils.util import strtobool
 import argparse
 import os
 
@@ -64,15 +64,27 @@ class EnvDefault(argparse.Action):
 
     def __init__(self, envvar, required=True, default=None, **kwargs):
         if not default and envvar:
-            if envvar in os.environ:
-                default = os.environ[envvar]
+            default = self.get_default(envvar)
         if required and default is not None:
             required = False
         super(EnvDefault, self).__init__(default=default, required=required,
                                          **kwargs)
 
+    def get_default(self, envvar):
+        return os.getenv(envvar)
+
     def __call__(self, parser, namespace, values, option_string=None):
         setattr(namespace, self.dest, values)
+
+
+class BoolEnvDefault(EnvDefault):
+
+    def get_default(self, envvar):
+        val = os.getenv(envvar)
+        try:
+            return strtobool(val.lower())
+        except ValueError:
+            return False
 
 
 def get_args_parser():
@@ -116,9 +128,9 @@ def get_args_parser():
                              "operations and the addons list of this mode "
                              "will be merged with the main addons list.")
     parser.add_argument('--allow-serie',
-                        action='store_true',
+                        action=BoolEnvDefault,
                         required=False,
-                        default=bool(os.environ.get('MARABUNTA_ALLOW_SERIE')),
+                        envvar='MARABUNTA_ALLOW_SERIE',
                         help='Allow to run more than 1 version upgrade at a '
                              'time.')
     parser.add_argument('--force-version',

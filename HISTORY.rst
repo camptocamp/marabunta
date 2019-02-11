@@ -10,6 +10,8 @@ Unreleased
 
 **Bugfixes**
 
+* ALLOW_SERIES shouldn't be true if a false value is given.
+
 **Improvements**
 
 **Documentation**
