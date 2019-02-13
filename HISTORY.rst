@@ -10,13 +10,18 @@ Unreleased
 
 **Bugfixes**
 
-* ALLOW_SERIES shouldn't be true if a false value is given.
-
 **Improvements**
 
 **Documentation**
 
 **Build**
+
+0.10.3 (2019-02-13)
++++++++++++++++++++
+
+**Bugfixes**
+
+* ALLOW_SERIES shouldn't be true if a false value is given.
 
 0.10.2 (2018-12-12)
 +++++++++++++++++++
