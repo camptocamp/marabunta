@@ -10,6 +10,8 @@ Unreleased
 
 **Bugfixes**
 
+* Fix BoolEnvDefault when envvar is not defined
+
 **Improvements**
 
 **Documentation**

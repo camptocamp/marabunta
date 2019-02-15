@@ -33,3 +33,7 @@ def test_bool_env_default_str():
     os.environ['test_var'] = '3'
     test = BoolEnvDefault('test_var', option_strings='', dest='test_var')
     assert(not test.default)
+
+    del os.environ['test_var']
+    test = BoolEnvDefault('test_var', option_strings='', dest='test_var')
+    assert(not test.default)

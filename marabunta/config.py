@@ -80,7 +80,7 @@ class EnvDefault(argparse.Action):
 class BoolEnvDefault(EnvDefault):
 
     def get_default(self, envvar):
-        val = os.getenv(envvar)
+        val = os.getenv(envvar, '')
         try:
             return strtobool(val.lower())
         except ValueError:
