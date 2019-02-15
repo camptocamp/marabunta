@@ -10,13 +10,18 @@ Unreleased
 
 **Bugfixes**
 
-* Fix BoolEnvDefault when envvar is not defined
-
 **Improvements**
 
 **Documentation**
 
 **Build**
+
+0.10.4 (2019-02-15)
++++++++++++++++++++
+
+**Bugfixes**
+
+* Fix BoolEnvDefault when envvar is not defined
 
 0.10.3 (2019-02-13)
 +++++++++++++++++++
