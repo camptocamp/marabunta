@@ -20,7 +20,8 @@ class Config(object):
                  force_version=None,
                  web_host='localhost',
                  web_port=8069,
-                 web_custom_html=None):
+                 web_custom_html=None,
+                 web_503_urls=None):
         self.migration_file = migration_file
         self.database = database
         self.db_user = db_user
@@ -35,6 +36,7 @@ class Config(object):
         self.web_host = web_host
         self.web_port = web_port
         self.web_custom_html = web_custom_html
+        self.web_503_urls = web_503_urls
 
     @classmethod
     def from_parse_args(cls, args):
@@ -57,6 +59,7 @@ class Config(object):
                    web_host=args.web_host,
                    web_port=args.web_port,
                    web_custom_html=args.web_custom_html,
+                   web_503_urls=args.web_503_urls,
                    )
 
 
@@ -158,4 +161,10 @@ def get_args_parser():
                            'MARABUNTA_WEB_CUSTOM_HTML'
                        ),
                        help='Path to a custom html file to publish')
+    group.add_argument('--web-503-urls',
+                       required=False,
+                       default=os.environ.get(
+                           'MARABUNTA_WEB_503_URLS'
+                       ),
+                       help='Comma separated list of url paths to return 503.')
     return parser

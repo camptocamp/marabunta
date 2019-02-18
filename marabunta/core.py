@@ -107,7 +107,8 @@ def migrate(config):
     :type config: Config
     """
     webapp = WebApp(config.web_host, config.web_port,
-                    custom_maintenance_file=config.web_custom_html)
+                    custom_maintenance_file=config.web_custom_html,
+                    urls_503=config.web_503_urls)
 
     webserver = WebServer(webapp)
     webserver.daemon = True
