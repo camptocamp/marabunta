@@ -5,7 +5,7 @@
 from __future__ import print_function
 
 
-import yaml
+from ruamel.yaml import YAML
 import warnings
 
 from .exception import ParseError
@@ -86,7 +86,8 @@ class YamlParser(object):
     @classmethod
     def parser_from_buffer(cls, fp):
         """Construct YamlParser from a file pointer."""
-        return cls(yaml.safe_load(fp))
+        yaml = YAML(typ="safe")
+        return cls(yaml.load(fp))
 
     @classmethod
     def parse_from_file(cls, filename):

@@ -28,7 +28,7 @@ setup(
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=[
         "psycopg2",
-        "PyYAML",
+        "ruamel.yaml",
         "pexpect",
         "werkzeug",
         "future",
