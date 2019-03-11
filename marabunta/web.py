@@ -12,7 +12,7 @@ from werkzeug.exceptions import ServiceUnavailable
 class WebApp(object):
 
     def __init__(self, host, port, custom_maintenance_file=None,
-                 urls_503=None):
+                 url_paths_503=None):
         self.host = host
         self.port = port
         if not custom_maintenance_file:
@@ -22,13 +22,13 @@ class WebApp(object):
             )
         with open(custom_maintenance_file, 'r') as f:
             self.maintenance_html = f.read()
-        self.urls_503 = urls_503.split(',') if urls_503 else []
+        self.url_paths_503 = url_paths_503.split(',') if url_paths_503 else []
 
     def serve(self):
         run_simple(self.host, self.port, self)
 
     def dispatch_request(self, request):
-        for url in self.urls_503:
+        for url in self.url_paths_503:
             if request.path == url or request.path.startswith(url + '/'):
                 return ServiceUnavailable()
         return Response(self.maintenance_html, mimetype='text/html')

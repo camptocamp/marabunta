@@ -12,7 +12,7 @@ Unreleased
 
 **Improvements**
 
-* Add an option for the web server to return 503 http code for some url path.
+* Add an option for the web server to return 503 http code for some url paths.
 
 **Documentation**
 

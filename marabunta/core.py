@@ -108,7 +108,7 @@ def migrate(config):
     """
     webapp = WebApp(config.web_host, config.web_port,
                     custom_maintenance_file=config.web_custom_html,
-                    urls_503=config.web_503_urls)
+                    url_paths_503=config.web_503_url_paths)
 
     webserver = WebServer(webapp)
     webserver.daemon = True
