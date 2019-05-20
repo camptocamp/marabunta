@@ -12,6 +12,8 @@ Unreleased
 
 **Improvements**
 
+* Prevent text from bouncing in maintenance page
+
 **Documentation**
 
 **Build**
