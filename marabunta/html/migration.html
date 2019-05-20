@@ -45,6 +45,9 @@
       font-size: 21px;
       line-height: 1.4;
     }
+    .loader-container {
+      height: 6em;
+    }
 
     /* loader from https://projects.lukehaas.me/css-loaders/ */
     .loader,
@@ -110,7 +113,9 @@
 </head>
 <body>
   <div class="cover">
-    <div class="loader">Waiting...</div>
+    <div class="loader-container">
+      <div class="loader">Waiting...</div>
+    </div>
     <h1>odoo maintenance</h1>
     <p class="message">An upgrade of the application is currently in progress... please come back later.</p>
   </div>
