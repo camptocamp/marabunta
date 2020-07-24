@@ -173,6 +173,27 @@ def test_backup_ignore_2(runner_gen, parse_yaml, request, capfd):
     assert expected == out
 
 
+def test_backup_ignore_3(runner_gen, parse_yaml, request, capfd):
+    # Test that backing up is ignored if ignore_if evaluates to True
+    # and MARABUNTA_FORCE_VERSION is set
+    backup_params, config = parse_yaml('migration_with_backup.yml')
+    backup_params.parsed['migration']['options']['backup'].update({
+        'ignore_if': 'test -z "$UNKNOWN_VAR"',
+    })
+    config.force_version = "0.0.4"
+    runner = runner_gen(backup_params, config)
+    runner.perform()
+    expected = (
+        u'|> migration: force-execute version 0.0.4\n'
+        u'|> migration: processing version 0.0.4\n'
+        u'|> version 0.0.4: start\n'
+        u'|> version 0.0.4: version 0.0.4 is a noop\n'
+        u'|> version 0.0.4: done\n'
+    )
+    out = capfd.readouterr().out
+    assert expected == out
+
+
 def test_backup_stop_on_failure_true(runner_gen, parse_yaml, request, capfd):
     # Test that the migration is failed if stop_on_failure is true and
     # backup command fails
