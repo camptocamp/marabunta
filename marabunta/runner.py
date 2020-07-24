@@ -79,7 +79,7 @@ class Runner(object):
             if installed > next_unprocess:
                 raise MigrationError(
                     u'The version you are trying to install ({}) is below '
-                    u'the current database version.'.format(
+                    u'the current database version ({}).'.format(
                         next_unprocess, installed
                     )
                 )
