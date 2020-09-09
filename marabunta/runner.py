@@ -8,7 +8,7 @@ import sys
 from datetime import datetime
 
 from .database import IrModuleModule
-from .exception import MigrationError
+from .exception import MigrationError, OperationError
 from .output import print_decorated, safe_print
 from .version import MarabuntaVersion
 
@@ -85,8 +85,9 @@ class Runner(object):
                 )
 
         backup_options = self.migration.options.backup
-        run_backup = (
-            backup_options and (
+        run_backup = False
+        if backup_options:
+            run_backup = (
                 # If we are forcing a version, we want a backup
                 self.config.force_version
                 # If any of the version not yet processed, including the noop
@@ -96,7 +97,13 @@ class Runner(object):
                 or any(version.backup for version in self.migration.versions
                        if not version.is_processed(db_versions))
             )
-        )
+            if run_backup:
+                try:
+                    backup_options.ignore_if_operation().execute()
+                except OperationError:
+                    pass
+                else:
+                    run_backup = False
         if run_backup:
             backup_operation = backup_options.command_operation(self.config)
             backup_operation.execute(self.log)
