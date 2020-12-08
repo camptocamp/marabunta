@@ -196,7 +196,7 @@ class YamlParser(object):
     def _parse_backup(self, version, backup=True, mode=None):
         if not isinstance(backup, bool):
             raise ParseError(u"'backup' key must be a boolean", YAML_EXAMPLE)
-        version.add_backup_operation(backup, mode=mode)
+        version.backup = backup
 
     def _parse_version(self, parsed_version, options):
         self.check_dict_expected_keys(
