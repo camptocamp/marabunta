@@ -12,11 +12,21 @@ Unreleased
 
 **Improvements**
 
-* Prevent text from bouncing in maintenance page
-
 **Documentation**
 
 **Build**
+
+0.10.5 (2020-12-08)
++++++++++++++++++++
+
+**Bugfixes**
+
+* Fix backup operation if force_version is set
+
+**Improvements**
+
+* Prevent text from bouncing in maintenance page
+* raise an exception if there is duplicate keys in migration file
 
 0.10.4 (2019-02-15)
 +++++++++++++++++++
