@@ -10,7 +10,8 @@ from werkzeug.serving import run_simple
 
 class WebApp(object):
 
-    def __init__(self, host, port, custom_maintenance_file=None):
+    def __init__(self, host, port, custom_maintenance_file=None,
+                 resp_status=503, resp_retry_after=300):
         self.host = host
         self.port = port
         if not custom_maintenance_file:
@@ -18,6 +19,8 @@ class WebApp(object):
                 os.path.dirname(__file__),
                 'html/migration.html'
             )
+        self.resp_status = resp_status
+        self.resp_retry_after = resp_retry_after
         with open(custom_maintenance_file, 'r') as f:
             self.maintenance_html = f.read()
 
@@ -25,7 +28,12 @@ class WebApp(object):
         run_simple(self.host, self.port, self)
 
     def dispatch_request(self, request):
-        return Response(self.maintenance_html, mimetype='text/html')
+        return Response(
+            self.maintenance_html,
+            status=self.resp_status,
+            headers={'Retry-After': self.resp_retry_after},
+            mimetype='text/html'
+        )
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)

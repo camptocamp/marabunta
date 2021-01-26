@@ -20,6 +20,8 @@ class Config(object):
                  force_version=None,
                  web_host='localhost',
                  web_port=8069,
+                 web_resp_status=503,
+                 web_resp_retry_after=300,  # 5 minutes
                  web_custom_html=None):
         self.migration_file = migration_file
         self.database = database
@@ -34,6 +36,8 @@ class Config(object):
             self.allow_serie = True
         self.web_host = web_host
         self.web_port = web_port
+        self.web_resp_status = web_resp_status
+        self.web_resp_retry_after = web_resp_retry_after
         self.web_custom_html = web_custom_html
 
     @classmethod
@@ -56,6 +60,8 @@ class Config(object):
                    force_version=args.force_version,
                    web_host=args.web_host,
                    web_port=args.web_port,
+                   web_resp_status=args.web_resp_status,
+                   web_resp_retry_after=args.web_resp_retry_after,
                    web_custom_html=args.web_custom_html,
                    )
 
@@ -152,6 +158,21 @@ def get_args_parser():
                        required=False,
                        default=os.environ.get('MARABUNTA_WEB_PORT', 8069),
                        help='Port for the web server')
+    group.add_argument('--web-resp-status',
+                       required=False,
+                       default=os.environ.get(
+                           'MARABUNTA_WEB_RESP_STATUS', 503
+                        ),
+                       help='Response HTTP status code of the web server')
+    group.add_argument('--web-resp-retry-after',
+                       required=False,
+                       default=os.environ.get(
+                           'MARABUNTA_WEB_RESP_RETRY_AFTER', 300
+                       ),
+                       help=(
+                            '"Retry-After" header value (in seconds) of '
+                            'response delivered by the web server')
+                       )
     group.add_argument('--web-custom-html',
                        required=False,
                        default=os.environ.get(
