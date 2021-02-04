@@ -22,7 +22,8 @@ class Config(object):
                  web_port=8069,
                  web_resp_status=503,
                  web_resp_retry_after=300,  # 5 minutes
-                 web_custom_html=None):
+                 web_custom_html=None,
+                 web_healthcheck_path=None):
         self.migration_file = migration_file
         self.database = database
         self.db_user = db_user
@@ -39,6 +40,7 @@ class Config(object):
         self.web_resp_status = web_resp_status
         self.web_resp_retry_after = web_resp_retry_after
         self.web_custom_html = web_custom_html
+        self.web_healthcheck_path = web_healthcheck_path
 
     @classmethod
     def from_parse_args(cls, args):
@@ -63,6 +65,7 @@ class Config(object):
                    web_resp_status=args.web_resp_status,
                    web_resp_retry_after=args.web_resp_retry_after,
                    web_custom_html=args.web_custom_html,
+                   web_healthcheck_path=args.web_healthcheck_path,
                    )
 
 
@@ -179,4 +182,14 @@ def get_args_parser():
                            'MARABUNTA_WEB_CUSTOM_HTML'
                        ),
                        help='Path to a custom html file to publish')
+    group.add_argument('--web-healthcheck-path',
+                       required=False,
+                       default=os.environ.get(
+                           'MARABUNTA_WEB_HEALTHCHECK_PATH'
+                       ),
+                       help=(
+                           'URL Path used for health checks HTTP requests. '
+                           'Such monitoring requests will return HTTP 200 '
+                           'status code instead of the default 503.'
+                       ))
     return parser

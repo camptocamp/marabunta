@@ -109,7 +109,8 @@ def migrate(config):
     webapp = WebApp(config.web_host, config.web_port,
                     custom_maintenance_file=config.web_custom_html,
                     resp_status=config.web_resp_status,
-                    resp_retry_after=config.web_resp_retry_after)
+                    resp_retry_after=config.web_resp_retry_after,
+                    healthcheck_path=config.web_healthcheck_path)
 
     webserver = WebServer(webapp)
     webserver.daemon = True
