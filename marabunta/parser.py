@@ -24,7 +24,7 @@ migration:
   options:
     # --workers=0 --stop-after-init are automatically added
     install_command: odoo
-    install_args: --log-level=debug
+    install_args: --log-level=debug,--dev=all
     backup:
       command: echo "backup command on $database $db_user $db_password $db_host $db_port"
       stop_on_failure: true
@@ -138,6 +138,7 @@ class YamlParser(object):
         :class:`MigrationBackupOption` instances."""
         options = migration.get('options', {})
         install_command = options.get('install_command')
+        install_args = options.get('install_args', '')
         backup = options.get('backup')
         if backup:
             self.check_dict_expected_keys(
@@ -151,6 +152,7 @@ class YamlParser(object):
             )
         return MigrationOption(
             install_command=install_command,
+            install_args=install_args.split(','),
             backup=backup,
         )
 
