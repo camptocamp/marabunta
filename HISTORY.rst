@@ -16,6 +16,14 @@ Unreleased
 
 **Build**
 
+0.10.6 (2021-09-14)
++++++++++++++++++++
+
+**Improvements**
+
+* Web server returns status 503 instead of 200
+* New option 'web-healthcheck-path'
+
 0.10.5 (2020-12-08)
 +++++++++++++++++++
 
