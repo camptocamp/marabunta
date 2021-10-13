@@ -40,8 +40,8 @@ jobs:
         run: |
           pip install -U pip
           pip install -U setuptools
-          apt update
-          apt install -y build-essential libpq-dev python-dev
+          sudo apt update
+          sudo apt install -y build-essential libpq-dev python-dev
       - name: Install tox
         run: pip install tox
       - name: Run tox
