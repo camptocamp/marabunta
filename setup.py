@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
+import sys
 
 from setuptools import setup, find_packages
 
-with open('README.rst') as f:
-    readme = f.read()
+if (sys.version_info[:3] < (3, 0)):
+    with open('README.rst') as f:
+        readme = f.read()
+else:
+    with open('README.rst', encoding='utf-8') as f:
+        readme = f.read()
 with open('HISTORY.rst') as f:
     history = f.read()
 
@@ -54,6 +59,10 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ),
