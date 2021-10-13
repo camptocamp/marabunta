@@ -4,7 +4,7 @@
 
 from __future__ import print_function
 
-
+import io
 from ruamel.yaml import YAML
 import warnings
 
@@ -92,7 +92,7 @@ class YamlParser(object):
     @classmethod
     def parse_from_file(cls, filename):
         """Construct YamlParser from a filename."""
-        with open(filename, 'r') as fh:
+        with io.open(filename, 'r', encoding='utf-8') as fh:
             return cls.parser_from_buffer(fh)
 
     def check_dict_expected_keys(self, expected_keys, current, dict_name):

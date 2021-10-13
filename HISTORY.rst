@@ -16,6 +16,8 @@ Unreleased
 
 **Build**
 
+* Test for python 3.6, 3.7 and 3.8
+
 0.10.6 (2021-09-14)
 +++++++++++++++++++
 
