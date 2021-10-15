@@ -12,6 +12,8 @@ Unreleased
 
 **Improvements**
 
+* Switch to Psycopg2 binary wheel
+
 **Documentation**
 
 **Build**
