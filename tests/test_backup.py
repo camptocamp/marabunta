@@ -405,7 +405,9 @@ def test_backup_force_version_no_backup_command(runner_gen, parse_yaml,
     # command is configured
     backup_params, config = parse_yaml('migration_no_backup.yml')
     config.force_version = '0.0.3'
-    runner = runner_gen(backup_params, config)
+    with pytest.warns(FutureWarning):
+        # FutureWarning already tested in test_migration_file.py
+        runner = runner_gen(backup_params, config)
     runner.perform()
     expected = (
         u'|> migration: force-execute version 0.0.3\n'
