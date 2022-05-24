@@ -3,10 +3,8 @@
 Release History
 ---------------
 
-Unreleased
-++++++++++
-
-**Features**
+0.10.7 (2022-05-24)
++++++++++++++++++++
 
 **Bugfixes**
 
@@ -17,8 +15,6 @@ Unreleased
 **Improvements**
 
 * Switch to Psycopg2 binary wheel
-
-**Documentation**
 
 **Build**
 
