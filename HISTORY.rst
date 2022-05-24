@@ -10,6 +10,10 @@ Unreleased
 
 **Bugfixes**
 
+* Fix parsing of command line arguments (and related environment variables):
+  ``--db-port``, ``--web-port``, ``--web-resp-status`` and
+  ``--web-resp-retry-after``
+
 **Improvements**
 
 * Switch to Psycopg2 binary wheel

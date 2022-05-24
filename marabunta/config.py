@@ -121,6 +121,7 @@ def get_args_parser():
                         required=True,
                         help="Odoo's database password")
     parser.add_argument('--db-port', '-p',
+                        type=int,
                         default=os.environ.get('MARABUNTA_DB_PORT', 5432),
                         help="Odoo's database port")
     parser.add_argument('--db-host', '-H',
@@ -158,16 +159,19 @@ def get_args_parser():
                        default=os.environ.get('MARABUNTA_WEB_HOST', '0.0.0.0'),
                        help='Host for the web server')
     group.add_argument('--web-port',
+                       type=int,
                        required=False,
                        default=os.environ.get('MARABUNTA_WEB_PORT', 8069),
                        help='Port for the web server')
     group.add_argument('--web-resp-status',
+                       type=int,
                        required=False,
                        default=os.environ.get(
                            'MARABUNTA_WEB_RESP_STATUS', 503
                         ),
                        help='Response HTTP status code of the web server')
     group.add_argument('--web-resp-retry-after',
+                       type=int,
                        required=False,
                        default=os.environ.get(
                            'MARABUNTA_WEB_RESP_RETRY_AFTER', 300
