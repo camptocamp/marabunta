@@ -12,13 +12,12 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: "3.11"
       - name: Install tox
         run: pip install tox
       - name: Run lint
@@ -28,24 +27,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [2.7, 3.5, 3.6, 3.7, 3.8]
+        python: ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
-      - name: Install dependencies
-        run: |
-          pip install -U pip
-          pip install -U setuptools
-          sudo apt update
-          sudo apt install -y build-essential libpq-dev python-dev
       - name: Install tox
         run: pip install tox
-      - name: Run tox
-        # Run tox using the version of Python in `PATH`
+      - name: Run tests
         run: tox -e py
 
   deploy:
@@ -53,17 +45,17 @@ jobs:
     needs: [lint, test]
     if: startsWith(github.ref, 'refs/tags')
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: "3.11"
       - name: Install dependencies
         run: |
-          pip install -U pip
-          pip install -U wheel setuptools
+          python -m pip install --upgrade pip
+          pip install build
       - name: Build package
-        run: python setup.py sdist bdist_wheel
+        run: python -m build
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
