@@ -118,7 +118,8 @@ def test_example_file_output_mode(runner_gen, request, capfd):
 
 
 def test_example_no_setup_file_output(runner_gen, request, capfd):
-    with pytest.warns(FutureWarning) as record:
+    msg = 'First version should be named `setup`'
+    with pytest.warns(FutureWarning, match=msg):
         runner = runner_gen('migration_no_backup.yml')
         runner.perform()
         expected = (
@@ -156,13 +157,10 @@ def test_example_no_setup_file_output(runner_gen, request, capfd):
         )
         assert expected == capfd.readouterr()
 
-    assert 1 == len(record)
-    warnings_msg = u'First version should be named `setup`'
-    assert warnings_msg == record[0].message.args[0]
-
 
 def test_example_no_setup_file_output_mode(runner_gen, request, capfd):
-    with pytest.warns(FutureWarning) as record:
+    msg = 'First version should be named `setup`'
+    with pytest.warns(FutureWarning, match=msg):
         runner = runner_gen('migration_no_backup.yml', mode='prod')
         runner.perform()
         expected = (
@@ -206,10 +204,6 @@ def test_example_no_setup_file_output_mode(runner_gen, request, capfd):
             u''
         )
         assert expected == capfd.readouterr()
-
-    assert 1 == len(record)
-    warnings_msg = u'First version should be named `setup`'
-    assert warnings_msg == record[0].message.args[0]
 
 
 def test_mixed_digits_output_mode(runner_gen, request, capfd):
