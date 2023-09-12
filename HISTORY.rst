@@ -10,9 +10,17 @@ Unreleased
 
 **Bugfixes**
 
-* Fix the build and release workflow
-
 **Improvements**
+
+**Build**
+
+
+0.11.0 (2023-09-12)
++++++++++++++++++++
+
+**Bugfixes**
+
+* Fix the build and release workflow
 
 **Build**
 
