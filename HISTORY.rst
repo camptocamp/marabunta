@@ -3,6 +3,23 @@
 Release History
 ---------------
 
+Unreleased
+++++++++++
+
+**Features**
+
+**Bugfixes**
+
+* Fix the build and release workflow
+
+**Improvements**
+
+**Build**
+
+* Deprecate python 2.7, 3.5 and 3.6
+* Support python 3.9, 3.10 and 3.11
+
+
 0.10.7 (2022-05-24)
 +++++++++++++++++++
 
