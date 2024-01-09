@@ -118,7 +118,7 @@ def get_args_parser():
     parser.add_argument('--db-password', '-w',
                         action=EnvDefault,
                         envvar='MARABUNTA_DB_PASSWORD',
-                        required=True,
+                        required=False,
                         help="Odoo's database password")
     parser.add_argument('--db-port', '-p',
                         type=int,
@@ -126,7 +126,7 @@ def get_args_parser():
                         help="Odoo's database port")
     parser.add_argument('--db-host', '-H',
                         default=os.environ.get('MARABUNTA_DB_HOST',
-                                               'localhost'),
+                                               None),
                         help="Odoo's database host")
     parser.add_argument('--mode',
                         action=EnvDefault,
