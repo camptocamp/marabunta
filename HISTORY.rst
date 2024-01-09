@@ -13,7 +13,12 @@ Unreleased
 **Improvements**
 
 **Build**
-* Prevent text from bouncing in maintenance page
+
+0.12.0 (2024-01-09)
++++++++++++++++++++
+
+**Improvements**
+
 * allow connecting to a local database server without password (using ident)
 
 
