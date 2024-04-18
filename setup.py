@@ -32,7 +32,7 @@ setup(
     license='AGPLv3+',
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=[
-        "psycopg2-binary",
+        "psycopg2",
         "ruamel.yaml>=0.15.1",
         "pexpect",
         "werkzeug",
