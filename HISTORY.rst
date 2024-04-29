@@ -8,6 +8,8 @@ Unreleased
 
 **Features**
 
+* mode: demo has been deprecated in favor of sample
+
 **Bugfixes**
 
 **Improvements**

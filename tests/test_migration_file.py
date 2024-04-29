@@ -72,7 +72,7 @@ def test_example_file_output(runner_gen, request, capfd):
 
 
 def test_example_file_output_mode(runner_gen, request, capfd):
-    runner = runner_gen('migration.yml', mode='prod')
+    runner = runner_gen('migration.yml', mode='full')
     runner.perform()
     expected = (
         u'|> migration: processing version setup\n'
@@ -80,15 +80,15 @@ def test_example_file_output_mode(runner_gen, request, capfd):
         u'|> version setup: execute base pre-operations\n'
         u'|> version setup: echo \'pre-operation\'\n'
         u'pre-operation\r\n'
-        u'|> version setup: execute prod pre-operations\n'
+        u'|> version setup: execute full pre-operations\n'
         u'|> version setup: echo \'pre-operation executed only'
-        u' when the mode is prod\'\n'
-        u'pre-operation executed only when the mode is prod\r\n'
+        u' when the mode is full\'\n'
+        u'pre-operation executed only when the mode is full\r\n'
         u'|> version setup: installation / upgrade of addons\n'
         u'|> version setup: execute base post-operations\n'
         u'|> version setup: echo \'post-operation\'\n'
         u'post-operation\r\n'
-        u'|> version setup: execute prod post-operations\n'
+        u'|> version setup: execute full post-operations\n'
         u'|> version setup: done\n'
         u'|> migration: processing version 0.0.2\n'
         u'|> version 0.0.2: start\n'
@@ -101,12 +101,12 @@ def test_example_file_output_mode(runner_gen, request, capfd):
         u'foobar\r\n'
         u'|> version 0.0.3: echo \'foobarbaz\'\n'
         u'foobarbaz\r\n'
-        u'|> version 0.0.3: execute prod pre-operations\n'
+        u'|> version 0.0.3: execute full pre-operations\n'
         u'|> version 0.0.3: installation / upgrade of addons\n'
         u'|> version 0.0.3: execute base post-operations\n'
         u'|> version 0.0.3: echo \'post-op with unicode é â\'\n'
         u'post-op with unicode é â\r\n'
-        u'|> version 0.0.3: execute prod post-operations\n'
+        u'|> version 0.0.3: execute full post-operations\n'
         u'|> version 0.0.3: done\n'
         u'|> migration: processing version 0.0.4\n'
         u'|> version 0.0.4: start\n'
@@ -161,7 +161,7 @@ def test_example_no_setup_file_output(runner_gen, request, capfd):
 def test_example_no_setup_file_output_mode(runner_gen, request, capfd):
     msg = 'First version should be named `setup`'
     with pytest.warns(FutureWarning, match=msg):
-        runner = runner_gen('migration_no_backup.yml', mode='prod')
+        runner = runner_gen('migration_no_backup.yml', mode='full')
         runner.perform()
         expected = (
             u'|> migration: processing version 0.0.1\n'
@@ -169,15 +169,15 @@ def test_example_no_setup_file_output_mode(runner_gen, request, capfd):
             u'|> version 0.0.1: execute base pre-operations\n'
             u'|> version 0.0.1: echo \'pre-operation\'\n'
             u'pre-operation\r\n'
-            u'|> version 0.0.1: execute prod pre-operations\n'
+            u'|> version 0.0.1: execute full pre-operations\n'
             u'|> version 0.0.1: echo \'pre-operation executed only'
-            u' when the mode is prod\'\n'
-            u'pre-operation executed only when the mode is prod\r\n'
+            u' when the mode is full\'\n'
+            u'pre-operation executed only when the mode is full\r\n'
             u'|> version 0.0.1: installation / upgrade of addons\n'
             u'|> version 0.0.1: execute base post-operations\n'
             u'|> version 0.0.1: echo \'post-operation\'\n'
             u'post-operation\r\n'
-            u'|> version 0.0.1: execute prod post-operations\n'
+            u'|> version 0.0.1: execute full post-operations\n'
             u'|> version 0.0.1: done\n'
             u'|> migration: processing version 0.0.2\n'
             u'|> version 0.0.2: start\n'
@@ -190,12 +190,12 @@ def test_example_no_setup_file_output_mode(runner_gen, request, capfd):
             u'foobar\r\n'
             u'|> version 0.0.3: echo \'foobarbaz\'\n'
             u'foobarbaz\r\n'
-            u'|> version 0.0.3: execute prod pre-operations\n'
+            u'|> version 0.0.3: execute full pre-operations\n'
             u'|> version 0.0.3: installation / upgrade of addons\n'
             u'|> version 0.0.3: execute base post-operations\n'
             u'|> version 0.0.3: echo \'post-op with unicode é â\'\n'
             u'post-op with unicode é â\r\n'
-            u'|> version 0.0.3: execute prod post-operations\n'
+            u'|> version 0.0.3: execute full post-operations\n'
             u'|> version 0.0.3: done\n'
             u'|> migration: processing version 0.0.4\n'
             u'|> version 0.0.4: start\n'
@@ -216,7 +216,7 @@ def test_mixed_digits_output_mode(runner_gen, request, capfd):
         VersionRecord('11.3.0', '2018-09-05', '2018-09-05', '', ''),
     ]
     runner = runner_gen(
-        'migration_mixed_digits.yml', mode='prod', db_versions=old_versions)
+        'migration_mixed_digits.yml', mode='full', db_versions=old_versions)
     runner.perform()
     expected = (
         u'|> migration: processing version setup',
@@ -261,7 +261,7 @@ def test_mixed_digits_output_mode2(runner_gen, request, capfd):
         VersionRecord('10.17.0', '2018-09-06', '2018-09-06', '', ''),
     ]
     runner = runner_gen(
-        'migration_mixed_digits2.yml', mode='prod', db_versions=old_versions)
+        'migration_mixed_digits2.yml', mode='full', db_versions=old_versions)
     runner.perform()
     expected = (
         u'|> migration: processing version setup',

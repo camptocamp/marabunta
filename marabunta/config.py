@@ -133,7 +133,7 @@ def get_args_parser():
                         envvar='MARABUNTA_MODE',
                         required=False,
                         help="Specify the mode in which we run the migration,"
-                             "such as 'demo' or 'prod'. Additional operations "
+                             "such as 'sample' or 'full'. Additional operations "
                              "of this mode will be executed after the main "
                              "operations and the addons list of this mode "
                              "will be merged with the main addons list.")
@@ -168,7 +168,7 @@ def get_args_parser():
                        required=False,
                        default=os.environ.get(
                            'MARABUNTA_WEB_RESP_STATUS', 503
-                        ),
+                       ),
                        help='Response HTTP status code of the web server')
     group.add_argument('--web-resp-retry-after',
                        type=int,
@@ -177,8 +177,8 @@ def get_args_parser():
                            'MARABUNTA_WEB_RESP_RETRY_AFTER', 300
                        ),
                        help=(
-                            '"Retry-After" header value (in seconds) of '
-                            'response delivered by the web server')
+                           '"Retry-After" header value (in seconds) of '
+                           'response delivered by the web server')
                        )
     group.add_argument('--web-custom-html',
                        required=False,
