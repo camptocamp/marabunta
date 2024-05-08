@@ -7,7 +7,7 @@
 *Marabunta is a name given to the migration of the legionary ants or to the ants
 themselves. Restless, they eat and digest everything in their way.*
 
-Marabunta is used to provide an easy way to create Updates for Odoo fast and run easily. It also allows to differentiate between different environment to provide for instance demodata.
+Marabunta is used to provide an easy way to create Updates for Odoo fast and run easily. It also allows to differentiate between different environment to provide for instance sample data.
 
 
 Usage
@@ -24,7 +24,7 @@ Features
 * backup: Marabunta allows for a backup command to be executed before the migration.
 * addon upgrades: Marabunta is able to install or upgrade odoo addons.
 * operations: Allows to execute commands before or after upgrading modules.
-* modes: Modes allow the user to execute commands only on a certain environment. e.g. creation of demodata on a dev system.
+* modes: Modes allow the user to execute commands only on a certain environment. e.g. creation of sample data on a dev system.
 * maintenance page: publish an html page during the migration.
 
 Versioning systems
@@ -63,7 +63,7 @@ Options
     +-------------------+----------+---------------------------+-------------------------------------------------------------------+
     | --web-custom-html |          | MARABUNTA_WEB_CUSTOM_HTML | Path to custom maintenance html page to serve.                    |
     +-------------------+----------+---------------------------+-------------------------------------------------------------------+
-                                                          
+
 YAML layout & Example
 =====================
 Here is an Example migration file::
@@ -90,19 +90,19 @@ Here is an Example migration file::
               - base
               - document
           modes:
-            prod:
+            full:
               operations:
                 pre:
-                  - echo 'pre-operation executed only when the mode is prod'
+                  - echo 'pre-operation executed only when the mode is full'
                 post:
                   - anthem songs::load_production_data
-            demo:
+            sample:
               operations:
                 post:
-                  - anthem songs::load_demo_data
+                  - anthem songs::load_sample_data
               addons:
                 upgrade:
-                  - demo_addon
+                  - sample_addon
 
         - version: 0.0.2
           backup: false

@@ -42,19 +42,19 @@ migration:
           - document
         # remove:  # uninstalled with a python script
       modes:
-        prod:
+        full:
           operations:
             pre:
-              - echo 'pre-operation executed only when the mode is prod'
+              - echo 'pre-operation executed only when the mode is full'
             post:
               - anthem songs::load_production_data
-        demo:
+        sample:
           operations:
             post:
-              - anthem songs::load_demo_data
+              - anthem songs::load_sample_data
           addons:
             upgrade:
-              - demo_addon
+              - sample_addon
 
     - version: 0.0.2
       backup: false

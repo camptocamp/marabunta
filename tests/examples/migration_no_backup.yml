@@ -11,14 +11,14 @@ migration:
         post:  # executed after 'addons'
           - echo 'post-operation'
       modes:
-        prod:
+        full:
           operations:
             pre:
-              - echo 'pre-operation executed only when the mode is prod'
-        demo:
+              - echo 'pre-operation executed only when the mode is full'
+        sample:
           operations:
             post:
-              - echo 'post-operation executed only when the mode is demo'
+              - echo 'post-operation executed only when the mode is sample'
 
     - version: 0.0.2
       # nothing to do
