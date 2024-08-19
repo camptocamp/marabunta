@@ -16,6 +16,8 @@ Unreleased
 
 **Build**
 
+* Depend on psycopg2 rather than psycopg2-binary
+
 0.12.0 (2024-01-09)
 +++++++++++++++++++
 
