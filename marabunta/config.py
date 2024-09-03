@@ -148,6 +148,10 @@ def get_args_parser():
                         default=os.environ.get('MARABUNTA_FORCE_VERSION'),
                         help='Force upgrade of a version, even if it has '
                              'already been applied.')
+    parser.add_argument('--override-translation',
+                        required=False,
+                        default=os.environ.get('MARABUNTA_OVERRRIDE_TRANSLATION'),
+                        help='Force overrride of translations.')
 
     group = parser.add_argument_group(
         title='Web',
