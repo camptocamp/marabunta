@@ -60,6 +60,7 @@ class Config(object):
                    mode=args.mode,
                    allow_serie=args.allow_serie,
                    force_version=args.force_version,
+                   i18n_override=args.i18n_override,
                    web_host=args.web_host,
                    web_port=args.web_port,
                    web_resp_status=args.web_resp_status,
@@ -148,10 +149,10 @@ def get_args_parser():
                         default=os.environ.get('MARABUNTA_FORCE_VERSION'),
                         help='Force upgrade of a version, even if it has '
                              'already been applied.')
-    parser.add_argument('--override-translation',
+    parser.add_argument('--i18n-override',
                         required=False,
-                        default=os.environ.get('MARABUNTA_OVERRRIDE_TRANSLATION'),
-                        help='Force overrride of translations.')
+                        default=os.environ.get('MARABUNTA_I18N_OVERRIDE'),
+                        help='Force override of translations.')
 
     group = parser.add_argument_group(
         title='Web',

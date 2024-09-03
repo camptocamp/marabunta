@@ -58,6 +58,7 @@ migration:
 
     - version: 0.0.2
       backup: false
+      override_translations: true
       # nothing to do
 
     - version: 0.0.3
@@ -198,9 +199,14 @@ class YamlParser(object):
             raise ParseError(u"'backup' key must be a boolean", YAML_EXAMPLE)
         version.backup = backup
 
+    def _parse_i18n_override(self, version, override_translations=False, mode=None):
+        if not isinstance(override_translations, bool):
+            raise ParseError(u"'override_translations' key must be a boolean", YAML_EXAMPLE)
+        version.override_translations = override_translations
+
     def _parse_version(self, parsed_version, options):
         self.check_dict_expected_keys(
-            {'version', 'operations', 'addons', 'modes', 'backup'},
+            {'version', 'operations', 'addons', 'modes', 'backup', 'override_translations'},
             parsed_version, 'versions',
         )
         number = parsed_version.get('version')
@@ -236,5 +242,8 @@ class YamlParser(object):
             else:
                 backup = True
         self._parse_backup(version, backup)
+
+        # If translations needs to be overriden
+        self._parse_i18n_override(version, parsed_version.get('override_translations'))
 
         return version

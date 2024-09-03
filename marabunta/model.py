@@ -119,6 +119,7 @@ class Version(object):
         self._version_modes = {}
         self.options = options
         self.backup = False
+        self.override_translations = False
 
     def is_processed(self, db_versions):
         """Check if version is already applied in the database.
@@ -210,7 +211,7 @@ class Version(object):
         to_install = addons_list - installed
         to_upgrade = installed & addons_list
 
-        return UpgradeAddonsOperation(self.options, to_install, to_upgrade)
+        return UpgradeAddonsOperation(self.options, to_install, to_upgrade, self.override_translations)
 
     def remove_addons_operation(self):
         raise NotImplementedError
@@ -252,10 +253,11 @@ class VersionMode(object):
 
 class UpgradeAddonsOperation(object):
 
-    def __init__(self, options, to_install, to_upgrade):
+    def __init__(self, options, to_install, to_upgrade, override_translations=False):
         self.options = options
         self.to_install = set(to_install)
         self.to_upgrade = set(to_upgrade)
+        self.override_translations = override_translations
 
     def operation(self, exclude_addons=None):
         if exclude_addons is None:
@@ -263,6 +265,8 @@ class UpgradeAddonsOperation(object):
         install_command = self.options.install_command
         install_args = self.options.install_args[:] or []
         install_args += [u'--workers=0', u'--stop-after-init', u'--no-xmlrpc']
+        if self.override_translations:
+            install_args += [u'--i18n-override']
 
         to_install = self.to_install - exclude_addons
         if to_install:
