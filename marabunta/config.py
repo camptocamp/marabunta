@@ -7,7 +7,6 @@ import os
 
 
 class Config(object):
-
     def __init__(self,
                  migration_file,
                  database,
@@ -18,6 +17,7 @@ class Config(object):
                  mode=None,
                  allow_serie=False,
                  force_version=None,
+                 override_translations=False,
                  web_host='localhost',
                  web_port=8069,
                  web_resp_status=503,
@@ -35,6 +35,7 @@ class Config(object):
         self.force_version = force_version
         if force_version and not allow_serie:
             self.allow_serie = True
+        self.override_translations = override_translations
         self.web_host = web_host
         self.web_port = web_port
         self.web_resp_status = web_resp_status
@@ -60,6 +61,7 @@ class Config(object):
                    mode=args.mode,
                    allow_serie=args.allow_serie,
                    force_version=args.force_version,
+                   override_translations=args.override_translations,
                    web_host=args.web_host,
                    web_port=args.web_port,
                    web_resp_status=args.web_resp_status,
@@ -148,6 +150,10 @@ def get_args_parser():
                         default=os.environ.get('MARABUNTA_FORCE_VERSION'),
                         help='Force upgrade of a version, even if it has '
                              'already been applied.')
+    parser.add_argument("--override-translations",
+                        required=False,
+                        default=os.environ.get("MARABUNTA_OVERRIDE_TRANSLATIONS"),
+                        help="Force override of translations.")
 
     group = parser.add_argument_group(
         title='Web',

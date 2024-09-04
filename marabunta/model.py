@@ -119,6 +119,7 @@ class Version(object):
         self._version_modes = {}
         self.options = options
         self.backup = False
+        self.override_translations = False
 
     def is_processed(self, db_versions):
         """Check if version is already applied in the database.
@@ -210,7 +211,7 @@ class Version(object):
         to_install = addons_list - installed
         to_upgrade = installed & addons_list
 
-        return UpgradeAddonsOperation(self.options, to_install, to_upgrade)
+        return UpgradeAddonsOperation(self.options, to_install, to_upgrade, self.override_translations)
 
     def remove_addons_operation(self):
         raise NotImplementedError
@@ -252,10 +253,11 @@ class VersionMode(object):
 
 class UpgradeAddonsOperation(object):
 
-    def __init__(self, options, to_install, to_upgrade):
+    def __init__(self, options, to_install, to_upgrade, override_translations=False):
         self.options = options
         self.to_install = set(to_install)
         self.to_upgrade = set(to_upgrade)
+        self.override_translations = override_translations
 
     def operation(self, exclude_addons=None):
         if exclude_addons is None:
@@ -273,6 +275,10 @@ class UpgradeAddonsOperation(object):
             install_args += [u'-u', u','.join(to_upgrade)]
 
         if to_install or to_upgrade:
+            # if we don't have addons to install or upgrade, an issue will
+            # be raised by Odoo if we add the `--i18n-overwrite` flag
+            if self.override_translations:
+                install_args += [u'--i18n-overwrite']
             return Operation([install_command] + install_args)
         else:
             return Operation('')

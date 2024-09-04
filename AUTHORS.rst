@@ -12,3 +12,4 @@ Contributors
 - Iván Todorovitch (Camptocamp)
 - Yannick Vaucher (Camptocamp)
 - Alexandre Fayolle (Camptocamp)
+- Stéphane Mangin (Camptocamp)

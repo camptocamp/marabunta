@@ -14,6 +14,12 @@ Unreleased
 
 **Improvements**
 
+* I18N overwrite option
+
+  Migration allows using a `override_translations` version's option in order to
+  allow usage of Odoo parameter `--i18n-overwrite`.
+  Command option is `MARABUNTA_OVERRIDE_TRANSLATIONS`
+
 **Build**
 
 * Depend on psycopg2 rather than psycopg2-binary
