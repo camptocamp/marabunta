@@ -36,7 +36,6 @@ setup(
         "ruamel.yaml>=0.15.1",
         "pexpect",
         "werkzeug",
-        "future",
     ],
     setup_requires=[
         'setuptools_scm',

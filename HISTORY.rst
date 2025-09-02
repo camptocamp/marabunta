@@ -14,6 +14,7 @@ Unreleased
 
 **Build**
 
+* Remove dependency on future
 
 0.13.0 (2025-01-30)
 +++++++++++++++++++
