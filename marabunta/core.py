@@ -14,8 +14,6 @@ required.
 
 """
 
-from __future__ import print_function
-
 import logging
 import time
 import threading
