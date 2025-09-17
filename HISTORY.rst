@@ -8,11 +8,22 @@ Unreleased
 
 **Features**
 
-* mode: demo has been deprecated in favor of sample
-
 **Bugfixes**
 
 * move from disutils (removed on python 3.12) to setuptools
+
+**Improvements**
+
+**Build**
+
+* Remove dependency on future
+
+0.13.0 (2025-01-30)
++++++++++++++++++++
+
+**Features**
+
+* mode: demo has been deprecated in favor of sample
 
 **Improvements**
 
@@ -25,6 +36,8 @@ Unreleased
 **Build**
 
 * Depend on psycopg2 rather than psycopg2-binary
+* Deprecate 3.7
+
 
 0.12.0 (2024-01-09)
 +++++++++++++++++++
