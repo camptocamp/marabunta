@@ -264,7 +264,7 @@ class UpgradeAddonsOperation(object):
             exclude_addons = set()
         install_command = self.options.install_command
         install_args = self.options.install_args[:] or []
-        install_args += [u'--workers=0', u'--stop-after-init', u'--no-xmlrpc']
+        install_args += [u'--workers=0', u'--stop-after-init', u'--no-http']
 
         to_install = self.to_install - exclude_addons
         if to_install:
