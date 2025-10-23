@@ -10,6 +10,8 @@ Unreleased
 
 **Bugfixes**
 
+* move from disutils (removed on python 3.12) to setuptools
+
 **Improvements**
 
 **Build**
