@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2016-2017 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
+
 from distutils.util import strtobool
 import argparse
 import os
@@ -74,15 +75,25 @@ class Config(object):
 class EnvDefault(argparse.Action):
 
     def __init__(self, envvar, required=True, default=None, **kwargs):
-        if not default and envvar:
-            default = self.get_default(envvar)
+        if envvar:
+            default_from_env = self.get_default(envvar)
+            if default_from_env is not None:
+                default = default_from_env
         if required and default is not None:
             required = False
         super(EnvDefault, self).__init__(default=default, required=required,
                                          **kwargs)
 
     def get_default(self, envvar):
-        return os.getenv(envvar)
+        # Handle string (single env var)
+        if isinstance(envvar, str):
+            return os.getenv(envvar)
+        # Handle iterable (multiple env vars) - check in order
+        for var in envvar:
+            value = os.getenv(var)
+            if value is not None:
+                return value
+        return None
 
     def __call__(self, parser, namespace, values, option_string=None):
         setattr(namespace, self.dest, values)
@@ -91,7 +102,7 @@ class EnvDefault(argparse.Action):
 class BoolEnvDefault(EnvDefault):
 
     def get_default(self, envvar):
-        val = os.getenv(envvar, '')
+        val = super().get_default(envvar) or ''
         try:
             return strtobool(val.lower())
         except ValueError:
@@ -109,26 +120,30 @@ def get_args_parser():
                         help='The yaml file containing the migration steps')
     parser.add_argument('--database', '-d',
                         action=EnvDefault,
-                        envvar='MARABUNTA_DATABASE',
+                        envvar=['MARABUNTA_DATABASE', 'PGDATABASE'],
                         required=True,
                         help="Odoo's database")
     parser.add_argument('--db-user', '-u',
                         action=EnvDefault,
-                        envvar='MARABUNTA_DB_USER',
+                        envvar=['MARABUNTA_DB_USER', 'PGUSER'],
                         required=True,
                         help="Odoo's database user")
     parser.add_argument('--db-password', '-w',
                         action=EnvDefault,
-                        envvar='MARABUNTA_DB_PASSWORD',
+                        envvar=['MARABUNTA_DB_PASSWORD', 'PGPASSWORD'],
                         required=False,
                         help="Odoo's database password")
     parser.add_argument('--db-port', '-p',
+                        action=EnvDefault,
+                        envvar=['MARABUNTA_DB_PORT', 'PGPORT'],
                         type=int,
-                        default=os.environ.get('MARABUNTA_DB_PORT', 5432),
+                        default=5432,
+                        required=False,
                         help="Odoo's database port")
     parser.add_argument('--db-host', '-H',
-                        default=os.environ.get('MARABUNTA_DB_HOST',
-                                               None),
+                        action=EnvDefault,
+                        envvar=['MARABUNTA_DB_HOST', 'PGHOST'],
+                        required=False,
                         help="Odoo's database host")
     parser.add_argument('--mode',
                         action=EnvDefault,
