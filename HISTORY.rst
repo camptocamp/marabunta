@@ -12,11 +12,24 @@ Unreleased
 
 **Improvements**
 
+**Build**
+
+
+0.14.0 (2026-01-22)
++++++++++++++++++++
+
+**Improvements**
+
 * Lookup tables in current schema, not in 'public'
+
+* Fallback to `PGUSER`/`PGHOST`/... env vars
+
+* Use `--no-http` instead of `--no-xmlrpc`
 
 **Build**
 
 * Remove dependency on future
+
 
 0.13.0 (2025-01-30)
 +++++++++++++++++++
@@ -77,6 +90,7 @@ Unreleased
 
 * Test for python 3.6, 3.7 and 3.8
 
+
 0.10.6 (2021-09-14)
 +++++++++++++++++++
 
@@ -84,6 +98,7 @@ Unreleased
 
 * Web server returns status 503 instead of 200
 * New option 'web-healthcheck-path'
+
 
 0.10.5 (2020-12-08)
 +++++++++++++++++++
@@ -97,12 +112,14 @@ Unreleased
 * Prevent text from bouncing in maintenance page
 * raise an exception if there is duplicate keys in migration file
 
+
 0.10.4 (2019-02-15)
 +++++++++++++++++++
 
 **Bugfixes**
 
 * Fix BoolEnvDefault when envvar is not defined
+
 
 0.10.3 (2019-02-13)
 +++++++++++++++++++
@@ -111,12 +128,14 @@ Unreleased
 
 * ALLOW_SERIES shouldn't be true if a false value is given.
 
+
 0.10.2 (2018-12-12)
 +++++++++++++++++++
 
 **Bugfixes**
 
 * Crash when forcing upgrade of a version and no backup command is configured
+
 
 0.10.1 (2018-11-09)
 +++++++++++++++++++
@@ -196,6 +215,7 @@ https://github.com/camptocamp/marabunta/commit/9b96acaff8e7eecbf82ff592b7bb927b4
 
 Python3!
 
+
 0.7.3 (2017-11-01)
 ++++++++++++++++++
 
@@ -205,6 +225,7 @@ Python3!
   incorrectly passed through unquote_plus, which transform the + char to a
   space.
 
+
 0.7.2 (2017-09-15)
 ++++++++++++++++++
 
@@ -212,6 +233,7 @@ Python3!
 
 * Use --no-xmlrpc option when running odoo as the new web server use the same port,
   it's not needed anyway
+
 
 0.7.1 (2017-09-11)
 ++++++++++++++++++
@@ -245,7 +267,6 @@ Python3!
 0.6.3 (2016-12-12)
 ++++++++++++++++++
 
-
 **Bugfixes**
 
 * The new connection opened in 0.6.2 might suffer from the same issue of
@@ -276,6 +297,7 @@ committed, so migration would run again.
 **Bugfixes**
 
 * Commit the connection so changes are not rollbacked.
+
 
 0.6.0 (2016-11-21)
 ++++++++++++++++++
@@ -352,6 +374,7 @@ Odoo 10 Support
 
 - Encode print's outputs to the stdout's encoding or to utf8 by default
 
+
 0.3.2 (2016-07-08)
 ++++++++++++++++++
 
@@ -359,12 +382,14 @@ Odoo 10 Support
 
 - Failure when there are no version to process
 
+
 0.3.1 (2016-07-07)
 ++++++++++++++++++
 
 **Fixes**
 
 - Fix decoding issues with output of subprocesses
+
 
 0.3.0 (2016-07-06)
 ++++++++++++++++++
@@ -423,6 +448,7 @@ Introducing **modes**.
   when there is an unfinished version
 - Fix error when the db version is above the unprocessed version
 
+
 0.2.2 (2016-06-23)
 ++++++++++++++++++
 
@@ -430,12 +456,14 @@ Introducing **modes**.
 
 - Adapted the README so that it is rendered as ReST on pypi.
 
+
 0.2.1 (2016-06-23)
 ++++++++++++++++++
 
 **Bugfixes**
 
 - Fixed the version information of the package and release date.
+
 
 0.2.0 (2016-06-23)
 ++++++++++++++++++
@@ -463,11 +491,13 @@ Introducing **modes**.
   now.
 - Added runtime dependencies to the package, kept separate from the build and test dependencies (installed separately by tox).
 
+
 0.1.1 (2016-06-08)
 ++++++++++++++++++
 
 - Fixed problems with packaging so that now marabunta can be installable from
   pypi.
+
 
 0.1.0 (2016-06-08)
 ++++++++++++++++++
