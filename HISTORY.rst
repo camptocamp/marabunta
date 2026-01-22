@@ -12,6 +12,8 @@ Unreleased
 
 **Improvements**
 
+* Lookup tables in current schema, not in 'public'
+
 **Build**
 
 * Remove dependency on future
