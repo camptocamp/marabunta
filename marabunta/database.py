@@ -177,14 +177,14 @@ class IrModuleModule(object):
         return [self.ModuleRecord(*row) for row in rows]
 
 
-def table_exists(cursor, tablename, schema='public'):
+def table_exists(cursor, tablename):
     query = """
     SELECT EXISTS (
         SELECT 1
         FROM information_schema.tables
-        WHERE table_schema = %s
+        WHERE table_schema = current_schema
         AND table_name = %s
     )"""
-    cursor.execute(query, (schema, tablename))
+    cursor.execute(query, (tablename,))
     res = cursor.fetchone()[0]
     return res
