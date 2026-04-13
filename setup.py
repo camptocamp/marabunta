@@ -44,7 +44,7 @@ setup(
     extras_require=extras,
     include_package_data=True,
     package_data={
-        'marabunta': ['html/*.html'],
+        'marabunta': ['html/*.html', 'migration.schema.json'],
     },
     classifiers=(
         'Development Status :: 3 - Alpha',

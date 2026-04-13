@@ -8,6 +8,8 @@ Unreleased
 
 **Features**
 
+* Add ``migration.schema.json`` JSON Schema for validating ``migration.yml`` files
+
 **Bugfixes**
 
 **Improvements**
