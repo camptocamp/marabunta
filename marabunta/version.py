@@ -3,12 +3,10 @@
 
 import re
 
+FIRST_VERSION = "setup"
 
-FIRST_VERSION = 'setup'
 
-
-class MarabuntaVersion(object):
-
+class MarabuntaVersion:
     """Version numbering for Camptocamp software idealists.
     Implements the Camptocamp interface for version number classes as
     described above. A version number consists of three or five
@@ -40,8 +38,7 @@ class MarabuntaVersion(object):
     """
 
     version_re = re.compile(
-        r'^(\d+)\.(\d+)\.(\d+)(\.(\d+)\.(\d+))?$|^' + FIRST_VERSION + '$',
-        re.VERBOSE
+        r"^(\d+)\.(\d+)\.(\d+)(\.(\d+)\.(\d+))?$|^" + FIRST_VERSION + "$", re.VERBOSE
     )
 
     def __init__(self, vstring=None):
@@ -51,30 +48,25 @@ class MarabuntaVersion(object):
     def parse(self, version_str):
         match = self.version_re.match(version_str)
         if not match:
-            raise ValueError("invalid version number '%s'" % version_str)
+            raise ValueError(f"invalid version number '{version_str}'")
 
         if match.string == FIRST_VERSION:
             self.version = match.string
         else:
-            (major, minor, patch, revision, build) = \
-                match.group(1, 2, 3, 5, 6)
+            (major, minor, patch, revision, build) = match.group(1, 2, 3, 5, 6)
 
             if build:
-                self.version = tuple(map(int, [
-                    major, minor, patch, revision, build
-                ]))
+                self.version = tuple(map(int, [major, minor, patch, revision, build]))
             else:
-                self.version = tuple(map(int, [
-                    major, 0, 0, minor, patch
-                ]))
+                self.version = tuple(map(int, [major, 0, 0, minor, patch]))
 
     def __str__(self):
         if self.version == FIRST_VERSION:
             return self.version
-        return '.'.join(map(str, self.version))
+        return ".".join(map(str, self.version))
 
     def __repr__(self):
-        return "%s ('%s')" % (self.__class__.__name__, str(self))
+        return f"{self.__class__.__name__} ('{self!s}')"
 
     def _cmp(self, other):
         if isinstance(other, str):

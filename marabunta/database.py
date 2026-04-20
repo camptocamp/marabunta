@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2016-2017 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
@@ -21,8 +20,7 @@ from collections import namedtuple
 from contextlib import contextmanager
 
 
-class Database(object):
-
+class Database:
     def __init__(self, config):
         self.config = config
         self.name = config.database
@@ -30,16 +28,16 @@ class Database(object):
     def dsn(self):
         cfg = self.config
         params = {
-            'dbname': cfg.database,
+            "dbname": cfg.database,
         }
         if cfg.db_host:
-            params['host'] = cfg.db_host
+            params["host"] = cfg.db_host
         if cfg.db_port:
-            params['port'] = cfg.db_port
+            params["port"] = cfg.db_port
         if cfg.db_user:
-            params['user'] = cfg.db_user
+            params["user"] = cfg.db_user
         if cfg.db_password:
-            params['password'] = cfg.db_password
+            params["password"] = cfg.db_password
         return params
 
     @contextmanager
@@ -56,24 +54,20 @@ class Database(object):
                 yield cursor
 
 
-VersionRecord = namedtuple(
-    'VersionRecord',
-    'number date_start date_done log addons'
-)
+VersionRecord = namedtuple("VersionRecord", "number date_start date_done log addons")
 
 
-class MigrationTable(object):
-
+class MigrationTable:
     def __init__(self, database):
         self.database = database
-        self.table_name = 'marabunta_version'
+        self.table_name = "marabunta_version"
         self.VersionRecord = VersionRecord
         self._versions = None
 
     def create_if_not_exists(self):
         with self.database.cursor_autocommit() as cursor:
-            query = """
-            CREATE TABLE IF NOT EXISTS {} (
+            query = f"""
+            CREATE TABLE IF NOT EXISTS {self.table_name} (
                 number VARCHAR NOT NULL,
                 date_start TIMESTAMP NOT NULL,
                 date_done TIMESTAMP,
@@ -82,24 +76,24 @@ class MigrationTable(object):
 
                 CONSTRAINT version_pk PRIMARY KEY (number)
             );
-            """.format(self.table_name)
+            """
             cursor.execute(query)
 
     def versions(self):
-        """ Read versions from the table
+        """Read versions from the table
 
         The versions are kept in cache for the next reads.
         """
         if self._versions is None:
             with self.database.cursor_autocommit() as cursor:
-                query = """
+                query = f"""
                 SELECT number,
                        date_start,
                        date_done,
                        log,
                        addons
-                FROM {}
-                """.format(self.table_name)
+                FROM {self.table_name}
+                """
                 cursor.execute(query)
                 rows = cursor.fetchall()
                 versions = []
@@ -107,70 +101,64 @@ class MigrationTable(object):
                     row = list(row)
                     # convert 'addons' to json
                     row[4] = json.loads(row[4]) if row[4] else []
-                    versions.append(
-                        self.VersionRecord(*row)
-                    )
+                    versions.append(self.VersionRecord(*row))
                 self._versions = versions
         return self._versions
 
     def start_version(self, number, start):
         with self.database.cursor_autocommit() as cursor:
-            query = """
-            SELECT number FROM {}
+            query = f"""
+            SELECT number FROM {self.table_name}
             WHERE number = %s
-            """.format(self.table_name)
+            """
             cursor.execute(query, (number,))
             if cursor.fetchone():
-                query = """
-                UPDATE {}
+                query = f"""
+                UPDATE {self.table_name}
                 SET date_start = %s,
                     date_done = NULL,
                     log = NULL,
                     addons = NULL
                 WHERE number = %s
-                """.format(self.table_name)
+                """
                 cursor.execute(query, (start, number))
             else:
-                query = """
-                INSERT INTO {}
+                query = f"""
+                INSERT INTO {self.table_name}
                 (number, date_start)
                 VALUES (%s, %s)
-                """.format(self.table_name)
+                """
                 cursor.execute(query, (number, start))
         self._versions = None  # reset versions cache
 
     def record_log(self, number, log):
         with self.database.cursor_autocommit() as cursor:
-            query = """
-            UPDATE {}
+            query = f"""
+            UPDATE {self.table_name}
             SET log = %s
             WHERE number = %s
-            """.format(self.table_name)
+            """
             cursor.execute(query, (log, number))
             self._versions = None  # reset versions cache
 
     def finish_version(self, number, end, log, addons):
         with self.database.cursor_autocommit() as cursor:
-            query = """
-            UPDATE {}
+            query = f"""
+            UPDATE {self.table_name}
             SET date_done = %s,
                 log = %s,
                 addons = %s
             WHERE number = %s
-            """.format(self.table_name)
+            """
             cursor.execute(query, (end, log, json.dumps(addons), number))
             self._versions = None  # reset versions cache
 
 
-class IrModuleModule(object):
-
+class IrModuleModule:
     def __init__(self, database):
         self.database = database
-        self.table_name = 'ir_module_module'
-        self.ModuleRecord = namedtuple(
-            'ModuleRecord',
-            'name state'
-        )
+        self.table_name = "ir_module_module"
+        self.ModuleRecord = namedtuple("ModuleRecord", "name state")
 
     def read_state(self):
         with self.database.cursor_autocommit() as cursor:
@@ -179,10 +167,10 @@ class IrModuleModule(object):
                 # this is a new DB, no addon is installed
                 return []
 
-            addons_query = """
+            addons_query = f"""
             SELECT name, state
-            FROM {}
-            """.format(self.table_name)
+            FROM {self.table_name}
+            """
             cursor.execute(addons_query)
             rows = cursor.fetchall()
         return [self.ModuleRecord(*row) for row in rows]
