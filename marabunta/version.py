@@ -1,9 +1,12 @@
 # Copyright 2016-2018 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-import re
+from __future__ import annotations
 
-FIRST_VERSION = "setup"
+import re
+from typing import Literal
+
+FIRST_VERSION: Literal["setup"] = "setup"
 
 
 class MarabuntaVersion:
@@ -37,38 +40,46 @@ class MarabuntaVersion:
 
     """
 
+    version: Literal["setup"] | tuple[int, int, int, int, int]
+
     version_re = re.compile(
         r"^(\d+)\.(\d+)\.(\d+)(\.(\d+)\.(\d+))?$|^" + FIRST_VERSION + "$", re.VERBOSE
     )
 
-    def __init__(self, vstring=None):
+    def __init__(self, vstring: str | None = None) -> None:
         if vstring:
             self.parse(vstring)
 
-    def parse(self, version_str):
+    def parse(self, version_str: str) -> None:
         match = self.version_re.match(version_str)
         if not match:
             raise ValueError(f"invalid version number '{version_str}'")
 
         if match.string == FIRST_VERSION:
-            self.version = match.string
+            self.version = FIRST_VERSION
         else:
             (major, minor, patch, revision, build) = match.group(1, 2, 3, 5, 6)
 
             if build:
-                self.version = tuple(map(int, [major, minor, patch, revision, build]))
+                self.version = (
+                    int(major),
+                    int(minor),
+                    int(patch),
+                    int(revision),
+                    int(build),
+                )
             else:
-                self.version = tuple(map(int, [major, 0, 0, minor, patch]))
+                self.version = (int(major), 0, 0, int(minor), int(patch))
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.version == FIRST_VERSION:
             return self.version
         return ".".join(map(str, self.version))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__} ('{self!s}')"
 
-    def _cmp(self, other):
+    def _cmp(self, other) -> int:
         if isinstance(other, str):
             other = MarabuntaVersion(other)
 
@@ -83,23 +94,23 @@ class MarabuntaVersion:
                 return 1
         return 0
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return self._cmp(other) == 0
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         return self._cmp(other) != 0
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         return self._cmp(other) < 0
 
-    def __le__(self, other):
+    def __le__(self, other) -> bool:
         return self._cmp(other) <= 0
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         return self._cmp(other) > 0
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         return self._cmp(other) >= 0
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.version)

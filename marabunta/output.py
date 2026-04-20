@@ -8,7 +8,7 @@ LOG_DECORATION = "|> "
 supports_colors = hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
 
 
-def print_decorated(message, *args, **kwargs):
+def print_decorated(message: str, *args, **kwargs) -> None:
     if supports_colors:
         template = "\033[1m{}{}\033[0m"
     else:
@@ -20,6 +20,6 @@ def print_decorated(message, *args, **kwargs):
     safe_print(message, *args, **kwargs)
 
 
-def safe_print(ustring, errors="replace", **kwargs):
+def safe_print(ustring: str, errors: str = "replace", **kwargs) -> None:
     """Safely print a unicode string"""
     print(ustring, **kwargs)
