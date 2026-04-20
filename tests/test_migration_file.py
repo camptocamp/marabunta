@@ -5,7 +5,7 @@
 import pytest
 import os
 
-import mock
+from unittest import mock
 
 from marabunta.config import Config
 from marabunta.database import Database, MigrationTable, VersionRecord

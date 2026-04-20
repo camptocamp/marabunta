@@ -64,9 +64,6 @@ instance/
 # Scrapy stuff:
 .scrapy
 
-# Sphinx documentation
-docs/_build/
-
 # PyBuilder
 target/
 
@@ -86,6 +83,10 @@ celerybeat-schedule
 # virtualenv
 venv/
 ENV/
+.venv/
+
+# hatch-vcs generated version file
+marabunta/_version.py
 
 # Spyder project settings
 .spyderproject

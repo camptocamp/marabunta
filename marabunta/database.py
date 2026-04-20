@@ -4,7 +4,18 @@
 
 import json
 
-import psycopg2
+try:
+    import psycopg2
+except ImportError as exc:
+    raise ImportError(
+        "psycopg2 is required to run marabunta but is not installed. "
+        "Install it via one of the following extras:\n"
+        "  pip install 'marabunta[psycopg2]'         "
+        "(recommended for production)\n"
+        "  pip install 'marabunta[psycopg2-binary]'  "
+        "(recommended for development / CI)\n"
+        "In Odoo environments, psycopg2 is typically already installed."
+    ) from exc
 
 from collections import namedtuple
 from contextlib import contextmanager

@@ -25,14 +25,6 @@ from .parser import YamlParser
 from .runner import Runner
 from .web import WebApp
 
-from pkg_resources import get_distribution, DistributionNotFound
-
-try:
-    __version__ = get_distribution(__name__).version
-except DistributionNotFound:
-    # package is not installed
-    pass
-
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 # The number below has been generated as below:

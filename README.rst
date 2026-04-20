@@ -1,13 +1,24 @@
 🐜🐜🐜 Marabunta 🐜🐜🐜
 =======================
 
-.. image:: https://travis-ci.org/camptocamp/marabunta.svg?branch=master
-    :target: https://travis-ci.org/camptocamp/marabunta
+.. image:: https://github.com/camptocamp/marabunta/actions/workflows/main.yml/badge.svg
+    :target: https://github.com/camptocamp/marabunta/actions/workflows/main.yml
 
 *Marabunta is a name given to the migration of the legionary ants or to the ants
 themselves. Restless, they eat and digest everything in their way.*
 
 Marabunta is used to provide an easy way to create Updates for Odoo fast and run easily. It also allows to differentiate between different environment to provide for instance sample data.
+
+
+Installation
+============
+
+In Odoo environments, ``psycopg2`` is already provided by Odoo itself, so
+a plain ``pip install marabunta`` is enough. For standalone installs,
+pick the appropriate extra::
+
+  $ pip install 'marabunta[psycopg2]'         # production (requires libpq)
+  $ pip install 'marabunta[psycopg2-binary]'  # development / CI
 
 
 Usage
@@ -130,14 +141,10 @@ Here is an Example migration file::
 Run the tests
 -------------
 
-To run ``marabunta`` tests, it is a good idea to do an *editable*
-install of it in a virtualenv, and then intall and run ``pytest`` as
-follows::
+Tests use `uv <https://docs.astral.sh/uv/>`_ to manage the development
+environment::
 
   $ git clone https://github.com/camptocamp/marabunta.git
-  Cloning into 'marabunta'...
   $ cd marabunta
-  $ virtualenv -p YOUR_PYTHON env
-  $ source env/bin/activate
-  $ pip install '.[test]'
-  $ py.test tests
+  $ uv sync
+  $ uv run pytest
