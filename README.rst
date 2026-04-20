@@ -1,6 +1,10 @@
 🐜🐜🐜 Marabunta 🐜🐜🐜
 =======================
 
+.. image:: https://img.shields.io/pypi/v/marabunta.svg
+    :target: https://pypi.org/project/marabunta/
+    :alt: PyPI
+
 .. image:: https://github.com/camptocamp/marabunta/actions/workflows/main.yml/badge.svg
     :target: https://github.com/camptocamp/marabunta/actions/workflows/main.yml
     :alt: CI
