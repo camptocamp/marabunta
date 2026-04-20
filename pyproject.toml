@@ -1,0 +1,91 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs", "hatch-fancy-pypi-readme"]
+build-backend = "hatchling.build"
+
+[project]
+name = "marabunta"
+description = "Migration tool for Odoo"
+license = { text = "AGPL-3.0-or-later" }
+authors = [
+    { name = "Camptocamp (Guewen Baconnier)", email = "guewen.baconnier@camptocamp.com" },
+]
+requires-python = ">=3.8"
+dynamic = ["version", "readme"]
+dependencies = [
+    "ruamel.yaml>=0.15.1",
+    "pexpect",
+    "werkzeug",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+[project.urls]
+Homepage = "https://github.com/camptocamp/marabunta"
+
+[project.scripts]
+marabunta = "marabunta.core:main"
+
+[project.optional-dependencies]
+psycopg2 = ["psycopg2"]
+psycopg2-binary = ["psycopg2-binary"]
+test = [
+    "pytest",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "flake8",
+    "twine",
+    "psycopg2-binary",
+]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "marabunta/_version.py"
+
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = "text/x-rst"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+path = "README.rst"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+text = "\n\n"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+path = "HISTORY.rst"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/marabunta",
+    "/tests",
+    "/README.rst",
+    "/HISTORY.rst",
+    "/AUTHORS.rst",
+    "/LICENSE",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["marabunta"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+norecursedirs = ["*.egg", ".git", ".*", "_*"]

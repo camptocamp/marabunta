@@ -2,9 +2,21 @@
 # Copyright 2016-2017 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-from distutils.util import strtobool
 import argparse
 import os
+
+
+def strtobool(val):
+    """Convert a string representation of truth to 1 (true) or 0 (false).
+
+    Drop-in replacement for ``distutils.util.strtobool`` (removed in 3.12).
+    """
+    val = val.lower()
+    if val in ("y", "yes", "t", "true", "on", "1"):
+        return 1
+    if val in ("n", "no", "f", "false", "off", "0"):
+        return 0
+    raise ValueError("invalid truth value %r" % (val,))
 
 
 class Config(object):

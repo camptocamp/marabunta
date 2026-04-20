@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
 # Copyright 2016-2018 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 import re
-from distutils.version import Version
 
 
 FIRST_VERSION = 'setup'
 
 
-class MarabuntaVersion(Version):
+class MarabuntaVersion(object):
 
     """Version numbering for Camptocamp software idealists.
     Implements the Camptocamp interface for version number classes as
@@ -46,6 +44,10 @@ class MarabuntaVersion(Version):
         re.VERBOSE
     )
 
+    def __init__(self, vstring=None):
+        if vstring:
+            self.parse(vstring)
+
     def parse(self, version_str):
         match = self.version_re.match(version_str)
         if not match:
@@ -67,16 +69,12 @@ class MarabuntaVersion(Version):
                 ]))
 
     def __str__(self):
-
         if self.version == FIRST_VERSION:
             return self.version
+        return '.'.join(map(str, self.version))
 
-        version_str = '.'.join(map(str, self.version))
-
-        return version_str
-
-    def __cmp__(self, other):
-        return self._cmp(other)
+    def __repr__(self):
+        return "%s ('%s')" % (self.__class__.__name__, str(self))
 
     def _cmp(self, other):
         if isinstance(other, str):
@@ -92,3 +90,24 @@ class MarabuntaVersion(Version):
             else:
                 return 1
         return 0
+
+    def __eq__(self, other):
+        return self._cmp(other) == 0
+
+    def __ne__(self, other):
+        return self._cmp(other) != 0
+
+    def __lt__(self, other):
+        return self._cmp(other) < 0
+
+    def __le__(self, other):
+        return self._cmp(other) <= 0
+
+    def __gt__(self, other):
+        return self._cmp(other) > 0
+
+    def __ge__(self, other):
+        return self._cmp(other) >= 0
+
+    def __hash__(self):
+        return hash(self.version)
