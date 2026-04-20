@@ -1,0 +1,17 @@
+name: Pre-commit
+
+on:
+  push:
+    branches:
+      - "master"
+  pull_request:
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8.1.0
+      - name: Run pre-commit hooks
+        run: uvx prek run --all-files --show-diff-on-failure

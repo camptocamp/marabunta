@@ -50,7 +50,7 @@ test = [
 [dependency-groups]
 dev = [
     "pytest",
-    "flake8",
+    "ruff",
     "twine",
     "psycopg2-binary",
 ]
@@ -89,3 +89,23 @@ packages = ["marabunta"]
 [tool.pytest.ini_options]
 addopts = "-q"
 norecursedirs = ["*.egg", ".git", ".*", "_*"]
+
+[tool.ruff]
+extend-exclude = ["marabunta/_version.py"]
+
+[tool.ruff.lint]
+select = [
+    "F",        # pyflakes
+    "E",        # pycodestyle (errors)
+    "W",        # pycodestyle (warnings)
+    "C90",      # mccabe
+    "I",        # isort
+    "UP",       # pyupgrade
+    "B",        # flake8-bugbear
+    "Q",        # flake8-quotes
+    "PTH",      # flake8-use-pathlib
+    "T10",      # flake8-debugger
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 16

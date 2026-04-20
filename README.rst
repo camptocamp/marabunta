@@ -3,6 +3,11 @@
 
 .. image:: https://github.com/camptocamp/marabunta/actions/workflows/main.yml/badge.svg
     :target: https://github.com/camptocamp/marabunta/actions/workflows/main.yml
+    :alt: CI
+
+.. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
+    :target: https://github.com/astral-sh/ruff
+    :alt: Ruff
 
 *Marabunta is a name given to the migration of the legionary ants or to the ants
 themselves. Restless, they eat and digest everything in their way.*
@@ -148,3 +153,20 @@ environment::
   $ cd marabunta
   $ uv sync
   $ uv run pytest
+
+
+Pre-commit hooks
+----------------
+
+This project uses `pre-commit <https://pre-commit.com/>`_ to run ruff
+and other checks before each commit. We recommend
+`prek <https://github.com/j178/prek>`_, a faster drop-in replacement
+written in Rust::
+
+  $ uv tool install prek
+  $ prek install
+
+From then on the hooks run automatically on ``git commit``. To run them
+on demand::
+
+  $ prek run --all-files

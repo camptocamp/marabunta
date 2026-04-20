@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2016-2017 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
@@ -15,8 +14,8 @@ required.
 """
 
 import logging
-import time
 import threading
+import time
 
 from .config import Config, get_args_parser
 from .database import Database, MigrationTable
@@ -25,7 +24,7 @@ from .parser import YamlParser
 from .runner import Runner
 from .web import WebApp
 
-logging.getLogger('werkzeug').setLevel(logging.ERROR)
+logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 # The number below has been generated as below:
 # pg_lock accepts an int8 so we build an hash composed with
@@ -39,19 +38,18 @@ ADVISORY_LOCK_IDENT = 7141416871301361999
 
 
 def pg_advisory_lock(cursor, lock_ident):
-    cursor.execute('SELECT pg_try_advisory_xact_lock(%s);', (lock_ident,))
+    cursor.execute("SELECT pg_try_advisory_xact_lock(%s);", (lock_ident,))
     acquired = cursor.fetchone()[0]
     return acquired
 
 
 class ApplicationLock(threading.Thread):
-
     def __init__(self, connection):
         self.acquired = False
         self.connection = connection
         self.replica = False
         self.stop = False
-        super(ApplicationLock, self).__init__()
+        super().__init__()
 
     def run(self):
         with self.connection.cursor() as cursor:
@@ -61,8 +59,7 @@ class ApplicationLock(threading.Thread):
             # the advisory lock. The others will be flagged as 'replica'.
             while not pg_advisory_lock(cursor, ADVISORY_LOCK_IDENT):
                 if not self.replica:  # print only the first time
-                    safe_print('A concurrent process is already '
-                               'running the migration')
+                    safe_print("A concurrent process is already running the migration")
                 self.replica = True
                 time.sleep(0.5)
             else:
@@ -81,9 +78,8 @@ class ApplicationLock(threading.Thread):
 
 
 class WebServer(threading.Thread):
-
     def __init__(self, app):
-        super(WebServer, self).__init__()
+        super().__init__()
         self.app = app
 
     def run(self):
@@ -96,11 +92,14 @@ def migrate(config):
     :param config: The configuration to be applied
     :type config: Config
     """
-    webapp = WebApp(config.web_host, config.web_port,
-                    custom_maintenance_file=config.web_custom_html,
-                    resp_status=config.web_resp_status,
-                    resp_retry_after=config.web_resp_retry_after,
-                    healthcheck_path=config.web_healthcheck_path)
+    webapp = WebApp(
+        config.web_host,
+        config.web_port,
+        custom_maintenance_file=config.web_custom_html,
+        resp_status=config.web_resp_status,
+        resp_retry_after=config.web_resp_retry_after,
+        healthcheck_path=config.web_healthcheck_path,
+    )
 
     webserver = WebServer(webapp)
     webserver.daemon = True
@@ -147,5 +146,5 @@ def main():
     migrate(config)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

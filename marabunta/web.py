@@ -1,30 +1,30 @@
-# -*- coding: utf-8 -*-
 # Copyright 2017 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-import os
+from pathlib import Path
 
-from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
+from werkzeug.wrappers import Request, Response
 
 
-class WebApp(object):
-
-    def __init__(self, host, port, custom_maintenance_file=None,
-                 resp_status=503, resp_retry_after=300,
-                 healthcheck_path=None):
+class WebApp:
+    def __init__(
+        self,
+        host,
+        port,
+        custom_maintenance_file=None,
+        resp_status=503,
+        resp_retry_after=300,
+        healthcheck_path=None,
+    ):
         self.host = host
         self.port = port
         if not custom_maintenance_file:
-            custom_maintenance_file = os.path.join(
-                os.path.dirname(__file__),
-                'html/migration.html'
-            )
+            custom_maintenance_file = Path(__file__).parent / "html" / "migration.html"
         self.resp_status = resp_status
         self.resp_retry_after = resp_retry_after
         self.healthcheck_path = healthcheck_path
-        with open(custom_maintenance_file, 'r') as f:
-            self.maintenance_html = f.read()
+        self.maintenance_html = Path(custom_maintenance_file).read_text()
 
     def serve(self):
         run_simple(self.host, self.port, self)
@@ -34,12 +34,12 @@ class WebApp(object):
             # Return HTTP 200 for healthcheck kind of requests
             # It can be used on some platform to know that the service is
             # running as expected.
-            return Response(self.maintenance_html, mimetype='text/html')
+            return Response(self.maintenance_html, mimetype="text/html")
         return Response(
             self.maintenance_html,
             status=self.resp_status,
-            headers={'Retry-After': self.resp_retry_after},
-            mimetype='text/html'
+            headers={"Retry-After": self.resp_retry_after},
+            mimetype="text/html",
         )
 
     def wsgi_app(self, environ, start_response):

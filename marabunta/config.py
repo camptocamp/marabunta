@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2016-2017 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
@@ -16,27 +15,29 @@ def strtobool(val):
         return 1
     if val in ("n", "no", "f", "false", "off", "0"):
         return 0
-    raise ValueError("invalid truth value %r" % (val,))
+    raise ValueError(f"invalid truth value {val!r}")
 
 
-class Config(object):
-    def __init__(self,
-                 migration_file,
-                 database,
-                 db_user=None,
-                 db_password=None,
-                 db_port=5432,
-                 db_host='localhost',
-                 mode=None,
-                 allow_serie=False,
-                 force_version=None,
-                 override_translations=False,
-                 web_host='localhost',
-                 web_port=8069,
-                 web_resp_status=503,
-                 web_resp_retry_after=300,  # 5 minutes
-                 web_custom_html=None,
-                 web_healthcheck_path=None):
+class Config:
+    def __init__(
+        self,
+        migration_file,
+        database,
+        db_user=None,
+        db_password=None,
+        db_port=5432,
+        db_host="localhost",
+        mode=None,
+        allow_serie=False,
+        force_version=None,
+        override_translations=False,
+        web_host="localhost",
+        web_port=8069,
+        web_resp_status=503,
+        web_resp_retry_after=300,  # 5 minutes
+        web_custom_html=None,
+        web_healthcheck_path=None,
+    ):
         self.migration_file = migration_file
         self.database = database
         self.db_user = db_user
@@ -65,27 +66,27 @@ class Config(object):
 
         """
 
-        return cls(args.migration_file,
-                   args.database,
-                   db_user=args.db_user,
-                   db_password=args.db_password,
-                   db_port=args.db_port,
-                   db_host=args.db_host,
-                   mode=args.mode,
-                   allow_serie=args.allow_serie,
-                   force_version=args.force_version,
-                   override_translations=args.override_translations,
-                   web_host=args.web_host,
-                   web_port=args.web_port,
-                   web_resp_status=args.web_resp_status,
-                   web_resp_retry_after=args.web_resp_retry_after,
-                   web_custom_html=args.web_custom_html,
-                   web_healthcheck_path=args.web_healthcheck_path,
-                   )
+        return cls(
+            args.migration_file,
+            args.database,
+            db_user=args.db_user,
+            db_password=args.db_password,
+            db_port=args.db_port,
+            db_host=args.db_host,
+            mode=args.mode,
+            allow_serie=args.allow_serie,
+            force_version=args.force_version,
+            override_translations=args.override_translations,
+            web_host=args.web_host,
+            web_port=args.web_port,
+            web_resp_status=args.web_resp_status,
+            web_resp_retry_after=args.web_resp_retry_after,
+            web_custom_html=args.web_custom_html,
+            web_healthcheck_path=args.web_healthcheck_path,
+        )
 
 
 class EnvDefault(argparse.Action):
-
     def __init__(self, envvar, required=True, default=None, **kwargs):
         if envvar:
             default_from_env = self.get_default(envvar)
@@ -93,8 +94,7 @@ class EnvDefault(argparse.Action):
                 default = default_from_env
         if required and default is not None:
             required = False
-        super(EnvDefault, self).__init__(default=default, required=required,
-                                         **kwargs)
+        super().__init__(default=default, required=required, **kwargs)
 
     def get_default(self, envvar):
         # Handle string (single env var)
@@ -112,9 +112,8 @@ class EnvDefault(argparse.Action):
 
 
 class BoolEnvDefault(EnvDefault):
-
     def get_default(self, envvar):
-        val = super().get_default(envvar) or ''
+        val = super().get_default(envvar) or ""
         try:
             return strtobool(val.lower())
         except ValueError:
@@ -123,110 +122,137 @@ class BoolEnvDefault(EnvDefault):
 
 def get_args_parser():
     """Return a parser for command line options."""
-    parser = argparse.ArgumentParser(
-        description='Marabunta: Migrating ants for Odoo')
-    parser.add_argument('--migration-file', '-f',
-                        action=EnvDefault,
-                        envvar='MARABUNTA_MIGRATION_FILE',
-                        required=True,
-                        help='The yaml file containing the migration steps')
-    parser.add_argument('--database', '-d',
-                        action=EnvDefault,
-                        envvar=['MARABUNTA_DATABASE', 'PGDATABASE'],
-                        required=True,
-                        help="Odoo's database")
-    parser.add_argument('--db-user', '-u',
-                        action=EnvDefault,
-                        envvar=['MARABUNTA_DB_USER', 'PGUSER'],
-                        required=True,
-                        help="Odoo's database user")
-    parser.add_argument('--db-password', '-w',
-                        action=EnvDefault,
-                        envvar=['MARABUNTA_DB_PASSWORD', 'PGPASSWORD'],
-                        required=False,
-                        help="Odoo's database password")
-    parser.add_argument('--db-port', '-p',
-                        action=EnvDefault,
-                        envvar=['MARABUNTA_DB_PORT', 'PGPORT'],
-                        type=int,
-                        default=5432,
-                        required=False,
-                        help="Odoo's database port")
-    parser.add_argument('--db-host', '-H',
-                        action=EnvDefault,
-                        envvar=['MARABUNTA_DB_HOST', 'PGHOST'],
-                        required=False,
-                        help="Odoo's database host")
-    parser.add_argument('--mode',
-                        action=EnvDefault,
-                        envvar='MARABUNTA_MODE',
-                        required=False,
-                        help="Specify the mode in which we run the migration,"
-                             "such as 'sample' or 'full'. Additional operations "
-                             "of this mode will be executed after the main "
-                             "operations and the addons list of this mode "
-                             "will be merged with the main addons list.")
-    parser.add_argument('--allow-serie',
-                        action=BoolEnvDefault,
-                        required=False,
-                        envvar='MARABUNTA_ALLOW_SERIE',
-                        help='Allow to run more than 1 version upgrade at a '
-                             'time.')
-    parser.add_argument('--force-version',
-                        required=False,
-                        default=os.environ.get('MARABUNTA_FORCE_VERSION'),
-                        help='Force upgrade of a version, even if it has '
-                             'already been applied.')
-    parser.add_argument("--override-translations",
-                        required=False,
-                        default=os.environ.get("MARABUNTA_OVERRIDE_TRANSLATIONS"),
-                        help="Force override of translations.")
+    parser = argparse.ArgumentParser(description="Marabunta: Migrating ants for Odoo")
+    parser.add_argument(
+        "--migration-file",
+        "-f",
+        action=EnvDefault,
+        envvar="MARABUNTA_MIGRATION_FILE",
+        required=True,
+        help="The yaml file containing the migration steps",
+    )
+    parser.add_argument(
+        "--database",
+        "-d",
+        action=EnvDefault,
+        envvar=["MARABUNTA_DATABASE", "PGDATABASE"],
+        required=True,
+        help="Odoo's database",
+    )
+    parser.add_argument(
+        "--db-user",
+        "-u",
+        action=EnvDefault,
+        envvar=["MARABUNTA_DB_USER", "PGUSER"],
+        required=True,
+        help="Odoo's database user",
+    )
+    parser.add_argument(
+        "--db-password",
+        "-w",
+        action=EnvDefault,
+        envvar=["MARABUNTA_DB_PASSWORD", "PGPASSWORD"],
+        required=False,
+        help="Odoo's database password",
+    )
+    parser.add_argument(
+        "--db-port",
+        "-p",
+        action=EnvDefault,
+        envvar=["MARABUNTA_DB_PORT", "PGPORT"],
+        type=int,
+        default=5432,
+        required=False,
+        help="Odoo's database port",
+    )
+    parser.add_argument(
+        "--db-host",
+        "-H",
+        action=EnvDefault,
+        envvar=["MARABUNTA_DB_HOST", "PGHOST"],
+        required=False,
+        help="Odoo's database host",
+    )
+    parser.add_argument(
+        "--mode",
+        action=EnvDefault,
+        envvar="MARABUNTA_MODE",
+        required=False,
+        help="Specify the mode in which we run the migration,"
+        "such as 'sample' or 'full'. Additional operations "
+        "of this mode will be executed after the main "
+        "operations and the addons list of this mode "
+        "will be merged with the main addons list.",
+    )
+    parser.add_argument(
+        "--allow-serie",
+        action=BoolEnvDefault,
+        required=False,
+        envvar="MARABUNTA_ALLOW_SERIE",
+        help="Allow to run more than 1 version upgrade at a time.",
+    )
+    parser.add_argument(
+        "--force-version",
+        required=False,
+        default=os.environ.get("MARABUNTA_FORCE_VERSION"),
+        help="Force upgrade of a version, even if it has already been applied.",
+    )
+    parser.add_argument(
+        "--override-translations",
+        required=False,
+        default=os.environ.get("MARABUNTA_OVERRIDE_TRANSLATIONS"),
+        help="Force override of translations.",
+    )
 
     group = parser.add_argument_group(
-        title='Web',
-        description='Configuration related to the internal web server, '
-                    'used to publish a maintenance page during the migration.',
+        title="Web",
+        description="Configuration related to the internal web server, "
+        "used to publish a maintenance page during the migration.",
     )
-    group.add_argument('--web-host',
-                       required=False,
-                       default=os.environ.get('MARABUNTA_WEB_HOST', '0.0.0.0'),
-                       help='Host for the web server')
-    group.add_argument('--web-port',
-                       type=int,
-                       required=False,
-                       default=os.environ.get('MARABUNTA_WEB_PORT', 8069),
-                       help='Port for the web server')
-    group.add_argument('--web-resp-status',
-                       type=int,
-                       required=False,
-                       default=os.environ.get(
-                           'MARABUNTA_WEB_RESP_STATUS', 503
-                       ),
-                       help='Response HTTP status code of the web server')
-    group.add_argument('--web-resp-retry-after',
-                       type=int,
-                       required=False,
-                       default=os.environ.get(
-                           'MARABUNTA_WEB_RESP_RETRY_AFTER', 300
-                       ),
-                       help=(
-                           '"Retry-After" header value (in seconds) of '
-                           'response delivered by the web server')
-                       )
-    group.add_argument('--web-custom-html',
-                       required=False,
-                       default=os.environ.get(
-                           'MARABUNTA_WEB_CUSTOM_HTML'
-                       ),
-                       help='Path to a custom html file to publish')
-    group.add_argument('--web-healthcheck-path',
-                       required=False,
-                       default=os.environ.get(
-                           'MARABUNTA_WEB_HEALTHCHECK_PATH'
-                       ),
-                       help=(
-                           'URL Path used for health checks HTTP requests. '
-                           'Such monitoring requests will return HTTP 200 '
-                           'status code instead of the default 503.'
-                       ))
+    group.add_argument(
+        "--web-host",
+        required=False,
+        default=os.environ.get("MARABUNTA_WEB_HOST", "0.0.0.0"),
+        help="Host for the web server",
+    )
+    group.add_argument(
+        "--web-port",
+        type=int,
+        required=False,
+        default=os.environ.get("MARABUNTA_WEB_PORT", 8069),
+        help="Port for the web server",
+    )
+    group.add_argument(
+        "--web-resp-status",
+        type=int,
+        required=False,
+        default=os.environ.get("MARABUNTA_WEB_RESP_STATUS", 503),
+        help="Response HTTP status code of the web server",
+    )
+    group.add_argument(
+        "--web-resp-retry-after",
+        type=int,
+        required=False,
+        default=os.environ.get("MARABUNTA_WEB_RESP_RETRY_AFTER", 300),
+        help=(
+            '"Retry-After" header value (in seconds) of '
+            "response delivered by the web server"
+        ),
+    )
+    group.add_argument(
+        "--web-custom-html",
+        required=False,
+        default=os.environ.get("MARABUNTA_WEB_CUSTOM_HTML"),
+        help="Path to a custom html file to publish",
+    )
+    group.add_argument(
+        "--web-healthcheck-path",
+        required=False,
+        default=os.environ.get("MARABUNTA_WEB_HEALTHCHECK_PATH"),
+        help=(
+            "URL Path used for health checks HTTP requests. "
+            "Such monitoring requests will return HTTP 200 "
+            "status code instead of the default 503."
+        ),
+    )
     return parser

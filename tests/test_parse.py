@@ -1,14 +1,15 @@
-# -*- coding: utf-8 -*-
 # Copyright 2016-2017 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
 
 from io import StringIO
+
 import pytest
-from marabunta.parser import YamlParser, YAML_EXAMPLE
 from ruamel.yaml.constructor import DuplicateKeyError
 
-YAML_WITH_EXCEPTION = u"""
+from marabunta.parser import YAML_EXAMPLE, YamlParser
+
+YAML_WITH_EXCEPTION = """
 migration:
   options:
     # --workers=0 --stop-after-init are automatically added
