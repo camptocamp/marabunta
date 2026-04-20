@@ -9,6 +9,10 @@
     :target: https://github.com/astral-sh/ruff
     :alt: Ruff
 
+.. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ty/main/assets/badge/v0.json
+    :target: https://github.com/astral-sh/ty
+    :alt: ty
+
 *Marabunta is a name given to the migration of the legionary ants or to the ants
 themselves. Restless, they eat and digest everything in their way.*
 

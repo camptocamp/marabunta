@@ -1,6 +1,8 @@
 # Copyright 2016-2017 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
+from __future__ import annotations
+
 import traceback
 from datetime import datetime
 
@@ -24,7 +26,7 @@ class Runner:
         # we don't want to do it again for another version
         self.upgraded_addons = set()
 
-    def log(self, message, decorated=True, stdout=True):
+    def log(self, message: str, decorated: bool = True, stdout: bool = True) -> None:
         if not stdout:
             return
         if decorated:
@@ -33,7 +35,7 @@ class Runner:
         else:
             safe_print(message)
 
-    def perform(self):
+    def perform(self) -> None:
         self.table.create_if_not_exists()
 
         db_versions = self.table.versions()
@@ -127,7 +129,7 @@ class VersionRunner:
         self.version = version
         self.logs = []
 
-    def log(self, message, decorated=True, stdout=True):
+    def log(self, message: str, decorated: bool = True, stdout: bool = True) -> None:
         self.logs.append(message)
         if not stdout:
             return
@@ -137,11 +139,11 @@ class VersionRunner:
         else:
             safe_print(message)
 
-    def start(self):
+    def start(self) -> None:
         self.log("start")
         self.table.start_version(self.version.number, datetime.now())
 
-    def finish(self):
+    def finish(self) -> None:
         self.log("done")
         module_table = IrModuleModule(self.database)
         addons_state = module_table.read_state()

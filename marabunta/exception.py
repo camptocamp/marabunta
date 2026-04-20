@@ -1,6 +1,8 @@
 # Copyright 2016-2017 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
+from __future__ import annotations
+
 
 class MarabuntaError(Exception):
     pass
@@ -11,11 +13,11 @@ class MigrationError(Exception):
 
 
 class ParseError(MarabuntaError):
-    def __init__(self, message, example=None):
+    def __init__(self, message: str, example: str | None = None) -> None:
         super().__init__(message)
         self.example = example
 
-    def __str__(self):
+    def __str__(self) -> str:
         if not self.example:
             return super().__str__()
         msg = (

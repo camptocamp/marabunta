@@ -1,6 +1,8 @@
 # Copyright 2016-2018 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
+from __future__ import annotations
+
 import sys
 from io import StringIO
 from string import Template
@@ -39,7 +41,7 @@ class MigrationOption:
 
 
 class MigrationBackupOption:
-    def __init__(self, command, ignore_if, stop_on_failure=True):
+    def __init__(self, command: str, ignore_if, stop_on_failure: bool = True) -> None:
         """Backup option in migration.
 
         Migration allows using a backup command in order to perform specific
@@ -68,7 +70,7 @@ class MigrationBackupOption:
         self._stop_on_failure = stop_on_failure
         self._ignore_if = ignore_if
 
-    def command_operation(self, config):
+    def command_operation(self, config) -> BackupOperation:
         template = Template(self._command)
         command = template.safe_substitute(
             database=config.database,
@@ -83,7 +85,7 @@ class MigrationBackupOption:
             stop_on_failure=self._stop_on_failure,
         )
 
-    def ignore_if_operation(self):
+    def ignore_if_operation(self) -> SilentOperation:
         if self._ignore_if is None or self._ignore_if is False:
             # if ignore_if parameter was not specified - always backup
             return SilentOperation("false", shell=True)
@@ -94,7 +96,7 @@ class MigrationBackupOption:
 
 
 class Version:
-    def __init__(self, number, options):
+    def __init__(self, number: str, options) -> None:
         """Base class for a migration version.
 
         :param number: Valid version number
@@ -112,14 +114,14 @@ class Version:
         self.backup = False
         self.override_translations = False
 
-    def is_processed(self, db_versions):
+    def is_processed(self, db_versions) -> bool:
         """Check if version is already applied in the database.
 
         :param db_versions:
         """
         return self.number in (v.number for v in db_versions if v.date_done)
 
-    def is_noop(self):
+    def is_noop(self) -> bool:
         """Check if version is a no operation version."""
         has_operations = [
             mode.pre_operations or mode.post_operations
@@ -132,7 +134,7 @@ class Version:
         noop = not any((has_upgrade_addons, has_operations))
         return noop
 
-    def skip(self, db_versions):
+    def skip(self, db_versions) -> bool:
         """Version is either noop, or it has been processed already."""
         return self.is_noop() or self.is_processed(db_versions)
 
@@ -211,25 +213,25 @@ class Version:
     def remove_addons_operation(self):
         raise NotImplementedError
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Version<{self.number}>"
 
 
 class VersionMode:
-    def __init__(self, name=None):
+    def __init__(self, name: str | None = None) -> None:
         self.name = name
         self.pre_operations = []
         self.post_operations = []
         self.upgrade_addons = set()
         self.remove_addons = set()
 
-    def add_pre(self, operation):
+    def add_pre(self, operation) -> None:
         self.pre_operations.append(operation)
 
-    def add_post(self, operation):
+    def add_post(self, operation) -> None:
         self.post_operations.append(operation)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         name = self.name if self.name else "base"
         return f"VersionMode<{name}>"
 
@@ -278,7 +280,7 @@ class UpgradeAddonsOperation:
 
 
 class Operation:
-    def __init__(self, command, shell=False):
+    def __init__(self, command, shell: bool = False) -> None:
         """Wrap a pexpect spawn command
 
         :param command: the command to run as string
@@ -296,10 +298,10 @@ class Operation:
         else:
             return self.command, []
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.command)
 
-    def _execute(self, log, interactive=True):
+    def _execute(self, log, interactive: bool = True) -> None:
         assert self.command
         cmd, options = self._spawn_command()
         child = pexpect.spawn(cmd, options, timeout=None, encoding="utf8")
@@ -319,7 +321,8 @@ class Operation:
             # child.before contains all the the output of the child program
             # before the EOF
             # child.before is unicode
-            log_buffer.write(child.before)
+            if child.before:
+                log_buffer.write(child.before)
         child.close()
         if child.signalstatus is not None:
             raise OperationError(
@@ -336,18 +339,18 @@ class Operation:
         msg = "\n".join(log_buffer.read().splitlines())
         log(msg, decorated=False, stdout=False)
 
-    def execute(self, log):
+    def execute(self, log) -> None:
         log(f"{self.command}")
         self._execute(log, interactive=sys.stdout.isatty())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Operation<{self.command}>"
 
 
 class SilentOperation(Operation):
     """Operation that does not require logging or interactivity."""
 
-    def _execute(self):
+    def _execute(self) -> None:  # ty: ignore[invalid-method-override]
         assert self.command
         cmd, options = self._spawn_command()
         child = pexpect.spawn(cmd, options, timeout=None, encoding="utf8")
@@ -366,16 +369,18 @@ class SilentOperation(Operation):
                 )
             )
 
-    def execute(self):
+    def execute(self) -> None:  # ty: ignore[invalid-method-override]
         self._execute()
 
 
 class BackupOperation(Operation):
-    def __init__(self, command, shell=False, stop_on_failure=True):
+    def __init__(
+        self, command, shell: bool = False, stop_on_failure: bool = True
+    ) -> None:
         super().__init__(command, shell=shell)
         self.stop_on_failure = stop_on_failure
 
-    def execute(self, log):
+    def execute(self, log) -> None:
         log("Backing up...")
         try:
             self._execute(log, interactive=sys.stdout.isatty())

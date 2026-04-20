@@ -1,11 +1,13 @@
 # Copyright 2016-2017 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
+from __future__ import annotations
+
 import argparse
 import os
 
 
-def strtobool(val):
+def strtobool(val: str) -> int:
     """Convert a string representation of truth to 1 (true) or 0 (false).
 
     Drop-in replacement for ``distutils.util.strtobool`` (removed in 3.12).
@@ -120,7 +122,7 @@ class BoolEnvDefault(EnvDefault):
             return False
 
 
-def get_args_parser():
+def get_args_parser() -> argparse.ArgumentParser:
     """Return a parser for command line options."""
     parser = argparse.ArgumentParser(description="Marabunta: Migrating ants for Odoo")
     parser.add_argument(

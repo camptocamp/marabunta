@@ -1,6 +1,8 @@
 # Copyright 2017 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
+from __future__ import annotations
+
 from pathlib import Path
 
 from werkzeug.serving import run_simple
@@ -10,13 +12,13 @@ from werkzeug.wrappers import Request, Response
 class WebApp:
     def __init__(
         self,
-        host,
-        port,
-        custom_maintenance_file=None,
-        resp_status=503,
-        resp_retry_after=300,
-        healthcheck_path=None,
-    ):
+        host: str,
+        port: int,
+        custom_maintenance_file: str | Path | None = None,
+        resp_status: int = 503,
+        resp_retry_after: int = 300,
+        healthcheck_path: str | None = None,
+    ) -> None:
         self.host = host
         self.port = port
         if not custom_maintenance_file:
@@ -26,10 +28,10 @@ class WebApp:
         self.healthcheck_path = healthcheck_path
         self.maintenance_html = Path(custom_maintenance_file).read_text()
 
-    def serve(self):
+    def serve(self) -> None:
         run_simple(self.host, self.port, self)
 
-    def dispatch_request(self, request):
+    def dispatch_request(self, request: Request) -> Response:
         if self.healthcheck_path and request.path == self.healthcheck_path:
             # Return HTTP 200 for healthcheck kind of requests
             # It can be used on some platform to know that the service is
@@ -38,7 +40,7 @@ class WebApp:
         return Response(
             self.maintenance_html,
             status=self.resp_status,
-            headers={"Retry-After": self.resp_retry_after},
+            headers={"Retry-After": str(self.resp_retry_after)},
             mimetype="text/html",
         )
 
