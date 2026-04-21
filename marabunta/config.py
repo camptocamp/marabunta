@@ -117,7 +117,7 @@ class BoolEnvDefault(EnvDefault):
     def get_default(self, envvar):
         val = super().get_default(envvar) or ""
         try:
-            return strtobool(val.lower())
+            return strtobool(val)
         except ValueError:
             return False
 

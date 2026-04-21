@@ -9,14 +9,9 @@ supports_colors = hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
 
 
 def print_decorated(message: str, *args, **kwargs) -> None:
+    message = f"{LOG_DECORATION}{message}"
     if supports_colors:
-        template = "\033[1m{}{}\033[0m"
-    else:
-        template = "{}{}"
-    message = template.format(
-        LOG_DECORATION,
-        message,
-    )
+        message = f"\033[1m{message}\033[0m"
     safe_print(message, *args, **kwargs)
 
 
