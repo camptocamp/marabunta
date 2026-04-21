@@ -15,6 +15,14 @@ Unreleased
 **Build**
 
 
+0.15.0 (2026-04-21)
++++++++++++++++++++
+
+**Improvements**
+
+* Modernize codebase. Use uv for building. Support Python 3.14.
+
+
 0.14.0 (2026-01-22)
 +++++++++++++++++++
 
