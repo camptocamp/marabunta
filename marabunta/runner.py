@@ -161,7 +161,7 @@ class VersionRunner:
         version = self.version
         if (
             version.is_processed(db_versions)
-            and not self.config.force_version == self.version.number
+            and self.config.force_version != self.version.number
         ):
             self.log(f"version {version.number} is already installed")
             return

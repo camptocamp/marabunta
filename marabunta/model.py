@@ -10,7 +10,6 @@ from string import Template
 import pexpect
 
 from .exception import BackupError, ConfigurationError, OperationError
-from .helpers import string_types
 from .version import MarabuntaVersion
 
 
@@ -123,16 +122,13 @@ class Version:
 
     def is_noop(self) -> bool:
         """Check if version is a no operation version."""
-        has_operations = [
-            mode.pre_operations or mode.post_operations
+        return not any(
+            mode.pre_operations
+            or mode.post_operations
+            or mode.upgrade_addons
+            or mode.remove_addons
             for mode in self._version_modes.values()
-        ]
-        has_upgrade_addons = [
-            mode.upgrade_addons or mode.remove_addons
-            for mode in self._version_modes.values()
-        ]
-        noop = not any((has_upgrade_addons, has_operations))
-        return noop
+        )
 
     def skip(self, db_versions) -> bool:
         """Version is either noop, or it has been processed already."""
@@ -178,7 +174,7 @@ class Version:
         raise ConfigurationError(
             "Removing addons is not yet supported because it cannot be done "
             "using the command line. You have to uninstall addons using "
-            "an Odoo ('import openerp') script"
+            "an Odoo ('import odoo') script"
         )
 
     def pre_operations(self, mode=None):
@@ -193,9 +189,9 @@ class Version:
 
     def upgrade_addons_operation(self, addons_state, mode=None):
         """Return merged set of main addons and mode's addons"""
-        installed = set(
+        installed = {
             a.name for a in addons_state if a.state in ("installed", "to upgrade")
-        )
+        }
 
         base_mode = self._get_version_mode()
         addons_list = base_mode.upgrade_addons.copy()
@@ -243,7 +239,7 @@ class VersionMode:
         raise ConfigurationError(
             "Removing addons is not yet supported because it cannot be done "
             "using the command line. You have to uninstall addons using "
-            "an Odoo ('import openerp') script"
+            "an Odoo ('import odoo') script"
         )
 
 
@@ -287,7 +283,7 @@ class Operation:
         :param shell: boolean, when True, wraps the command in ``sh -c``
                       so bash environment variables are interpolated
         """
-        if not isinstance(command, string_types):
+        if not isinstance(command, str):
             command = " ".join(command)
         self.command = command
         self.shell = shell
@@ -358,15 +354,12 @@ class SilentOperation(Operation):
         child.close()
         if child.signalstatus is not None:
             raise OperationError(
-                "command '{}' has been interrupted by signal {}".format(
-                    " ".join(self.command), child.signalstatus
-                )
+                f"command '{' '.join(self.command)}' has been interrupted by "
+                f"signal {child.signalstatus}"
             )
         elif child.exitstatus != 0:
             raise OperationError(
-                "command '{}' returned {}".format(
-                    " ".join(self.command), child.exitstatus
-                )
+                f"command '{' '.join(self.command)}' returned {child.exitstatus}"
             )
 
     def execute(self) -> None:  # ty: ignore[invalid-method-override]

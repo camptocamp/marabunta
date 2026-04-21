@@ -99,8 +99,8 @@ class YamlParser:
         """
         if not isinstance(current, dict):
             raise ParseError(f"'{dict_name}' key must be a dict", YAML_EXAMPLE)
-        expected_keys = set(expected_keys)
-        current_keys = {key for key in current}
+        expected_keys = {*expected_keys}
+        current_keys = {*current}
         extra_keys = current_keys - expected_keys
         if extra_keys:
             message = "{}: the keys {} are unexpected. (allowed keys: {})"
