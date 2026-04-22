@@ -28,10 +28,12 @@ Installation
 
 In Odoo environments, ``psycopg2`` is already provided by Odoo itself, so
 a plain ``pip install marabunta`` is enough. For standalone installs,
-pick the appropriate extra::
+pick the appropriate extra:
 
-  $ pip install 'marabunta[psycopg2]'         # production (requires libpq)
-  $ pip install 'marabunta[psycopg2-binary]'  # development / CI
+.. code-block:: bash
+
+  pip install 'marabunta[psycopg2]'         # production (requires libpq)
+  pip install 'marabunta[psycopg2-binary]'  # development / CI
 
 
 Usage
@@ -60,39 +62,74 @@ Although the first marabunta version must be **setup** for the initial setup of 
 
 Options
 =======
-    +-------------------------+----------+-----------------------------------+-------------------------------------------------------------------+
-    | option                  | shortcut | envvar                            | purpose                                                           |
-    +=========================+==========+===================================+===================================================================+
-    | --migration-file        | -f       | MARABUNTA_MIGRATION_FILE          | Definition file for the migration.                                |
-    +-------------------------+----------+-----------------------------------+-------------------------------------------------------------------+
-    | --database              | -d       | MARABUNTA_DATABASE                | Database we want to run the migration on.                         |
-    +-------------------------+----------+-----------------------------------+-------------------------------------------------------------------+
-    | --db-user               | -u       | MARABUNTA_DB_USER, PGUSER         | Database user.                                                    |
-    +-------------------------+----------+-----------------------------------+-------------------------------------------------------------------+
-    | --db-password           | -w       | MARABUNTA_DB_PASSWORD, PGPASSWORD | Database password.                                                |
-    +-------------------------+----------+-----------------------------------+-------------------------------------------------------------------+
-    | --db-port               | -p       | MARABUNTA_DB_PORT, PGPORT         | Database port (defaults to 5432).                                 |
-    +-------------------------+----------+-----------------------------------+-------------------------------------------------------------------+
-    | --db-host               | -H       | MARABUNTA_DB_HOST, PGHOST         | Database port (defaults to None).                                 |
-    +-------------------------+----------+-----------------------------------+-------------------------------------------------------------------+
-    | --mode                  |          | MARABUNTA_MODE                    | Mode marabunta runs in for different envs.                        |
-    +-------------------------+----------+-----------------------------------+-------------------------------------------------------------------+
-    | --allow-serie           |          | MARABUNTA_ALLOW_SERIE             | Allow multiple versions to be upgraded at once.                   |
-    +-------------------------+----------+-----------------------------------+-------------------------------------------------------------------+
-    | --force-version         |          | MARABUNTA_FORCE_VERSION           | Force the upgrade to a version no matter what.                    |
-    +-------------------------+----------+-----------------------------------+-------------------------------------------------------------------+
-    | --override-translations |          | MARABUNTA_OVERRIDE_TRANSLATIONS   | Force translations override                                       |
-    +-------------------------+----------+-----------------------------------+-------------------------------------------------------------------+
-    | --web-host              |          | MARABUNTA_WEB_HOST                | Interface to bind for the maintenance page. (defaults to 0.0.0.0).|
-    +-------------------------+----------+-----------------------------------+-------------------------------------------------------------------+
-    | --web-port              |          | MARABUNTA_WEB_PORT                | Port for the maintenance page. (defaults to 8069).                |
-    +-------------------------+----------+-----------------------------------+-------------------------------------------------------------------+
-    | --web-custom-html       |          | MARABUNTA_WEB_CUSTOM_HTML         | Path to custom maintenance html page to serve.                    |
-    +-------------------------+----------+-----------------------------------+-------------------------------------------------------------------+
+
+.. list-table::
+    :header-rows: 1
+    :widths: 25 10 30 35
+
+    * - Option
+      - Shortcut
+      - Env var
+      - Purpose
+    * - ``--migration-file``
+      - ``-f``
+      - ``MARABUNTA_MIGRATION_FILE``
+      - Definition file for the migration.
+    * - ``--database``
+      - ``-d``
+      - ``MARABUNTA_DATABASE``
+      - Database we want to run the migration on.
+    * - ``--db-user``
+      - ``-u``
+      - ``MARABUNTA_DB_USER``, ``PGUSER``
+      - Database user.
+    * - ``--db-password``
+      - ``-w``
+      - ``MARABUNTA_DB_PASSWORD``, ``PGPASSWORD``
+      - Database password.
+    * - ``--db-port``
+      - ``-p``
+      - ``MARABUNTA_DB_PORT``, ``PGPORT``
+      - Database port (defaults to ``5432``).
+    * - ``--db-host``
+      - ``-H``
+      - ``MARABUNTA_DB_HOST``, ``PGHOST``
+      - Database port (defaults to ``None``).
+    * - ``--mode``
+      -
+      - ``MARABUNTA_MODE``
+      - Mode marabunta runs in for different envs.
+    * - ``--allow-serie``
+      -
+      - ``MARABUNTA_ALLOW_SERIE``
+      - Allow multiple versions to be upgraded at once.
+    * - ``--force-version``
+      -
+      - ``MARABUNTA_FORCE_VERSION``
+      - Force the upgrade to a version no matter what.
+    * - ``--override-translations``
+      -
+      - ``MARABUNTA_OVERRIDE_TRANSLATIONS``
+      - Force translations override.
+    * - ``--web-host``
+      -
+      - ``MARABUNTA_WEB_HOST``
+      - Interface to bind for the maintenance page (defaults to ``0.0.0.0``).
+    * - ``--web-port``
+      -
+      - ``MARABUNTA_WEB_PORT``
+      - Port for the maintenance page (defaults to ``8069``).
+    * - ``--web-custom-html``
+      -
+      - ``MARABUNTA_WEB_CUSTOM_HTML``
+      - Path to custom maintenance html page to serve.
+
 
 YAML layout & Example
 =====================
-Here is an Example migration file::
+Here is an Example migration file:
+
+.. code-block:: yaml
 
     migration:
       options:
@@ -151,16 +188,21 @@ Here is an Example migration file::
               - popeye
 
 
+Development
+===========
+
 Run the tests
 -------------
 
 Tests use `uv <https://docs.astral.sh/uv/>`_ to manage the development
-environment::
+environment:
 
-  $ git clone https://github.com/camptocamp/marabunta.git
-  $ cd marabunta
-  $ uv sync
-  $ uv run pytest
+.. code-block:: bash
+
+  git clone https://github.com/camptocamp/marabunta.git
+  cd marabunta
+  uv sync
+  uv run pytest
 
 
 Pre-commit hooks
@@ -169,12 +211,16 @@ Pre-commit hooks
 This project uses `pre-commit <https://pre-commit.com/>`_ to run ruff
 and other checks before each commit. We recommend
 `prek <https://github.com/j178/prek>`_, a faster drop-in replacement
-written in Rust::
+written in Rust:
 
-  $ uv tool install prek
-  $ prek install
+.. code-block:: bash
+
+  uv tool install prek
+  prek install
 
 From then on the hooks run automatically on ``git commit``. To run them
-on demand::
+on demand:
 
-  $ prek run --all-files
+.. code-block:: bash
+
+  prek run --all-files
