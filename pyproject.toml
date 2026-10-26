@@ -54,6 +54,7 @@ dev = [
     "ruff",
     "twine",
     "psycopg2-binary",
+    "certifi>=2026.10.19",
 ]
 
 [tool.hatch.version]
