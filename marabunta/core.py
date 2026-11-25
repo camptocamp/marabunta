@@ -58,6 +58,10 @@ class ApplicationLock(threading.Thread):
             # with the migration. It will be the first one to win
             # the advisory lock. The others will be flagged as 'replica'.
             while not pg_advisory_lock(cursor, ADVISORY_LOCK_IDENT):
+                if self.stop:
+                    # asked to stop while waiting for the lock (e.g. the
+                    # main thread was interrupted): give up
+                    return
                 if not self.replica:  # print only the first time
                     safe_print("A concurrent process is already running the migration")
                 self.replica = True
