@@ -10,6 +10,9 @@ Unreleased
 
 **Bugfixes**
 
+* Do not hang on Ctrl+C (or any error) while waiting for a concurrent
+  migration to release the advisory lock
+
 **Improvements**
 
 **Build**
