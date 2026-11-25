@@ -49,7 +49,9 @@ class ApplicationLock(threading.Thread):
         self.connection = connection
         self.replica = False
         self.stop = False
-        super().__init__()
+        # daemon: never keep the process alive if the main thread exits
+        # without stopping us (e.g. an uncaught exception or Ctrl+C)
+        super().__init__(daemon=True)
 
     def run(self):
         with self.connection.cursor() as cursor:
