@@ -118,22 +118,22 @@ def migrate(config):
         application_lock = ApplicationLock(lock_connection)
         application_lock.start()
 
-        while not application_lock.acquired:
-            time.sleep(0.5)
-        else:
-            if application_lock.replica:
-                # when a replica could finally acquire a lock, it
-                # means that the concurrent process has finished the
-                # migration or that it failed to run it.
-                # In both cases after the lock is released, this process will
-                # verify if it has still to do something (if the other process
-                # failed mainly).
-                application_lock.stop = True
-                application_lock.join()
-            # we are not in the replica or the lock is released: go on for the
-            # migration
-
         try:
+            while not application_lock.acquired:
+                time.sleep(0.5)
+            else:
+                if application_lock.replica:
+                    # when a replica could finally acquire a lock, it
+                    # means that the concurrent process has finished the
+                    # migration or that it failed to run it.
+                    # In both cases after the lock is released, this process
+                    # will verify if it has still to do something (if the
+                    # other process failed mainly).
+                    application_lock.stop = True
+                    application_lock.join()
+                # we are not in the replica or the lock is released: go on for
+                # the migration
+
             table = MigrationTable(database)
             runner = Runner(config, migration, database, table)
             runner.perform()
